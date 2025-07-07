@@ -1,0 +1,136 @@
+
+{
+  "siteTitle": "TopUp Hub",
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "contact": "Contact Us",
+    "reviews": "Reviews"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Log out",
+    "adminDashboard": "Admin Dashboard"
+  },
+  "login": {
+    "title": "Welcome Back",
+    "description": "Enter your credentials to access your account.",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submitButton": "Sign In",
+    "signingIn": "Signing In...",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Register"
+  },
+  "register": {
+    "title": "Create an Account",
+    "description": "Join our community to start shopping.",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submitButton": "Create Account",
+    "creatingAccount": "Creating Account...",
+    "hasAccount": "Already have an account?",
+    "signInLink": "Sign In"
+  },
+  "cart": {
+    "title": "Your Order",
+    "description": "Review your items and proceed to payment.",
+    "empty": "Your cart is empty.",
+    "total": "Total:",
+    "submit": "Submit Order",
+    "paymentMethod": "Payment Method",
+    "orderPlaced": "Order Placed Successfully!",
+    "orderId": "Your Order ID is",
+    "addItemToastTitle": "Added to order",
+    "addItemToastDescription": "{{productName}} has been added to your order."
+  },
+  "home": {
+    "heroTitle": "Your Digital Marketplace",
+    "heroSubtitle": "Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.",
+    "browseProducts": "Browse Products",
+    "ourProducts": "Our Products",
+    "searchPlaceholder": "Search products...",
+    "all": "All",
+    "noProductsFound": "No products found. Try adjusting your search or filters."
+  },
+  "productCard": {
+    "addToOrder": "Add to Order"
+  },
+  "recommendations": {
+    "title": "Personalized Recommendations",
+    "description": "Tell us about games you like or digital products you've bought before, and our AI will suggest items you might love!",
+    "historyLabel": "Your Purchase History or Interests",
+    "historyPlaceholder": "e.g., 'I often buy Steam wallet codes and enjoy RPG games like Genshin Impact. I also use Spotify for music.'",
+    "getRecommendations": "Get Recommendations",
+    "generating": "Generating...",
+    "suggestions": "Here are some suggestions for you:"
+  },
+  "reviewsSection": {
+    "title": "What Our Customers Say",
+    "description": "Real reviews from our awesome community of gamers and digital enthusiasts.",
+    "leaveReview": "Leave a Review"
+  },
+  "aboutPage": {
+    "title": "About {{siteTitle}}",
+    "subtitle": "We are dedicated to providing a seamless and secure platform for all your digital top-up needs.",
+    "storyTitle": "Our Story",
+    "storyText1": "Founded in {{year}}, {{siteTitle}} started with a simple idea: to make digital purchases easier and more accessible for everyone. We saw a need for a reliable platform where users could quickly top up game credits, buy subscriptions, and purchase digital gift cards without hassle.",
+    "storyText2": "Today, we've grown into a trusted marketplace, serving thousands of customers worldwide. Our commitment to security, speed, and customer satisfaction remains at the core of everything we do.",
+    "whyChooseUs": "Why Choose Us?",
+    "missionTitle": "Our Mission",
+    "missionText": "To provide the fastest, most secure, and user-friendly platform for digital goods and services.",
+    "visionTitle": "Our Vision",
+    "visionText": "To be the world's leading digital marketplace, connecting users with the products they love, instantly.",
+    "valuesTitle": "Our Values",
+    "valuesText": "Customer-centricity, integrity, and innovation drive us forward every day."
+  },
+  "contactPage": {
+    "title": "Get in Touch",
+    "subtitle": "Have questions or feedback? We'd love to hear from you.",
+    "formTitle": "Send us a Message",
+    "formDescription": "Fill out the form and we'll get back to you.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your Name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@email.com",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Your message...",
+    "sendButton": "Send Message",
+    "sendingButton": "Sending...",
+    "messageSentToast": "Message Sent!",
+    "messageSentToastDesc": "Thanks for reaching out. We'll get back to you soon.",
+    "contactInfoTitle": "Contact Information",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address"
+  },
+  "reviewsPage": {
+    "title": "Customer Reviews",
+    "subtitle": "See what our community is saying about their experience.",
+    "fromReviews": "from {{count}} reviews",
+    "leaveReview": "Leave Your Own Review",
+    "viewProof": "View Proof",
+    "proofTitle": "Review Proof",
+    "proofDescription": "Image uploaded by the reviewer.",
+    "close": "Close"
+  },
+  "reviewForm": {
+    "title": "Share Your Feedback",
+    "description": "We'd love to hear about your experience with our products.",
+    "nameLabel": "Your Name",
+    "productLabel": "Product Reviewed",
+    "productPlaceholder": "Select a product",
+    "ratingLabel": "Rating",
+    "reviewLabel": "Your Review",
+    "reviewPlaceholder": "Share your experience...",
+    "proofLabel": "Upload Proof (Optional)",
+    "submitButton": "Submit Review",
+    "submittedToast": "Review Submitted!",
+    "submittedToastDesc": "Thank you for your feedback."
+  },
+  "footer": {
+    "copyright": "© {{year}} TopUp Hub. All Rights Reserved."
+  }
+}

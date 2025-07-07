@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from 'react'
@@ -12,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Loader2, Sparkles } from 'lucide-react'
 import { Skeleton } from './ui/skeleton'
+import { useTranslation } from '@/hooks/use-translation'
 
 const recommendationSchema = z.object({
   purchaseHistory: z.string().min(10, "Please describe your past purchases in a bit more detail."),
@@ -21,6 +23,7 @@ export function Recommendations() {
   const [recommendations, setRecommendations] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof recommendationSchema>>({
     resolver: zodResolver(recommendationSchema),
@@ -51,10 +54,10 @@ export function Recommendations() {
       <CardHeader>
         <div className="flex items-center gap-3">
             <Sparkles className="w-8 h-8 text-accent"/>
-            <CardTitle className="text-2xl font-headline">Personalized Recommendations</CardTitle>
+            <CardTitle className="text-2xl font-headline">{t('recommendations.title')}</CardTitle>
         </div>
         <CardDescription>
-          Tell us about games you like or digital products you've bought before, and our AI will suggest items you might love!
+          {t('recommendations.description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -65,10 +68,10 @@ export function Recommendations() {
               name="purchaseHistory"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Your Purchase History or Interests</FormLabel>
+                  <FormLabel>{t('recommendations.historyLabel')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="e.g., 'I often buy Steam wallet codes and enjoy RPG games like Genshin Impact. I also use Spotify for music.'"
+                      placeholder={t('recommendations.historyPlaceholder')}
                       className="resize-none"
                       rows={4}
                       {...field}
@@ -82,12 +85,12 @@ export function Recommendations() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
+                  {t('recommendations.generating')}
                 </>
               ) : (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Get Recommendations
+                  {t('recommendations.getRecommendations')}
                 </>
               )}
             </Button>
@@ -104,7 +107,7 @@ export function Recommendations() {
           {error && <p className="text-destructive">{error}</p>}
           {recommendations && (
             <div className="p-4 bg-secondary/50 rounded-lg border">
-                <h4 className="font-semibold mb-2">Here are some suggestions for you:</h4>
+                <h4 className="font-semibold mb-2">{t('recommendations.suggestions')}</h4>
                 <p className="text-sm whitespace-pre-wrap">{recommendations}</p>
             </div>
           )}

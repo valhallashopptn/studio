@@ -1,0 +1,136 @@
+
+{
+  "siteTitle": "توب أب هاب",
+  "nav": {
+    "home": "الرئيسية",
+    "about": "من نحن",
+    "contact": "اتصل بنا",
+    "reviews": "التقييمات"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "adminDashboard": "لوحة التحكم"
+  },
+  "login": {
+    "title": "مرحباً بعودتك",
+    "description": "أدخل بياناتك للوصول إلى حسابك.",
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "submitButton": "تسجيل الدخول",
+    "signingIn": "جارٍ تسجيل الدخول...",
+    "noAccount": "ليس لديك حساب؟",
+    "registerLink": "إنشاء حساب"
+  },
+  "register": {
+    "title": "إنشاء حساب",
+    "description": "انضم إلى مجتمعنا لبدء التسوق.",
+    "nameLabel": "الاسم",
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "submitButton": "إنشاء حساب",
+    "creatingAccount": "جارٍ إنشاء الحساب...",
+    "hasAccount": "هل لديك حساب بالفعل؟",
+    "signInLink": "تسجيل الدخول"
+  },
+  "cart": {
+    "title": "طلبك",
+    "description": "راجع مشترياتك وتابع للدفع.",
+    "empty": "عربة التسوق فارغة.",
+    "total": "المجموع:",
+    "submit": "إرسال الطلب",
+    "paymentMethod": "طريقة الدفع",
+    "orderPlaced": "تم وضع الطلب بنجاح!",
+    "orderId": "رقم طلبك هو",
+    "addItemToastTitle": "أُضيف إلى الطلب",
+    "addItemToastDescription": "تمت إضافة {{productName}} إلى طلبك."
+  },
+  "home": {
+    "heroTitle": "سوقك الرقمي",
+    "heroSubtitle": "شحن فوري لألعابك ومنتجاتك الرقمية المفضلة. خدمة سريعة وآمنة وموثوقة في متناول يدك.",
+    "browseProducts": "تصفح المنتجات",
+    "ourProducts": "منتجاتنا",
+    "searchPlaceholder": "ابحث عن منتجات...",
+    "all": "الكل",
+    "noProductsFound": "لم يتم العثور على منتجات. حاول تعديل البحث أو الفلاتر."
+  },
+  "productCard": {
+    "addToOrder": "أضف للطلب"
+  },
+  "recommendations": {
+    "title": "توصيات مخصصة",
+    "description": "أخبرنا عن الألعاب التي تحبها أو المنتجات الرقمية التي اشتريتها من قبل، وسيقترح الذكاء الاصطناعي لدينا عناصر قد تحبها!",
+    "historyLabel": "سجل مشترياتك أو اهتماماتك",
+    "historyPlaceholder": "مثال: 'أشتري غالبًا أكواد محفظة Steam وأستمتع بألعاب RPG مثل Genshin Impact. أستخدم Spotify أيضًا للموسيقى.'",
+    "getRecommendations": "احصل على توصيات",
+    "generating": "جارٍ الإنشاء...",
+    "suggestions": "إليك بعض الاقتراحات لك:"
+  },
+  "reviewsSection": {
+    "title": "ماذا يقول عملاؤنا",
+    "description": "تقييمات حقيقية من مجتمعنا الرائع من اللاعبين وعشاق المحتوى الرقمي.",
+    "leaveReview": "اترك تقييمًا"
+  },
+  "aboutPage": {
+    "title": "عن {{siteTitle}}",
+    "subtitle": "نحن ملتزمون بتوفير منصة سلسة وآمنة لجميع احتياجات الشحن الرقمي الخاصة بك.",
+    "storyTitle": "قصتنا",
+    "storyText1": "تأسست {{siteTitle}} في عام {{year}} بفكرة بسيطة: جعل المشتريات الرقمية أسهل وأكثر سهولة للجميع. رأينا حاجة إلى منصة موثوقة حيث يمكن للمستخدمين شحن رصيد الألعاب وشراء الاشتراكات وبطاقات الهدايا الرقمية بسرعة وبدون متاعب.",
+    "storyText2": "اليوم، نمونا لنصبح سوقًا موثوقًا به، نخدم آلاف العملاء في جميع أنحاء العالم. يظل التزامنا بالأمان والسرعة ورضا العملاء في صميم كل ما نقوم به.",
+    "whyChooseUs": "لماذا تختارنا؟",
+    "missionTitle": "مهمتنا",
+    "missionText": "توفير أسرع منصة وأكثرها أمانًا وسهولة في الاستخدام للسلع والخدمات الرقمية.",
+    "visionTitle": "رؤيتنا",
+    "visionText": "أن نكون السوق الرقمي الرائد في العالم، وربط المستخدمين بالمنتجات التي يحبونها، على الفور.",
+    "valuesTitle": "قيمنا",
+    "valuesText": "التركيز على العملاء والنزاهة والابتكار يدفعنا إلى الأمام كل يوم."
+  },
+  "contactPage": {
+    "title": "تواصل معنا",
+    "subtitle": "هل لديك أسئلة أو ملاحظات؟ نود أن نسمع منك.",
+    "formTitle": "أرسل لنا رسالة",
+    "formDescription": "املأ النموذج وسنعاود الاتصال بك.",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "اسمك",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "your@email.com",
+    "messageLabel": "الرسالة",
+    "messagePlaceholder": "رسالتك...",
+    "sendButton": "إرسال الرسالة",
+    "sendingButton": "جارٍ الإرسال...",
+    "messageSentToast": "تم إرسال الرسالة!",
+    "messageSentToastDesc": "شكراً لتواصلك معنا. سنرد عليك قريباً.",
+    "contactInfoTitle": "معلومات الاتصال",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "address": "العنوان"
+  },
+  "reviewsPage": {
+    "title": "تقييمات العملاء",
+    "subtitle": "شاهد ما يقوله مجتمعنا عن تجربتهم.",
+    "fromReviews": "من {{count}} تقييمات",
+    "leaveReview": "اترك تقييمك الخاص",
+    "viewProof": "عرض الإثبات",
+    "proofTitle": "إثبات المراجعة",
+    "proofDescription": "صورة تم تحميلها من قبل المراجع.",
+    "close": "إغلاق"
+  },
+  "reviewForm": {
+    "title": "شاركنا رأيك",
+    "description": "نود أن نسمع عن تجربتك مع منتجاتنا.",
+    "nameLabel": "اسمك",
+    "productLabel": "المنتج المقيم",
+    "productPlaceholder": "اختر منتجًا",
+    "ratingLabel": "التقييم",
+    "reviewLabel": "مراجعتك",
+    "reviewPlaceholder": "شارك تجربتك...",
+    "proofLabel": "تحميل إثبات (اختياري)",
+    "submitButton": "إرسال المراجعة",
+    "submittedToast": "تم إرسال المراجعة!",
+    "submittedToastDesc": "شكرا لك على ملاحظاتك."
+  },
+  "footer": {
+    "copyright": "© {{year}} توب أب هاب. كل الحقوق محفوظة."
+  }
+}

@@ -13,6 +13,7 @@ export default {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         mono: ['"Roboto Mono"', 'monospace'],
+        cairo: ['Cairo', 'sans-serif'],
         body: ['var(--font-family)', 'sans-serif'],
         headline: ['var(--font-family)', 'sans-serif'],
       },

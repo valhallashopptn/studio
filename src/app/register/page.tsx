@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -16,6 +17,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { UserPlus } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -27,6 +29,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { register } = useAuth();
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof registerSchema>>({
@@ -67,8 +70,8 @@ export default function RegisterPage() {
              <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
               <UserPlus className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle>Create an Account</CardTitle>
-            <CardDescription>Join our community to start shopping.</CardDescription>
+            <CardTitle>{t('register.title')}</CardTitle>
+            <CardDescription>{t('register.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -78,7 +81,7 @@ export default function RegisterPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{t('register.nameLabel')}</FormLabel>
                       <FormControl>
                         <Input placeholder="Your Name" {...field} />
                       </FormControl>
@@ -91,7 +94,7 @@ export default function RegisterPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t('register.emailLabel')}</FormLabel>
                       <FormControl>
                         <Input type="email" placeholder="your@email.com" {...field} />
                       </FormControl>
@@ -104,7 +107,7 @@ export default function RegisterPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t('register.passwordLabel')}</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
@@ -113,14 +116,14 @@ export default function RegisterPage() {
                   )}
                 />
                 <Button type="submit" disabled={isSubmitting} className="w-full">
-                  {isSubmitting ? 'Creating Account...' : 'Create Account'}
+                  {isSubmitting ? t('register.creatingAccount') : t('register.submitButton')}
                 </Button>
               </form>
             </Form>
             <div className="mt-4 text-center text-sm">
-              Already have an account?{' '}
+              {t('register.hasAccount')}{' '}
               <Link href="/login" className="underline">
-                Sign In
+                {t('register.signInLink')}
               </Link>
             </div>
           </CardContent>

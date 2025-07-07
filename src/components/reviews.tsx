@@ -27,6 +27,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ReviewForm } from "./review-form";
+import { useTranslation } from "@/hooks/use-translation";
 
 
 function ReviewCard({ review }: { review: Review }) {
@@ -57,6 +58,7 @@ function ReviewCard({ review }: { review: Review }) {
 
 export function Reviews() {
     const { reviews } = useReviews();
+    const { t } = useTranslation();
     const [isFormOpen, setIsFormOpen] = React.useState(false);
     const plugin = React.useRef(
         Autoplay({ delay: 4000, stopOnInteraction: true })
@@ -69,8 +71,8 @@ export function Reviews() {
   return (
     <section id="reviews" className="w-full py-16 bg-secondary/30">
       <div className="container mx-auto text-center">
-        <h2 className="text-3xl font-bold mb-2 font-headline">What Our Customers Say</h2>
-        <p className="text-muted-foreground mb-12 max-w-2xl mx-auto">Real reviews from our awesome community of gamers and digital enthusiasts.</p>
+        <h2 className="text-3xl font-bold mb-2 font-headline">{t('reviewsSection.title')}</h2>
+        <p className="text-muted-foreground mb-12 max-w-2xl mx-auto">{t('reviewsSection.description')}</p>
         
         <Carousel
           plugins={[plugin.current]}
@@ -99,14 +101,14 @@ export function Reviews() {
             <DialogTrigger asChild>
                 <Button className="mt-12">
                     <MessageSquarePlus className="mr-2 h-5 w-5" />
-                    Leave a Review
+                    {t('reviewsSection.leaveReview')}
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Share Your Feedback</DialogTitle>
+                    <DialogTitle>{t('reviewForm.title')}</DialogTitle>
                     <DialogDescription>
-                        We'd love to hear about your experience with our products.
+                        {t('reviewForm.description')}
                     </DialogDescription>
                 </DialogHeader>
                 <ReviewForm onReviewSubmitted={handleReviewSubmitted} />

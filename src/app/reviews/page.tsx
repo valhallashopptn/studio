@@ -22,10 +22,12 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
+import { useTranslation } from '@/hooks/use-translation';
 
 
 export default function ReviewsPage() {
     const { reviews } = useReviews();
+    const { t } = useTranslation();
     const [isMounted, setIsMounted] = useState(false);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedProof, setSelectedProof] = useState<string | null>(null);
@@ -56,9 +58,9 @@ export default function ReviewsPage() {
             <main className="flex-1">
                 <section className="bg-primary/10 py-16 text-center overflow-hidden">
                     <div className={`container mx-auto px-4 ${animationClass(0)}`}>
-                        <h1 className="text-4xl font-bold font-headline text-primary">Customer Reviews</h1>
+                        <h1 className="text-4xl font-bold font-headline text-primary">{t('reviewsPage.title')}</h1>
                         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-                            See what our community is saying about their experience.
+                            {t('reviewsPage.subtitle')}
                         </p>
 
                         {isMounted && reviews.length > 0 && (
@@ -71,7 +73,7 @@ export default function ReviewsPage() {
                                     </div>
                                     <div className="flex items-baseline gap-2">
                                       <span className="font-semibold text-lg">{averageRating.toFixed(1)}</span>
-                                      <span className="text-muted-foreground">from {totalReviews} reviews</span>
+                                      <span className="text-muted-foreground">{t('reviewsPage.fromReviews', { count: totalReviews })}</span>
                                     </div>
                                 </div>
                             </div>
@@ -81,14 +83,14 @@ export default function ReviewsPage() {
                             <DialogTrigger asChild>
                                 <Button className={`mt-8 ${animationClass(200)}`}>
                                     <MessageSquarePlus className="mr-2 h-5 w-5" />
-                                    Leave Your Own Review
+                                    {t('reviewsPage.leaveReview')}
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-md">
                                 <DialogHeader>
-                                    <DialogTitle>Share Your Feedback</DialogTitle>
+                                    <DialogTitle>{t('reviewForm.title')}</DialogTitle>
                                     <DialogDescription>
-                                        We'd love to hear about your experience with our products.
+                                        {t('reviewForm.description')}
                                     </DialogDescription>
                                 </DialogHeader>
                                 <ReviewForm onReviewSubmitted={handleReviewSubmitted} />
@@ -124,7 +126,7 @@ export default function ReviewsPage() {
                                         <CardFooter>
                                             <Button variant="outline" className="w-full" onClick={() => setSelectedProof(review.proofImage!)}>
                                                 <Eye className="mr-2 h-4 w-4" />
-                                                View Proof
+                                                {t('reviewsPage.viewProof')}
                                             </Button>
                                         </CardFooter>
                                     )}
@@ -138,9 +140,9 @@ export default function ReviewsPage() {
             <AlertDialog open={!!selectedProof} onOpenChange={() => setSelectedProof(null)}>
                 <AlertDialogContent className="max-w-3xl">
                      <AlertDialogHeader>
-                        <AlertDialogTitle>Review Proof</AlertDialogTitle>
+                        <AlertDialogTitle>{t('reviewsPage.proofTitle')}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Image uploaded by the reviewer.
+                            {t('reviewsPage.proofDescription')}
                         </AlertDialogDescription>
                      </AlertDialogHeader>
                      {selectedProof && (
@@ -149,7 +151,7 @@ export default function ReviewsPage() {
                         </div>
                      )}
                      <AlertDialogFooter>
-                        <AlertDialogAction onClick={() => setSelectedProof(null)}>Close</AlertDialogAction>
+                        <AlertDialogAction onClick={() => setSelectedProof(null)}>{t('reviewsPage.close')}</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -16,6 +17,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { Flame } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address.'),
@@ -26,6 +28,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { login, isAdmin } = useAuth();
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -69,8 +72,8 @@ export default function LoginPage() {
             <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
               <Flame className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>Enter your credentials to access your account.</CardDescription>
+            <CardTitle>{t('login.title')}</CardTitle>
+            <CardDescription>{t('login.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -80,7 +83,7 @@ export default function LoginPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t('login.emailLabel')}</FormLabel>
                       <FormControl>
                         <Input placeholder="admin@topuphub.com" {...field} />
                       </FormControl>
@@ -93,7 +96,7 @@ export default function LoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t('login.passwordLabel')}</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="admin" {...field} />
                       </FormControl>
@@ -102,14 +105,14 @@ export default function LoginPage() {
                   )}
                 />
                 <Button type="submit" disabled={isSubmitting} className="w-full">
-                  {isSubmitting ? 'Signing In...' : 'Sign In'}
+                  {isSubmitting ? t('login.signingIn') : t('login.submitButton')}
                 </Button>
               </form>
             </Form>
             <div className="mt-4 text-center text-sm">
-              Don't have an account?{' '}
+              {t('login.noAccount')}{' '}
               <Link href="/register" className="underline">
-                Register
+                {t('login.registerLink')}
               </Link>
             </div>
           </CardContent>

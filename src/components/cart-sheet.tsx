@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -31,6 +32,7 @@ import { paymentMethods } from '@/lib/data';
 import type { PaymentMethod } from '@/lib/types';
 import { Minus, Plus, Trash2, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from '@/hooks/use-translation';
 
 
 interface CartSheetProps {
@@ -74,6 +76,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const [isConfirmOpen, setConfirmOpen] = useState(false);
   const [orderId, setOrderId] = useState('');
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const total = useMemo(() =>
     items.reduce((acc, item) => acc + item.price * item.quantity, 0),
@@ -112,8 +115,8 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
         <SheetContent className="flex flex-col w-full sm:max-w-lg">
           <SheetHeader>
-            <SheetTitle>Your Order</SheetTitle>
-            <SheetDescription>Review your items and proceed to payment.</SheetDescription>
+            <SheetTitle>{t('cart.title')}</SheetTitle>
+            <SheetDescription>{t('cart.description')}</SheetDescription>
           </SheetHeader>
           <Separator />
           <div className="flex-1">
@@ -144,7 +147,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
               </ScrollArea>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                <p>Your cart is empty.</p>
+                <p>{t('cart.empty')}</p>
               </div>
             )}
           </div>
@@ -152,7 +155,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
             <>
               <Separator />
               <div className="p-4 space-y-4 bg-secondary/50 rounded-lg">
-                <h4 className="font-semibold">Payment Method</h4>
+                <h4 className="font-semibold">{t('cart.paymentMethod')}</h4>
                 <RadioGroup onValueChange={(id) => setSelectedPayment(paymentMethods.find(p => p.id === id) || null)}>
                   {paymentMethods.map(method => (
                     <div key={method.id} className="flex items-center space-x-2">
@@ -173,11 +176,11 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
               <SheetFooter className="mt-auto">
                 <div className="w-full space-y-4">
                   <div className="flex justify-between items-center text-lg font-bold">
-                    <span>Total:</span>
+                    <span>{t('cart.total')}</span>
                     <span className="text-primary">${total.toFixed(2)}</span>
                   </div>
                   <Button onClick={handleSubmitOrder} className="w-full" size="lg">
-                    Submit Order
+                    {t('cart.submit')}
                   </Button>
                 </div>
               </SheetFooter>
@@ -189,9 +192,9 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
       <AlertDialog open={isConfirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Order Placed Successfully!</AlertDialogTitle>
+            <AlertDialogTitle>{t('cart.orderPlaced')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Your Order ID is <span className="font-bold text-primary">{orderId}</span>.
+              {t('cart.orderId')} <span className="font-bold text-primary">{orderId}</span>.
               Please follow the payment instructions below to complete your purchase.
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -21,14 +21,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import Image from 'next/image';
+import { LanguageSwitcher } from './language-switcher';
+import { useTranslation } from '@/hooks/use-translation';
 
-
-const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/about', label: 'About Us' },
-    { href: '/contact', label: 'Contact Us' },
-    { href: '/reviews', label: 'Reviews' },
-];
 
 export function AppHeader() {
   const [isSheetOpen, setSheetOpen] = useState(false);
@@ -37,6 +32,14 @@ export function AppHeader() {
   const { logoUrl, siteTitle } = useSiteSettings();
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useTranslation();
+
+  const navLinks = [
+    { href: '/', label: t('nav.home') },
+    { href: '/about', label: t('nav.about') },
+    { href: '/contact', label: t('nav.contact') },
+    { href: '/reviews', label: t('nav.reviews') },
+  ];
 
   const [totalItems, setTotalItems] = useState(0);
 
@@ -77,7 +80,8 @@ export function AppHeader() {
               ))}
             </nav>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
@@ -109,22 +113,22 @@ export function AppHeader() {
                   {isAdmin && (
                     <DropdownMenuItem onClick={() => router.push('/admin')}>
                       <Shield className="mr-2 h-4 w-4" />
-                      <span>Admin Dashboard</span>
+                      <span>{t('auth.adminDashboard')}</span>
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>{t('auth.logout')}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
                 <div className="flex items-center gap-2">
                     <Button asChild variant="ghost" size="sm">
-                        <Link href="/login">Login</Link>
+                        <Link href="/login">{t('auth.login')}</Link>
                     </Button>
                     <Button asChild size="sm">
-                         <Link href="/register">Register</Link>
+                         <Link href="/register">{t('auth.register')}</Link>
                     </Button>
                 </div>
             )}

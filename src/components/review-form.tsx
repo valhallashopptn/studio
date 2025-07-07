@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -16,6 +17,7 @@ import { Star } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import type React from 'react';
+import { useTranslation } from '@/hooks/use-translation';
 
 const reviewSchema = z.object({
   name: z.string().min(2, 'Name is required.'),
@@ -29,6 +31,7 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
   const { addReview } = useReviews();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [hoverRating, setHoverRating] = useState(0);
 
   const form = useForm<z.infer<typeof reviewSchema>>({
@@ -66,8 +69,8 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
   function onSubmit(values: z.infer<typeof reviewSchema>) {
     addReview(values);
     toast({
-      title: 'Review Submitted!',
-      description: 'Thank you for your feedback.',
+      title: t('reviewForm.submittedToast'),
+      description: t('reviewForm.submittedToastDesc'),
     });
     form.reset({ name: isAuthenticated && user ? user.name : '', product: '', rating: 0, text: '', proofImage: '' });
     onReviewSubmitted();
@@ -81,7 +84,7 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Your Name</FormLabel>
+              <FormLabel>{t('reviewForm.nameLabel')}</FormLabel>
               <FormControl>
                 <Input placeholder="John Doe" {...field} />
               </FormControl>
@@ -94,11 +97,11 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
           name="product"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Product Reviewed</FormLabel>
+              <FormLabel>{t('reviewForm.productLabel')}</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a product" />
+                    <SelectValue placeholder={t('reviewForm.productPlaceholder')} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -118,7 +121,7 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
           name="rating"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Rating</FormLabel>
+              <FormLabel>{t('reviewForm.ratingLabel')}</FormLabel>
               <FormControl>
                  <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
                     {[...Array(5)].map((_, index) => {
@@ -148,16 +151,16 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
           name="text"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Your Review</FormLabel>
+              <FormLabel>{t('reviewForm.reviewLabel')}</FormLabel>
               <FormControl>
-                <Textarea placeholder="Share your experience..." {...field} rows={4} />
+                <Textarea placeholder={t('reviewForm.reviewPlaceholder')} {...field} rows={4} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <FormItem>
-            <FormLabel>Upload Proof (Optional)</FormLabel>
+            <FormLabel>{t('reviewForm.proofLabel')}</FormLabel>
             <FormControl>
                 <Input
                     type="file"
@@ -167,7 +170,7 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
                 />
             </FormControl>
         </FormItem>
-        <Button type="submit">Submit Review</Button>
+        <Button type="submit">{t('reviewForm.submitButton')}</Button>
       </form>
     </Form>
   );
