@@ -33,4 +33,5 @@ export interface Review {
   rating: number;
   text: string;
   product: string;
+  proofImage?: string;
 }

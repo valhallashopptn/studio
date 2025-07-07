@@ -24,6 +24,7 @@ const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About Us' },
     { href: '/contact', label: 'Contact Us' },
+    { href: '/reviews', label: 'Reviews' },
 ];
 
 export function AppHeader() {

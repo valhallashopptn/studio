@@ -15,12 +15,14 @@ import { products } from '@/lib/data';
 import { Star } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import type React from 'react';
 
 const reviewSchema = z.object({
   name: z.string().min(2, 'Name is required.'),
   product: z.string().min(1, 'Please select a product.'),
   rating: z.number().min(1, 'Rating is required.').max(5),
   text: z.string().min(10, 'Review must be at least 10 characters.'),
+  proofImage: z.string().optional(),
 });
 
 export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => void }) {
@@ -36,6 +38,7 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
       product: '',
       rating: 0,
       text: '',
+      proofImage: '',
     },
   });
 
@@ -47,13 +50,26 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
 
   const currentRating = form.watch('rating');
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          form.setValue('proofImage', reader.result, { shouldValidate: true });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   function onSubmit(values: z.infer<typeof reviewSchema>) {
     addReview(values);
     toast({
       title: 'Review Submitted!',
       description: 'Thank you for your feedback.',
     });
-    form.reset({ name: isAuthenticated && user ? user.name : '', product: '', rating: 0, text: '' });
+    form.reset({ name: isAuthenticated && user ? user.name : '', product: '', rating: 0, text: '', proofImage: '' });
     onReviewSubmitted();
   }
 
@@ -140,6 +156,17 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
             </FormItem>
           )}
         />
+        <FormItem>
+            <FormLabel>Upload Proof (Optional)</FormLabel>
+            <FormControl>
+                <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="file:text-primary file:font-semibold"
+                />
+            </FormControl>
+        </FormItem>
         <Button type="submit">Submit Review</Button>
       </form>
     </Form>
