@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { ProductCard } from '@/components/product-card';
 import { Recommendations } from '@/components/recommendations';
@@ -14,6 +14,11 @@ export default function Home() {
   const [isCartOpen, setCartOpen] = useState(false);
   const addItemToCart = useCart((state) => state.addItem);
   const { toast } = useToast();
+  const [year, setYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
 
   const handleAddToCart = (product: Product) => {
     addItemToCart(product);
@@ -45,7 +50,7 @@ export default function Home() {
         </section>
       </main>
       <footer className="py-6 bg-secondary text-secondary-foreground text-center text-sm">
-        <p>&copy; {new Date().getFullYear()} TopUp Hub. All Rights Reserved.</p>
+        <p>&copy; {year} TopUp Hub. All Rights Reserved.</p>
       </footer>
     </div>
   );

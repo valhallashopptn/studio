@@ -38,6 +38,36 @@ interface CartSheetProps {
   onOpenChange: (isOpen: boolean) => void;
 }
 
+const PaymentInstructions = ({ method }: { method: PaymentMethod | null }) => {
+    if (!method) return null;
+
+    if (method.id === 'bank_transfer') {
+        return (
+            <div className="text-sm space-y-2">
+                <p>Please transfer the total amount to the following bank account:</p>
+                <p><strong>Bank:</strong> First National Bank</p>
+                <p><strong>Account Name:</strong> TopUp Hub Inc.</p>
+                <p><strong>Account Number:</strong> 123-456-7890</p>
+                <p className="font-semibold">Please include your Order ID in the transaction description.</p>
+            </div>
+        );
+    }
+
+    if (method.id === 'e_wallet') {
+        return (
+            <div className="text-sm space-y-2">
+                <p>Please send the total amount to the following e-wallet account:</p>
+                <p><strong>Service:</strong> PayNow</p>
+                <p><strong>Recipient Name:</strong> TopUp Hub</p>
+                <p><strong>Phone Number:</strong> +1 987 654 3210</p>
+                <p className="font-semibold">Please include your Order ID in the payment reference.</p>
+            </div>
+        );
+    }
+
+    return null;
+};
+
 export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { items, removeItem, updateQuantity, clearCart } = useCart();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
@@ -136,7 +166,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                 </RadioGroup>
                 {selectedPayment && (
                     <div className="mt-4 p-3 bg-background rounded-md border text-sm">
-                        {selectedPayment.instructions}
+                        <PaymentInstructions method={selectedPayment} />
                     </div>
                 )}
               </div>
@@ -171,7 +201,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                     <selectedPayment.icon className="h-5 w-5" />
                     {selectedPayment.name} Instructions
                 </h4>
-                {selectedPayment.instructions}
+                <PaymentInstructions method={selectedPayment} />
             </div>
           )}
           <AlertDialogFooter>

@@ -37,6 +37,7 @@ export async function personalizedRecommendations(
 
 const prompt = ai.definePrompt({
   name: 'personalizedRecommendationsPrompt',
+  model: 'googleai/gemini-2.0-flash',
   input: {schema: PersonalizedRecommendationsInputSchema},
   output: {schema: PersonalizedRecommendationsOutputSchema},
   prompt: `You are an expert recommendation system specializing in suggesting products to users based on their past purchase history.

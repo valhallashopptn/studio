@@ -16,5 +16,4 @@ export interface PaymentMethod {
     id: string;
     name: string;
     icon: React.ComponentType<{ className?: string }>;
-    instructions: React.ReactNode;
 }
