@@ -20,9 +20,11 @@ export default function Home() {
   const [year, setYear] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setYear(new Date().getFullYear());
+    setIsMounted(true);
   }, []);
 
   const handleAddToCart = (product: Product) => {
@@ -40,18 +42,20 @@ export default function Home() {
       return matchesCategory && matchesSearch;
     });
   }, [searchTerm, selectedCategory]);
+
+  const animationClass = isMounted ? 'opacity-0 animate-fade-in-up [animation-fill-mode:forwards]' : 'opacity-0';
   
   return (
     <div className="flex flex-col min-h-screen">
       <AppHeader />
       <main className="flex-1">
-        <section className="bg-secondary/50 py-20 mb-16">
+        <section className="bg-secondary/50 py-20 mb-16 overflow-hidden">
             <div className="container mx-auto px-4 text-center">
-                <h1 className="text-4xl md:text-6xl font-bold font-headline mb-4">Your Digital Marketplace</h1>
-                <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+                <h1 className={`text-4xl md:text-6xl font-bold font-headline mb-4 ${animationClass}`}>Your Digital Marketplace</h1>
+                <p className={`text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8 ${animationClass} [animation-delay:200ms]`}>
                     Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.
                 </p>
-                <Button size="lg" onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}>
+                <Button size="lg" onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })} className={`${animationClass} [animation-delay:400ms]`}>
                     Browse Products
                 </Button>
             </div>
@@ -87,12 +91,13 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {filteredProducts.length > 0 ? (
-                    filteredProducts.map((product) => (
-                    <ProductCard 
-                        key={product.id} 
-                        product={product} 
-                        onAddToCart={() => handleAddToCart(product)}
-                    />
+                    filteredProducts.map((product, index) => (
+                    <div key={product.id} className={animationClass} style={{animationDelay: `${400 + index * 100}ms`}}>
+                        <ProductCard 
+                            product={product} 
+                            onAddToCart={() => handleAddToCart(product)}
+                        />
+                    </div>
                     ))
                 ) : (
                     <p className="col-span-full text-center text-muted-foreground">No products found. Try adjusting your search or filters.</p>

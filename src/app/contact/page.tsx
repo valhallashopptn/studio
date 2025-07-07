@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,11 @@ export default function ContactPage() {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const year = new Date().getFullYear();
 
@@ -35,18 +40,20 @@ export default function ContactPage() {
         }, 1000);
     };
 
+    const animationClass = isMounted ? 'opacity-0 animate-fade-in-up [animation-fill-mode:forwards]' : 'opacity-0';
+
     return (
         <div className="flex flex-col min-h-screen">
             <AppHeader />
-            <main className="flex-1 container mx-auto px-4 py-16">
-                <div className="text-center mb-12">
+            <main className="flex-1 container mx-auto px-4 py-16 overflow-hidden">
+                <div className={`text-center mb-12 ${animationClass}`}>
                     <h1 className="text-4xl font-bold font-headline text-primary">Get in Touch</h1>
                     <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
                         Have questions or feedback? We'd love to hear from you.
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-12">
+                <div className={`grid md:grid-cols-2 gap-12 ${animationClass} [animation-delay:200ms]`}>
                     <Card>
                         <CardHeader>
                             <CardTitle>Send us a Message</CardTitle>

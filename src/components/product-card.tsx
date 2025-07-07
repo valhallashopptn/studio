@@ -26,7 +26,7 @@ const categoryIcons = {
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   return (
-    <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full hover:border-primary/50">
       <CardHeader>
         <div className="flex justify-between items-start">
             <CardTitle className="font-headline text-lg mb-2">{product.name}</CardTitle>
