@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useReviews } from '@/hooks/use-reviews';
 import { AppHeader } from '@/components/app-header';
@@ -34,6 +34,16 @@ export default function ReviewsPage() {
         setIsMounted(true);
     }, []);
 
+    const { totalReviews, averageRating } = useMemo(() => {
+        if (!reviews || reviews.length === 0) {
+            return { totalReviews: 0, averageRating: 0 };
+        }
+        const total = reviews.reduce((acc, review) => acc + review.rating, 0);
+        const average = total / reviews.length;
+        return { totalReviews: reviews.length, averageRating: average };
+    }, [reviews]);
+
+
     const handleReviewSubmitted = () => {
         setIsFormOpen(false);
     };
@@ -50,6 +60,23 @@ export default function ReviewsPage() {
                         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
                             See what our community is saying about their experience.
                         </p>
+
+                        {isMounted && reviews.length > 0 && (
+                             <div className={`mt-8 flex justify-center items-center gap-6 ${animationClass(100)}`}>
+                                <div className="flex items-center gap-4 p-3 bg-background/50 rounded-full border shadow-sm">
+                                    <div className="flex items-center">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star key={i} className={`h-6 w-6 ${i < Math.round(averageRating) ? 'text-accent fill-accent' : 'text-muted-foreground/30'}`} />
+                                        ))}
+                                    </div>
+                                    <div className="flex items-baseline gap-2">
+                                      <span className="font-semibold text-lg">{averageRating.toFixed(1)}</span>
+                                      <span className="text-muted-foreground">from {totalReviews} reviews</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
                          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
                             <DialogTrigger asChild>
                                 <Button className={`mt-8 ${animationClass(200)}`}>
