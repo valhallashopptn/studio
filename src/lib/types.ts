@@ -25,3 +25,12 @@ export interface User {
   password?: string;
   isAdmin?: boolean;
 }
+
+export interface Review {
+  id: string;
+  name: string;
+  avatar: string;
+  rating: number;
+  text: string;
+  product: string;
+}

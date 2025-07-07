@@ -1,4 +1,4 @@
-import type { Product, PaymentMethod } from '@/lib/types';
+import type { Product, PaymentMethod, Review } from '@/lib/types';
 import { Landmark, Wallet } from 'lucide-react';
 
 export let products: Product[] = [
@@ -88,5 +88,49 @@ export let paymentMethods: PaymentMethod[] = [
         icon: Wallet,
     }
 ];
+
+export const reviews: Review[] = [
+  {
+    id: 'rev_001',
+    name: 'GamerXPro',
+    avatar: 'https://placehold.co/100x100.png',
+    rating: 5,
+    text: "TopUp Hub is my go-to for Mobile Legends diamonds. The process is incredibly fast and I get my diamonds instantly. Highly recommended!",
+    product: 'Mobile Legends Diamonds',
+  },
+  {
+    id: 'rev_002',
+    name: 'StreamQueen',
+    avatar: 'https://placehold.co/100x100.png',
+    rating: 5,
+    text: "I was hesitant at first, but buying my Netflix sub here was seamless. Cheaper and faster than other places. I'm a customer for life!",
+    product: 'Netflix Subscription',
+  },
+  {
+    id: 'rev_003',
+    name: 'PC_Master_Race',
+    avatar: 'https://placehold.co/100x100.png',
+    rating: 4,
+    text: "Got my Steam Wallet code within minutes. The site is easy to navigate. Would be 5 stars if they had more obscure indie game cards.",
+    product: 'Steam Wallet Code',
+  },
+  {
+    id: 'rev_004',
+    name: 'K-PopLover',
+    avatar: 'https://placehold.co/100x100.png',
+    rating: 5,
+    text: "Needed Spotify Premium ASAP and TopUp Hub delivered. The whole process took less than 2 minutes. Super impressive service!",
+    product: 'Spotify Premium',
+  },
+  {
+    id: 'rev_005',
+    name: 'Valorant_Viper',
+    avatar: 'https://placehold.co/100x100.png',
+    rating: 5,
+    text: "Fantastic service! Topped up my Valorant points without any issues. The payment was secure and the points appeared in my account right away.",
+    product: 'Valorant Points',
+  }
+];
+
 
 export const getProductCatalogForAI = () => products.map(p => `${p.name} - ${p.description}`).join('\n');

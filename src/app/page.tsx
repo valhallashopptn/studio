@@ -15,6 +15,7 @@ import { Search } from 'lucide-react';
 import { AppFooter } from '@/components/app-footer';
 import Image from 'next/image';
 import { useSiteSettings } from '@/hooks/use-site-settings';
+import { Reviews } from '@/components/reviews';
 
 const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
 
@@ -137,6 +138,9 @@ export default function Home() {
             <Recommendations />
             </section>
         </div>
+        
+        <Reviews />
+
       </main>
       <AppFooter />
     </div>
