@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { AppFooter } from '@/components/app-footer';
+import Image from 'next/image';
 
 const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
 
@@ -48,10 +49,21 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       <AppHeader />
       <main className="flex-1">
-        <section className="bg-secondary/50 py-20 mb-16 overflow-hidden">
-            <div className="container mx-auto px-4 text-center">
+        <section className="relative py-20 mb-16 overflow-hidden">
+            <div className="absolute inset-0 z-0">
+                 <Image
+                    src="https://placehold.co/1920x1080.png"
+                    alt="Gaming background"
+                    fill
+                    priority
+                    className="object-cover animate-slow-pan"
+                    data-ai-hint="gaming background"
+                />
+                <div className="absolute inset-0 bg-background/60 backdrop-blur-sm"></div>
+            </div>
+            <div className="relative z-10 container mx-auto px-4 text-center">
                 <h1 className={`text-4xl md:text-6xl font-bold font-headline mb-4 ${animationClass}`}>Your Digital Marketplace</h1>
-                <p className={`text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8 ${animationClass} [animation-delay:200ms]`}>
+                <p className={`text-lg md:text-xl text-foreground/90 max-w-3xl mx-auto mb-8 ${animationClass} [animation-delay:200ms]`}>
                     Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.
                 </p>
                 <Button size="lg" onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })} className={`${animationClass} [animation-delay:400ms]`}>
