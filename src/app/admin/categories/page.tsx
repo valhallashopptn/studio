@@ -1,6 +1,8 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
+import type React from 'react';
 import { categories as initialCategories } from '@/lib/data';
 import type { Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -27,10 +29,11 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
+import { Label } from '@/components/ui/label';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  image: z.string().url('Must be a valid URL'),
+  image: z.string().min(1, 'Image is required'),
 });
 
 export default function AdminCategoriesPage() {
@@ -43,6 +46,8 @@ export default function AdminCategoriesPage() {
     resolver: zodResolver(categorySchema),
   });
   
+  const imageUrl = form.watch('image');
+
   useEffect(() => {
     setCategories(initialCategories);
     setIsMounted(true);
@@ -74,6 +79,20 @@ export default function AdminCategoriesPage() {
   const handleDelete = (categoryId: string) => {
     setCategories(prev => prev.filter(c => c.id !== categoryId));
   };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          form.setValue('image', reader.result, { shouldValidate: true });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
   function onSubmit(values: z.infer<typeof categorySchema>) {
     if (editingCategory) {
@@ -117,9 +136,37 @@ export default function AdminCategoriesPage() {
                 <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
-                <FormField control={form.control} name="image" render={({ field }) => (
-                    <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+
+                <div className="space-y-2">
+                    <Label>Category Image Preview</Label>
+                    {imageUrl && (
+                        <div className="relative aspect-video w-full rounded-md border bg-muted/20">
+                            <Image 
+                                src={imageUrl} 
+                                alt="Category image preview" 
+                                fill 
+                                className="object-contain rounded-md"
+                                unoptimized={imageUrl.startsWith('data:image')}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                <FormField control={form.control} name="image" render={() => (
+                    <FormItem>
+                        <FormLabel>Upload Image</FormLabel>
+                        <FormControl>
+                            <Input 
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="file:text-primary file:font-semibold"
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                 )}/>
+
                 <DialogFooter>
                     <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
                     <Button type="submit">Save changes</Button>
@@ -147,7 +194,7 @@ export default function AdminCategoriesPage() {
               {categories.map((category) => (
                 <TableRow key={category.id}>
                   <TableCell>
-                    <Image src={category.image} alt={category.name} width={40} height={40} className="rounded-md object-cover" />
+                    <Image src={category.image} alt={category.name} width={40} height={40} className="rounded-md object-cover" unoptimized={category.image.startsWith('data:image')} />
                   </TableCell>
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell className="text-right">
