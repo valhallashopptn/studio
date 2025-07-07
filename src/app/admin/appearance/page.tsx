@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { CheckCircle } from 'lucide-react';
+import { useSiteSettings } from '@/hooks/use-site-settings';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 const themes: { name: ThemeName; label: string; primary: string; accent: string; bg: string, font: string }[] = [
   { name: 'violet-fusion', label: 'Violet Fusion', primary: 'bg-[#7c3aed]', accent: 'bg-[#22d3ee]', bg: 'bg-[#0f172a]', font: 'font-sans' },
@@ -16,6 +19,7 @@ const themes: { name: ThemeName; label: string; primary: string; accent: string;
 
 export default function AdminAppearancePage() {
   const { theme, setTheme } = useTheme();
+  const { heroImageUrl, setHeroImageUrl } = useSiteSettings();
 
   return (
     <div className="space-y-8">
@@ -60,6 +64,30 @@ export default function AdminAppearancePage() {
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Homepage Hero</CardTitle>
+          <CardDescription>
+            Customize the background image of the hero section on your homepage.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="hero-image-url">Background Image URL</Label>
+            <Input
+              id="hero-image-url"
+              value={heroImageUrl}
+              onChange={(e) => setHeroImageUrl(e.target.value)}
+              placeholder="https://example.com/your-image.png"
+            />
+            <p className="text-sm text-muted-foreground">
+              Enter the full URL of the image you want to use for the hero background.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { AppFooter } from '@/components/app-footer';
 import Image from 'next/image';
+import { useSiteSettings } from '@/hooks/use-site-settings';
 
 const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
 
@@ -22,6 +23,7 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isMounted, setIsMounted] = useState(false);
+  const { heroImageUrl } = useSiteSettings();
 
   useEffect(() => {
     setIsMounted(true);
@@ -41,7 +43,7 @@ export default function Home() {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [searchTerm, selectedCategory, products]);
+  }, [searchTerm, selectedCategory]);
 
   const animationClass = isMounted ? 'opacity-0 animate-fade-in-up [animation-fill-mode:forwards]' : 'opacity-0';
   
@@ -52,7 +54,7 @@ export default function Home() {
         <section className="relative py-20 mb-16 overflow-hidden">
             <div className="absolute inset-0 z-0">
                  <Image
-                    src="https://placehold.co/1920x1080.png"
+                    src={heroImageUrl}
                     alt="Gaming background"
                     fill
                     priority
