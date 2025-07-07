@@ -1,5 +1,10 @@
-import type { Product, PaymentMethod, Review } from '@/lib/types';
+import type { Product, PaymentMethod, Review, Category } from '@/lib/types';
 import { Landmark, Wallet } from 'lucide-react';
+
+export let categories: Category[] = [
+  { id: 'cat_1', name: 'Game', image: 'https://placehold.co/300x200.png' },
+  { id: 'cat_2', name: 'Digital', image: 'https://placehold.co/300x200.png' },
+];
 
 export let products: Product[] = [
   {

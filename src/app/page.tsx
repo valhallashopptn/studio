@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { ProductCard } from '@/components/product-card';
 import { Recommendations } from '@/components/recommendations';
-import { products } from '@/lib/data';
+import { products, categories as initialCategories } from '@/lib/data';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from '@/lib/types';
@@ -17,7 +17,7 @@ import Image from 'next/image';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { Reviews } from '@/components/reviews';
 
-const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
+const categories = ['All', ...initialCategories.map(c => c.name)];
 
 export default function Home() {
   const addItemToCart = useCart((state) => state.addItem);

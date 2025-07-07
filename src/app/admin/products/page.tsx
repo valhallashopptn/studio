@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { products as initialProducts } from '@/lib/data';
-import type { Product } from '@/lib/types';
+import { products as initialProducts, categories as initialCategories } from '@/lib/data';
+import type { Product, Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -37,7 +37,7 @@ const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
   price: z.coerce.number().min(0.01, 'Price must be greater than 0'),
-  category: z.enum(['Game', 'Digital']),
+  category: z.string().min(1, 'Category is required'),
   image: z.string().min(1, 'Image is required').refine(val => val.startsWith('https://') || val.startsWith('data:image'), {
     message: "Must be a valid URL or a generated data URI",
   }),
@@ -46,6 +46,7 @@ const productSchema = z.object({
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -59,6 +60,7 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     setProducts(initialProducts);
+    setCategories(initialCategories);
     setIsMounted(true);
   }, []);
 
@@ -71,13 +73,13 @@ export default function AdminProductsPage() {
           name: '',
           description: '',
           price: 0,
-          category: 'Game',
+          category: categories.length > 0 ? categories[0].name : '',
           image: 'https://placehold.co/600x400.png',
           aiHint: '',
         });
       }
     }
-  }, [editingProduct, isDialogOpen, form]);
+  }, [editingProduct, isDialogOpen, form, categories]);
 
   const handleEditClick = (product: Product) => {
     setEditingProduct(product);
@@ -166,8 +168,9 @@ export default function AdminProductsPage() {
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl>
                         <SelectContent>
-                            <SelectItem value="Game">Game</SelectItem>
-                            <SelectItem value="Digital">Digital</SelectItem>
+                            {categories.map((cat) => (
+                                <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                     <FormMessage /></FormItem>
@@ -238,7 +241,7 @@ export default function AdminProductsPage() {
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>
-                    <Badge variant={product.category === 'Game' ? 'default' : 'secondary'}>
+                    <Badge variant="secondary">
                       {product.category}
                     </Badge>
                   </TableCell>

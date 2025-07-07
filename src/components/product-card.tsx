@@ -12,17 +12,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Product } from '@/lib/types';
-import { Gamepad2, Gift, ShoppingCart } from 'lucide-react';
-
-interface ProductCardProps {
-  product: Product;
-  onAddToCart: () => void;
-}
-
-const categoryIcons = {
-  Game: <Gamepad2 className="h-4 w-4 mr-2" />,
-  Digital: <Gift className="h-4 w-4 mr-2" />,
-};
+import { ShoppingCart } from 'lucide-react';
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   return (
@@ -31,7 +21,6 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <div className="flex justify-between items-start">
             <CardTitle className="font-headline text-lg mb-2">{product.name}</CardTitle>
             <Badge variant="secondary" className="flex items-center">
-              {categoryIcons[product.category]}
               {product.category}
             </Badge>
         </div>

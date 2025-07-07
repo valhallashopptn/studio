@@ -4,12 +4,18 @@ export interface Product {
   description: string;
   price: number;
   image: string;
-  category: 'Game' | 'Digital';
+  category: string;
   aiHint: string;
 }
 
 export interface CartItem extends Product {
   quantity: number;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  image: string;
 }
 
 export interface PaymentMethod {
