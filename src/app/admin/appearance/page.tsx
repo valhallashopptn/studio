@@ -5,11 +5,12 @@ import { useTheme, type ThemeName } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Flame } from 'lucide-react';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import type React from 'react';
+import Image from 'next/image';
 
 const themes: { name: ThemeName; label: string; primary: string; accent: string; bg: string, font: string }[] = [
   { name: 'violet-fusion', label: 'Violet Fusion', primary: 'bg-[#7c3aed]', accent: 'bg-[#22d3ee]', bg: 'bg-[#0f172a]', font: 'font-sans' },
@@ -20,9 +21,9 @@ const themes: { name: ThemeName; label: string; primary: string; accent: string;
 
 export default function AdminAppearancePage() {
   const { theme, setTheme } = useTheme();
-  const { heroImageUrl, setHeroImageUrl } = useSiteSettings();
+  const { heroImageUrl, setHeroImageUrl, logoUrl, setLogoUrl } = useSiteSettings();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleHeroFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -30,6 +31,19 @@ export default function AdminAppearancePage() {
         // The result will be a Data URL string
         if (typeof reader.result === 'string') {
           setHeroImageUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          setLogoUrl(reader.result);
         }
       };
       reader.readAsDataURL(file);
@@ -83,6 +97,45 @@ export default function AdminAppearancePage() {
 
       <Card>
         <CardHeader>
+          <CardTitle>Application Logo</CardTitle>
+          <CardDescription>
+            Change the logo for your application. If no logo is provided, a default icon will be used. (Recommended size: 40x40px)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label>Logo Preview</Label>
+            <div className="flex items-center gap-2 p-4 rounded-md border bg-muted/30 w-fit">
+              {logoUrl ? (
+                 <Image src={logoUrl} alt="Logo preview" width={40} height={40} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
+              ) : (
+                <Flame className="h-10 w-10 text-primary" />
+              )}
+               <h1 className="text-xl font-bold font-headline">TopUp Hub</h1>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="logo-image-url">Logo Image URL</Label>
+            <Input
+              id="logo-image-url"
+              value={logoUrl.startsWith('data:image') ? '' : logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              placeholder="https://example.com/your-logo.png"
+            />
+          </div>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+            <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or</span></div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="logo-image-upload">Upload Logo</Label>
+            <Input id="logo-image-upload" type="file" accept="image/*" onChange={handleLogoFileChange} className="file:text-primary file:font-semibold" />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Homepage Hero</CardTitle>
           <CardDescription>
             Change the background image for the hero section on your homepage.
@@ -119,7 +172,7 @@ export default function AdminAppearancePage() {
               id="hero-image-upload"
               type="file"
               accept="image/*"
-              onChange={handleFileChange}
+              onChange={handleHeroFileChange}
               className="file:text-primary file:font-semibold"
             />
             <p className="text-sm text-muted-foreground">

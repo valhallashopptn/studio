@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -18,6 +19,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { useSiteSettings } from '@/hooks/use-site-settings';
+import Image from 'next/image';
 
 
 const navLinks = [
@@ -31,6 +34,7 @@ export function AppHeader() {
   const [isSheetOpen, setSheetOpen] = useState(false);
   const items = useCart((state) => state.items);
   const { isAuthenticated, user, isAdmin, logout } = useAuth();
+  const { logoUrl } = useSiteSettings();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -51,7 +55,11 @@ export function AppHeader() {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2">
-              <Flame className="h-6 w-6 text-primary" />
+              {logoUrl ? (
+                <Image src={logoUrl} alt="TopUp Hub Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
+              ) : (
+                <Flame className="h-6 w-6 text-primary" />
+              )}
               <h1 className="text-xl font-bold font-headline">TopUp Hub</h1>
             </Link>
             <nav className="hidden md:flex items-center gap-4">

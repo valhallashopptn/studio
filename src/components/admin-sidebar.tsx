@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, Package, Settings, Flame, Paintbrush } from 'lucide-react';
+import { useSiteSettings } from '@/hooks/use-site-settings';
+import Image from 'next/image';
 
 const adminNavLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -15,11 +17,16 @@ const adminNavLinks = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { logoUrl } = useSiteSettings();
 
   return (
     <aside className="hidden w-64 flex-col border-r bg-background p-4 md:flex">
       <div className="flex items-center gap-2 mb-8">
-        <Flame className="h-6 w-6 text-primary" />
+        {logoUrl ? (
+          <Image src={logoUrl} alt="Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
+        ) : (
+          <Flame className="h-6 w-6 text-primary" />
+        )}
         <h2 className="text-xl font-bold font-headline">Admin Panel</h2>
       </div>
       <nav className="flex flex-col gap-2">
