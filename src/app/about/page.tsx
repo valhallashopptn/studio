@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Target, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { AppFooter } from '@/components/app-footer';
 
 export default function AboutPage() {
-    const year = new Date().getFullYear();
+    const [year, setYear] = useState(new Date().getFullYear());
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -95,9 +96,7 @@ export default function AboutPage() {
                     </div>
                 </section>
             </main>
-            <footer className="py-6 bg-secondary text-secondary-foreground text-center text-sm">
-                <p>&copy; {year} TopUp Hub. All Rights Reserved.</p>
-            </footer>
+            <AppFooter />
         </div>
     );
 }

@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin } from 'lucide-react';
+import { AppFooter } from '@/components/app-footer';
 
 export default function ContactPage() {
     const { toast } = useToast();
@@ -21,8 +22,6 @@ export default function ContactPage() {
     useEffect(() => {
         setIsMounted(true);
     }, []);
-
-    const year = new Date().getFullYear();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -114,9 +113,7 @@ export default function ContactPage() {
                     </div>
                 </div>
             </main>
-            <footer className="py-6 bg-secondary text-secondary-foreground text-center text-sm">
-                <p>&copy; {year} TopUp Hub. All Rights Reserved.</p>
-            </footer>
+            <AppFooter />
         </div>
     );
 }

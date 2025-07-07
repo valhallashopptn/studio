@@ -1,7 +1,7 @@
 import type { Product, PaymentMethod } from '@/lib/types';
 import { Landmark, Wallet } from 'lucide-react';
 
-export const products: Product[] = [
+export let products: Product[] = [
   {
     id: 'prod_001',
     name: 'Mobile Legends Diamonds',
@@ -76,7 +76,7 @@ export const products: Product[] = [
   },
 ];
 
-export const paymentMethods: PaymentMethod[] = [
+export let paymentMethods: PaymentMethod[] = [
     {
         id: 'bank_transfer',
         name: 'Bank Transfer',
@@ -89,4 +89,4 @@ export const paymentMethods: PaymentMethod[] = [
     }
 ];
 
-export const productCatalogForAI = products.map(p => `${p.name} - ${p.description}`).join('\n');
+export const getProductCatalogForAI = () => products.map(p => `${p.name} - ${p.description}`).join('\n');

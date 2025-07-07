@@ -1,0 +1,43 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
+import { AdminSidebar } from '@/components/admin-sidebar';
+import { Loader2 } from 'lucide-react';
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { isAdmin, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [isVerified, setIsVerified] = useState(false);
+
+  useEffect(() => {
+    // This effect runs on the client after hydration
+    if (!isAuthenticated || !isAdmin) {
+      router.push('/login');
+    } else {
+      setIsVerified(true);
+    }
+  }, [isAuthenticated, isAdmin, router]);
+
+  if (!isVerified) {
+    return (
+        <div className="flex h-screen w-full items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen">
+      <AdminSidebar />
+      <main className="flex-1 p-8 bg-secondary/50">
+        {children}
+      </main>
+    </div>
+  );
+}

@@ -11,19 +11,18 @@ import type { Product } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
+import { AppFooter } from '@/components/app-footer';
 
 const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
 
 export default function Home() {
   const addItemToCart = useCart((state) => state.addItem);
   const { toast } = useToast();
-  const [year, setYear] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setYear(new Date().getFullYear());
     setIsMounted(true);
   }, []);
 
@@ -41,7 +40,7 @@ export default function Home() {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, products]);
 
   const animationClass = isMounted ? 'opacity-0 animate-fade-in-up [animation-fill-mode:forwards]' : 'opacity-0';
   
@@ -110,9 +109,7 @@ export default function Home() {
             </section>
         </div>
       </main>
-      <footer className="py-6 bg-secondary text-secondary-foreground text-center text-sm">
-        <p>&copy; {year} TopUp Hub. All Rights Reserved.</p>
-      </footer>
+      <AppFooter />
     </div>
   );
 }

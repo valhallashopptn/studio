@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { personalizedRecommendations } from '@/ai/flows/personalized-recommendations'
-import { productCatalogForAI } from '@/lib/data'
+import { getProductCatalogForAI } from '@/lib/data'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -36,7 +36,7 @@ export function Recommendations() {
     try {
       const result = await personalizedRecommendations({
         purchaseHistory: values.purchaseHistory,
-        productCatalog: productCatalogForAI,
+        productCatalog: getProductCatalogForAI(),
       })
       setRecommendations(result.recommendations)
     } catch (e) {

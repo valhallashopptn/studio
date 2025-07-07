@@ -17,3 +17,11 @@ export interface PaymentMethod {
     name: string;
     icon: React.ComponentType<{ className?: string }>;
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  password?: string;
+  isAdmin?: boolean;
+}
