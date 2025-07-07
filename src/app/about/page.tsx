@@ -6,8 +6,10 @@ import { Users, Target, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { AppFooter } from '@/components/app-footer';
+import { useSiteSettings } from '@/hooks/use-site-settings';
 
 export default function AboutPage() {
+    const { siteTitle } = useSiteSettings();
     const [year, setYear] = useState(new Date().getFullYear());
     const [isMounted, setIsMounted] = useState(false);
 
@@ -23,7 +25,7 @@ export default function AboutPage() {
             <main className="flex-1">
                 <section className="bg-primary/10 py-16 text-center overflow-hidden">
                     <div className={`container mx-auto px-4 ${animationClass}`}>
-                        <h1 className="text-4xl font-bold font-headline text-primary">About TopUp Hub</h1>
+                        <h1 className="text-4xl font-bold font-headline text-primary">About {siteTitle}</h1>
                         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
                             We are dedicated to providing a seamless and secure platform for all your digital top-up needs.
                         </p>
@@ -36,7 +38,7 @@ export default function AboutPage() {
                             <div>
                                 <h2 className="text-3xl font-bold mb-4">Our Story</h2>
                                 <p className="text-muted-foreground mb-4">
-                                    Founded in {year - 2}, TopUp Hub started with a simple idea: to make digital purchases easier and more accessible for everyone. We saw a need for a reliable platform where users could quickly top up game credits, buy subscriptions, and purchase digital gift cards without hassle.
+                                    Founded in {year - 2}, {siteTitle} started with a simple idea: to make digital purchases easier and more accessible for everyone. We saw a need for a reliable platform where users could quickly top up game credits, buy subscriptions, and purchase digital gift cards without hassle.
                                 </p>
                                 <p className="text-muted-foreground">
                                     Today, we've grown into a trusted marketplace, serving thousands of customers worldwide. Our commitment to security, speed, and customer satisfaction remains at the core of everything we do.

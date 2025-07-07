@@ -21,7 +21,7 @@ const themes: { name: ThemeName; label: string; primary: string; accent: string;
 
 export default function AdminAppearancePage() {
   const { theme, setTheme } = useTheme();
-  const { heroImageUrl, setHeroImageUrl, logoUrl, setLogoUrl } = useSiteSettings();
+  const { heroImageUrl, setHeroImageUrl, logoUrl, setLogoUrl, siteTitle, setSiteTitle } = useSiteSettings();
 
   const handleHeroFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -97,25 +97,37 @@ export default function AdminAppearancePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Application Logo</CardTitle>
+          <CardTitle>Branding</CardTitle>
           <CardDescription>
-            Change the logo for your application. If no logo is provided, a default icon will be used. (Recommended size: 40x40px)
+            Customize your application's logo and site title. This appears in the header and browser tab.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label>Logo Preview</Label>
+            <Label>Preview</Label>
             <div className="flex items-center gap-2 p-4 rounded-md border bg-muted/30 w-fit">
               {logoUrl ? (
                  <Image src={logoUrl} alt="Logo preview" width={40} height={40} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
               ) : (
                 <Flame className="h-10 w-10 text-primary" />
               )}
-               <h1 className="text-xl font-bold font-headline">TopUp Hub</h1>
+               <h1 className="text-xl font-bold font-headline">{siteTitle}</h1>
             </div>
           </div>
+           <div className="space-y-2">
+                <Label htmlFor="site-title">Site Title</Label>
+                <Input
+                id="site-title"
+                value={siteTitle}
+                onChange={(e) => setSiteTitle(e.target.value)}
+                placeholder="Your App Name"
+                />
+            </div>
+
+          <div className="relative"><div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div><div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Logo</span></div></div>
+          
           <div className="space-y-2">
-            <Label htmlFor="logo-image-url">Logo Image URL</Label>
+            <Label htmlFor="logo-image-url">Logo Image URL (Recommended size: 40x40px)</Label>
             <Input
               id="logo-image-url"
               value={logoUrl.startsWith('data:image') ? '' : logoUrl}

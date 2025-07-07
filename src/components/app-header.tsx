@@ -34,7 +34,7 @@ export function AppHeader() {
   const [isSheetOpen, setSheetOpen] = useState(false);
   const items = useCart((state) => state.items);
   const { isAuthenticated, user, isAdmin, logout } = useAuth();
-  const { logoUrl } = useSiteSettings();
+  const { logoUrl, siteTitle } = useSiteSettings();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -56,11 +56,11 @@ export function AppHeader() {
           <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center gap-2">
               {logoUrl ? (
-                <Image src={logoUrl} alt="TopUp Hub Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
+                <Image src={logoUrl} alt="Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
               ) : (
                 <Flame className="h-6 w-6 text-primary" />
               )}
-              <h1 className="text-xl font-bold font-headline">TopUp Hub</h1>
+              <h1 className="text-xl font-bold font-headline">{siteTitle}</h1>
             </Link>
             <nav className="hidden md:flex items-center gap-4">
               {navLinks.map((link) => (
