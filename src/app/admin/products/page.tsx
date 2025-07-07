@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { PlusCircle, MoreHorizontal, Trash2, Edit } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Trash2, Edit, Sparkles, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
@@ -30,13 +29,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Image from 'next/image';
+import { generateImage } from '@/ai/flows/generate-image-flow';
+import { Label } from '@/components/ui/label';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
   price: z.coerce.number().min(0.01, 'Price must be greater than 0'),
   category: z.enum(['Game', 'Digital']),
-  image: z.string().url('Must be a valid URL'),
+  image: z.string().min(1, 'Image is required').refine(val => val.startsWith('https://') || val.startsWith('data:image'), {
+    message: "Must be a valid URL or a generated data URI",
+  }),
   aiHint: z.string().min(1, 'AI Hint is required'),
 });
 
@@ -45,10 +49,13 @@ export default function AdminProductsPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
   });
+
+  const imageUrl = form.watch('image');
 
   useEffect(() => {
     setProducts(initialProducts);
@@ -56,19 +63,21 @@ export default function AdminProductsPage() {
   }, []);
 
    useEffect(() => {
-    if (editingProduct) {
-      form.reset(editingProduct);
-    } else {
-      form.reset({
-        name: '',
-        description: '',
-        price: 0,
-        category: 'Game',
-        image: 'https://placehold.co/600x400.png',
-        aiHint: '',
-      });
+    if (isDialogOpen) {
+      if (editingProduct) {
+        form.reset(editingProduct);
+      } else {
+        form.reset({
+          name: '',
+          description: '',
+          price: 0,
+          category: 'Game',
+          image: 'https://placehold.co/600x400.png',
+          aiHint: '',
+        });
+      }
     }
-  }, [editingProduct, form]);
+  }, [editingProduct, isDialogOpen, form]);
 
   const handleEditClick = (product: Product) => {
     setEditingProduct(product);
@@ -83,6 +92,26 @@ export default function AdminProductsPage() {
   const handleDelete = (productId: string) => {
     setProducts(prev => prev.filter(p => p.id !== productId));
   };
+
+  const handleGenerateImage = async () => {
+    const hint = form.getValues('aiHint');
+    if (!hint) {
+      form.setError('aiHint', { type: 'manual', message: 'Please provide an AI hint to generate an image.' });
+      return;
+    }
+    setIsGeneratingImage(true);
+    form.clearErrors('image');
+    try {
+      const result = await generateImage({ prompt: `a professional product shot for an online store: ${hint}` });
+      form.setValue('image', result.imageDataUri, { shouldValidate: true });
+    } catch (error) {
+      console.error('Image generation failed:', error);
+      form.setError('image', { type: 'manual', message: 'AI image generation failed. Please try again.' });
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
 
   function onSubmit(values: z.infer<typeof productSchema>) {
     if (editingProduct) {
@@ -117,7 +146,7 @@ export default function AdminProductsPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
           </DialogHeader>
@@ -143,12 +172,43 @@ export default function AdminProductsPage() {
                     </Select>
                     <FormMessage /></FormItem>
                 )}/>
-                <FormField control={form.control} name="image" render={({ field }) => (
-                    <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+
+                <FormField control={form.control} name="aiHint" render={({ field }) => (
+                    <FormItem><FormLabel>AI Hint for Image Generation</FormLabel><FormControl><Input placeholder="e.g. 'stack of gold coins for a game'" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
-                 <FormField control={form.control} name="aiHint" render={({ field }) => (
-                    <FormItem><FormLabel>AI Hint</FormLabel><FormControl><Input placeholder="e.g. 'mobile game'" {...field} /></FormControl><FormMessage /></FormItem>
-                )}/>
+                
+                <div className="space-y-2">
+                    <Label>Product Image Preview</Label>
+                    {imageUrl && (
+                        <div className="relative aspect-video w-full rounded-md border bg-muted/20">
+                            <Image 
+                                src={imageUrl} 
+                                alt="Product image preview" 
+                                fill 
+                                className="object-contain rounded-md"
+                                unoptimized={imageUrl.startsWith('http')}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <Label htmlFor="imageUrl">Image URL or Generate</Label>
+                    <div className="flex gap-2">
+                        <FormField control={form.control} name="image" render={({ field }) => (
+                            <FormItem className="flex-grow">
+                                <FormControl>
+                                    <Input id="imageUrl" placeholder="Enter URL or generate one" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}/>
+                        <Button type="button" onClick={handleGenerateImage} disabled={isGeneratingImage} variant="secondary">
+                            {isGeneratingImage ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                        </Button>
+                    </div>
+                </div>
+
                 <DialogFooter>
                     <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
                     <Button type="submit">Save changes</Button>
