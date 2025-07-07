@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -47,20 +48,34 @@ export default function Home() {
 
   const animationClass = isMounted ? 'opacity-0 animate-fade-in-up [animation-fill-mode:forwards]' : 'opacity-0';
   
+  const isVideo = heroImageUrl && heroImageUrl.endsWith('.mp4');
+
   return (
     <div className="flex flex-col min-h-screen">
       <AppHeader />
       <main className="flex-1">
         <section className="relative py-20 mb-16 overflow-hidden">
             <div className="absolute inset-0 z-0">
-                 <Image
-                    src={heroImageUrl}
-                    alt="Gaming background"
-                    fill
-                    priority
-                    className="object-cover animate-slow-pan"
-                    data-ai-hint="gaming background"
-                />
+                 {isVideo ? (
+                    <video
+                        src={heroImageUrl}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="object-cover w-full h-full"
+                    />
+                 ) : (
+                    <Image
+                        src={heroImageUrl}
+                        alt="Gaming background"
+                        fill
+                        priority
+                        className="object-cover animate-slow-pan"
+                        data-ai-hint="gaming background"
+                        unoptimized={heroImageUrl.startsWith('data:image')}
+                    />
+                 )}
                 <div className="absolute inset-0 bg-background/60 backdrop-blur-sm"></div>
             </div>
             <div className="relative z-10 container mx-auto px-4 text-center">
