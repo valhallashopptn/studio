@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import type React from 'react';
 import Image from 'next/image';
+import { useContentSettings } from '@/hooks/use-content-settings';
+import { Textarea } from '@/components/ui/textarea';
 
 const themes: { name: ThemeName; label: string; primary: string; accent: string; bg: string, font: string }[] = [
   { name: 'violet-fusion', label: 'Violet Fusion', primary: 'bg-[#7c3aed]', accent: 'bg-[#22d3ee]', bg: 'bg-[#0f172a]', font: 'font-sans' },
@@ -22,6 +24,23 @@ const themes: { name: ThemeName; label: string; primary: string; accent: string;
 export default function AdminAppearancePage() {
   const { theme, setTheme } = useTheme();
   const { heroImageUrl, setHeroImageUrl, logoUrl, setLogoUrl, siteTitle, setSiteTitle } = useSiteSettings();
+  const {
+    aboutSubtitle, setAboutSubtitle,
+    aboutStoryTitle, setAboutStoryTitle,
+    aboutStoryText1, setAboutStoryText1,
+    aboutStoryText2, setAboutStoryText2,
+    aboutMissionTitle, setAboutMissionTitle,
+    aboutMissionText, setAboutMissionText,
+    aboutVisionTitle, setAboutVisionTitle,
+    aboutVisionText, setAboutVisionText,
+    aboutValuesTitle, setAboutValuesTitle,
+    aboutValuesText, setAboutValuesText,
+    contactSubtitle, setContactSubtitle,
+    contactEmail, setContactEmail,
+    contactPhone, setContactPhone,
+    contactAddress, setContactAddress,
+  } = useContentSettings();
+
 
   const handleHeroFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -193,6 +212,91 @@ export default function AdminAppearancePage() {
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle>About Page Content</CardTitle>
+            <CardDescription>Customize the text on your "About Us" page.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <div className="space-y-2">
+                <Label>Subtitle</Label>
+                <Input value={aboutSubtitle} onChange={(e) => setAboutSubtitle(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+                <Label>Story Title</Label>
+                <Input value={aboutStoryTitle} onChange={(e) => setAboutStoryTitle(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+                <Label>Story Text 1</Label>
+                <Textarea value={aboutStoryText1} onChange={(e) => setAboutStoryText1(e.target.value)} rows={4} />
+                <p className="text-sm text-muted-foreground">Use `{{year}}` and `{{siteTitle}}` as placeholders.</p>
+            </div>
+            <div className="space-y-2">
+                <Label>Story Text 2</Label>
+                <Textarea value={aboutStoryText2} onChange={(e) => setAboutStoryText2(e.target.value)} rows={3} />
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                    <Label>Mission Title</Label>
+                    <Input value={aboutMissionTitle} onChange={(e) => setAboutMissionTitle(e.target.value)} />
+                </div>
+                <div className="space-y-2 col-span-2">
+                    <Label>Mission Text</Label>
+                    <Input value={aboutMissionText} onChange={(e) => setAboutMissionText(e.target.value)} />
+                </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                    <Label>Vision Title</Label>
+                    <Input value={aboutVisionTitle} onChange={(e) => setAboutVisionTitle(e.target.value)} />
+                </div>
+                <div className="space-y-2 col-span-2">
+                    <Label>Vision Text</Label>
+                    <Input value={aboutVisionText} onChange={(e) => setAboutVisionText(e.target.value)} />
+                </div>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                    <Label>Values Title</Label>
+                    <Input value={aboutValuesTitle} onChange={(e) => setAboutValuesTitle(e.target.value)} />
+                </div>
+                <div className="space-y-2 col-span-2">
+                    <Label>Values Text</Label>
+                    <Input value={aboutValuesText} onChange={(e) => setAboutValuesText(e.target.value)} />
+                </div>
+            </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+          <CardHeader>
+              <CardTitle>Contact Page Content</CardTitle>
+              <CardDescription>Customize the text and contact details on your "Contact Us" page.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+              <div className="space-y-2">
+                  <Label>Subtitle</Label>
+                  <Input value={contactSubtitle} onChange={(e) => setContactSubtitle(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                  <Label>Contact Email</Label>
+                  <Input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                  <Label>Contact Phone</Label>
+                  <Input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                  <Label>Contact Address</Label>
+                  <Input value={contactAddress} onChange={(e) => setContactAddress(e.target.value)} />
+              </div>
+          </CardContent>
+      </Card>
+
 
     </div>
   );

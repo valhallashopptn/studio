@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { AppFooter } from '@/components/app-footer';
 import { useTranslation } from '@/hooks/use-translation';
+import { useContentSettings } from '@/hooks/use-content-settings';
 
 export default function ContactPage() {
     const { toast } = useToast();
@@ -20,6 +21,14 @@ export default function ContactPage() {
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+
+    const {
+        contactSubtitle,
+        contactEmail,
+        contactPhone,
+        contactAddress,
+    } = useContentSettings();
+
 
     useEffect(() => {
         setIsMounted(true);
@@ -50,7 +59,7 @@ export default function ContactPage() {
                 <div className={`text-center mb-12 ${animationClass}`}>
                     <h1 className="text-4xl font-bold font-headline text-primary">{t('contactPage.title')}</h1>
                     <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-                        {t('contactPage.subtitle')}
+                        {contactSubtitle}
                     </p>
                 </div>
 
@@ -90,7 +99,7 @@ export default function ContactPage() {
                                </div>
                                <div>
                                    <h4 className="font-semibold">{t('contactPage.email')}</h4>
-                                   <p className="text-muted-foreground">support@topuphub.com</p>
+                                   <p className="text-muted-foreground">{contactEmail}</p>
                                </div>
                            </div>
                            <div className="flex items-start gap-4">
@@ -99,7 +108,7 @@ export default function ContactPage() {
                                </div>
                                <div>
                                    <h4 className="font-semibold">{t('contactPage.phone')}</h4>
-                                   <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                                   <p className="text-muted-foreground">{contactPhone}</p>
                                </div>
                            </div>
                            <div className="flex items-start gap-4">
@@ -108,7 +117,7 @@ export default function ContactPage() {
                                </div>
                                <div>
                                    <h4 className="font-semibold">{t('contactPage.address')}</h4>
-                                   <p className="text-muted-foreground">123 Digital Lane, Tech City, 12345</p>
+                                   <p className="text-muted-foreground">{contactAddress}</p>
                                </div>
                            </div>
                         </div>

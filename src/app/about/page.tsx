@@ -8,16 +8,34 @@ import { useEffect, useState } from 'react';
 import { AppFooter } from '@/components/app-footer';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { useTranslation } from '@/hooks/use-translation';
+import { useContentSettings } from '@/hooks/use-content-settings';
 
 export default function AboutPage() {
     const { siteTitle } = useSiteSettings();
     const { t } = useTranslation();
     const [year, setYear] = useState(new Date().getFullYear());
     const [isMounted, setIsMounted] = useState(false);
+    const {
+        aboutSubtitle,
+        aboutStoryTitle,
+        aboutStoryText1,
+        aboutStoryText2,
+        aboutMissionTitle,
+        aboutMissionText,
+        aboutVisionTitle,
+        aboutVisionText,
+        aboutValuesTitle,
+        aboutValuesText,
+    } = useContentSettings();
+
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    const processedStoryText1 = aboutStoryText1
+      .replace('{{year}}', (year - 2).toString())
+      .replace('{{siteTitle}}', siteTitle);
 
     const animationClass = isMounted ? 'opacity-0 animate-fade-in-up [animation-fill-mode:forwards]' : 'opacity-0';
 
@@ -29,7 +47,7 @@ export default function AboutPage() {
                     <div className={`container mx-auto px-4 ${animationClass}`}>
                         <h1 className="text-4xl font-bold font-headline text-primary">{t('aboutPage.title', { siteTitle })}</h1>
                         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-                            {t('aboutPage.subtitle')}
+                            {aboutSubtitle}
                         </p>
                     </div>
                 </section>
@@ -38,12 +56,12 @@ export default function AboutPage() {
                     <div className="container mx-auto px-4">
                         <div className={`grid md:grid-cols-2 gap-12 items-center ${animationClass} [animation-delay:200ms]`}>
                             <div>
-                                <h2 className="text-3xl font-bold mb-4">{t('aboutPage.storyTitle')}</h2>
+                                <h2 className="text-3xl font-bold mb-4">{aboutStoryTitle}</h2>
                                 <p className="text-muted-foreground mb-4">
-                                    {t('aboutPage.storyText1', { year: year - 2, siteTitle })}
+                                    {processedStoryText1}
                                 </p>
                                 <p className="text-muted-foreground">
-                                    {t('aboutPage.storyText2')}
+                                    {aboutStoryText2}
                                 </p>
                             </div>
                             <div className="relative h-80 rounded-lg overflow-hidden">
@@ -68,10 +86,10 @@ export default function AboutPage() {
                                     <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
                                         <Target className="h-8 w-8 text-primary" />
                                     </div>
-                                    <CardTitle>{t('aboutPage.missionTitle')}</CardTitle>
+                                    <CardTitle>{aboutMissionTitle}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-muted-foreground">{t('aboutPage.missionText')}</p>
+                                    <p className="text-muted-foreground">{aboutMissionText}</p>
                                 </CardContent>
                             </Card>
                             <Card className="h-full">
@@ -79,10 +97,10 @@ export default function AboutPage() {
                                     <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
                                         <Eye className="h-8 w-8 text-primary" />
                                     </div>
-                                    <CardTitle>{t('aboutPage.visionTitle')}</CardTitle>
+                                    <CardTitle>{aboutVisionTitle}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-muted-foreground">{t('aboutPage.visionText')}</p>
+                                    <p className="text-muted-foreground">{aboutVisionText}</p>
                                 </CardContent>
                             </Card>
                             <Card className="h-full">
@@ -90,10 +108,10 @@ export default function AboutPage() {
                                     <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
                                         <Users className="h-8 w-8 text-primary" />
                                     </div>
-                                    <CardTitle>{t('aboutPage.valuesTitle')}</CardTitle>
+                                    <CardTitle>{aboutValuesTitle}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-muted-foreground">{t('aboutPage.valuesText')}</p>
+                                    <p className="text-muted-foreground">{aboutValuesText}</p>
                                 </CardContent>
                             </Card>
                         </div>
