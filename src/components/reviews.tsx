@@ -2,10 +2,10 @@
 "use client";
 
 import * as React from "react"
-import { Star } from "lucide-react"
+import { Star, MessageSquarePlus } from "lucide-react"
 import Autoplay from "embla-carousel-autoplay"
 
-import { reviews } from "@/lib/data"
+import { useReviews } from "@/hooks/use-reviews"
 import type { Review } from "@/lib/types"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -17,6 +17,17 @@ import {
 } from "@/components/ui/carousel"
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { ReviewForm } from "./review-form";
+
 
 function ReviewCard({ review }: { review: Review }) {
   return (
@@ -45,9 +56,15 @@ function ReviewCard({ review }: { review: Review }) {
 }
 
 export function Reviews() {
+    const { reviews } = useReviews();
+    const [isFormOpen, setIsFormOpen] = React.useState(false);
     const plugin = React.useRef(
         Autoplay({ delay: 4000, stopOnInteraction: true })
     )
+
+    const handleReviewSubmitted = () => {
+        setIsFormOpen(false);
+    };
 
   return (
     <section id="reviews" className="w-full py-16 bg-secondary/30">
@@ -77,6 +94,25 @@ export function Reviews() {
           <CarouselPrevious className="hidden sm:flex" />
           <CarouselNext className="hidden sm:flex" />
         </Carousel>
+
+        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <DialogTrigger asChild>
+                <Button className="mt-12">
+                    <MessageSquarePlus className="mr-2 h-5 w-5" />
+                    Leave a Review
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Share Your Feedback</DialogTitle>
+                    <DialogDescription>
+                        We'd love to hear about your experience with our products.
+                    </DialogDescription>
+                </DialogHeader>
+                <ReviewForm onReviewSubmitted={handleReviewSubmitted} />
+            </DialogContent>
+        </Dialog>
+
       </div>
     </section>
   )

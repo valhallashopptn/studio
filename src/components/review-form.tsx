@@ -1,0 +1,147 @@
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useReviews } from '@/hooks/use-reviews';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { products } from '@/lib/data';
+import { Star } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+
+const reviewSchema = z.object({
+  name: z.string().min(2, 'Name is required.'),
+  product: z.string().min(1, 'Please select a product.'),
+  rating: z.number().min(1, 'Rating is required.').max(5),
+  text: z.string().min(10, 'Review must be at least 10 characters.'),
+});
+
+export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => void }) {
+  const { addReview } = useReviews();
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const [hoverRating, setHoverRating] = useState(0);
+
+  const form = useForm<z.infer<typeof reviewSchema>>({
+    resolver: zodResolver(reviewSchema),
+    defaultValues: {
+      name: '',
+      product: '',
+      rating: 0,
+      text: '',
+    },
+  });
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+        form.setValue('name', user.name);
+    }
+  }, [isAuthenticated, user, form]);
+
+  const currentRating = form.watch('rating');
+
+  function onSubmit(values: z.infer<typeof reviewSchema>) {
+    addReview(values);
+    toast({
+      title: 'Review Submitted!',
+      description: 'Thank you for your feedback.',
+    });
+    form.reset({ name: isAuthenticated && user ? user.name : '', product: '', rating: 0, text: '' });
+    onReviewSubmitted();
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Your Name</FormLabel>
+              <FormControl>
+                <Input placeholder="John Doe" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="product"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product Reviewed</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a product" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {products.map((p) => (
+                    <SelectItem key={p.id} value={p.name}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="rating"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Rating</FormLabel>
+              <FormControl>
+                 <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
+                    {[...Array(5)].map((_, index) => {
+                        const ratingValue = index + 1;
+                        return (
+                            <Star
+                                key={ratingValue}
+                                className={cn(
+                                    'h-6 w-6 cursor-pointer transition-colors',
+                                    ratingValue <= (hoverRating || currentRating)
+                                        ? 'text-accent fill-accent'
+                                        : 'text-muted-foreground/50'
+                                )}
+                                onClick={() => field.onChange(ratingValue)}
+                                onMouseEnter={() => setHoverRating(ratingValue)}
+                            />
+                        )
+                    })}
+                 </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="text"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Your Review</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Share your experience..." {...field} rows={4} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit Review</Button>
+      </form>
+    </Form>
+  );
+}
