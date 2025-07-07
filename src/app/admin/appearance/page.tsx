@@ -230,7 +230,7 @@ export default function AdminAppearancePage() {
             <div className="space-y-2">
                 <Label>Story Text 1</Label>
                 <Textarea value={aboutStoryText1} onChange={(e) => setAboutStoryText1(e.target.value)} rows={4} />
-                <p className="text-sm text-muted-foreground">Use `{{year}}` and `{{siteTitle}}` as placeholders.</p>
+                <p className="text-sm text-muted-foreground">{"Use `{{year}}` and `{{siteTitle}}` as placeholders."}</p>
             </div>
             <div className="space-y-2">
                 <Label>Story Text 2</Label>
