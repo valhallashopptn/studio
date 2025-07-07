@@ -1,0 +1,62 @@
+"use client"
+
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import type { Product } from '@/lib/types';
+import { Gamepad2, Gift, ShoppingCart } from 'lucide-react';
+
+interface ProductCardProps {
+  product: Product;
+  onAddToCart: () => void;
+}
+
+const categoryIcons = {
+  Game: <Gamepad2 className="h-4 w-4 mr-2" />,
+  Digital: <Gift className="h-4 w-4 mr-2" />,
+};
+
+export function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  return (
+    <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      <CardHeader>
+        <div className="flex justify-between items-start">
+            <CardTitle className="font-headline text-lg mb-2">{product.name}</CardTitle>
+            <Badge variant="secondary" className="flex items-center">
+              {categoryIcons[product.category]}
+              {product.category}
+            </Badge>
+        </div>
+        <CardDescription>{product.description}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <div className="relative aspect-video w-full">
+            <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="rounded-md object-cover"
+            data-ai-hint={product.aiHint}
+            />
+        </div>
+      </CardContent>
+      <CardFooter className="flex justify-between items-center">
+        <p className="text-xl font-bold text-primary">
+          ${product.price.toFixed(2)}
+        </p>
+        <Button onClick={onAddToCart} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+          <ShoppingCart className="mr-2 h-4 w-4" />
+          Add to Order
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
