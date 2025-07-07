@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -37,8 +38,8 @@ export default function AdminSettingsPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-bold">Settings</h1>
-                <p className="text-muted-foreground">Manage your application settings.</p>
+                <h1 className="text-3xl font-bold">Payment Settings</h1>
+                <p className="text-muted-foreground">Manage your manual payment methods.</p>
             </div>
 
             <Card>

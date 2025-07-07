@@ -1,14 +1,16 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Package, Settings, Flame } from 'lucide-react';
+import { LayoutDashboard, Package, Settings, Flame, Paintbrush } from 'lucide-react';
 
 const adminNavLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/settings', label: 'Settings', icon: Settings },
+  { href: '/admin/settings', label: 'Payments', icon: Settings },
+  { href: '/admin/appearance', label: 'Appearance', icon: Paintbrush },
 ];
 
 export function AdminSidebar() {
