@@ -9,6 +9,7 @@ import { CheckCircle } from 'lucide-react';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import type React from 'react';
 
 const themes: { name: ThemeName; label: string; primary: string; accent: string; bg: string, font: string }[] = [
   { name: 'violet-fusion', label: 'Violet Fusion', primary: 'bg-[#7c3aed]', accent: 'bg-[#22d3ee]', bg: 'bg-[#0f172a]', font: 'font-sans' },
@@ -20,6 +21,21 @@ const themes: { name: ThemeName; label: string; primary: string; accent: string;
 export default function AdminAppearancePage() {
   const { theme, setTheme } = useTheme();
   const { heroImageUrl, setHeroImageUrl } = useSiteSettings();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // The result will be a Data URL string
+        if (typeof reader.result === 'string') {
+          setHeroImageUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
   return (
     <div className="space-y-8">
@@ -69,20 +85,45 @@ export default function AdminAppearancePage() {
         <CardHeader>
           <CardTitle>Homepage Hero</CardTitle>
           <CardDescription>
-            Customize the background image of the hero section on your homepage.
+            Change the background image for the hero section on your homepage.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="hero-image-url">Background Image URL</Label>
+            <Label htmlFor="hero-image-url">Background Image URL (Recommended)</Label>
             <Input
               id="hero-image-url"
-              value={heroImageUrl}
+              value={heroImageUrl.startsWith('data:image') ? '' : heroImageUrl}
               onChange={(e) => setHeroImageUrl(e.target.value)}
               placeholder="https://example.com/your-image.png"
             />
             <p className="text-sm text-muted-foreground">
-              Enter the full URL of the image you want to use for the hero background.
+              For best performance, upload your image to a hosting service and paste the URL here.
+            </p>
+          </div>
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                Or
+                </span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="hero-image-upload">Upload an Image</Label>
+            <Input
+              id="hero-image-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="file:text-primary file:font-semibold"
+            />
+            <p className="text-sm text-muted-foreground">
+              Images are stored in your browser which can impact performance.
             </p>
           </div>
         </CardContent>
