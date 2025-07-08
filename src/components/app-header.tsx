@@ -28,6 +28,7 @@ import { useContentSettings } from '@/hooks/use-content-settings';
 import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import { Skeleton } from './ui/skeleton';
+import { getRank } from '@/lib/ranks';
 
 
 export function AppHeader() {
@@ -44,6 +45,7 @@ export function AppHeader() {
   const { t, locale } = useTranslation();
   const { formatPrice } = useCurrency();
   const { theme } = useTheme();
+  const rank = user ? getRank(user.totalSpent) : null;
 
   useEffect(() => {
     setIsMounted(true);
@@ -194,10 +196,18 @@ export function AppHeader() {
                           <DropdownMenuContent className="w-56" align={locale === 'ar' ? 'start' : 'end'} forceMount>
                           <DropdownMenuLabel className="font-normal">
                               <div className="flex flex-col space-y-1">
-                              <p className="text-sm font-medium leading-none">{user?.name}</p>
-                              <p className="text-xs leading-none text-muted-foreground">
-                                  {user?.email}
-                              </p>
+                                <div className="flex justify-between items-center">
+                                    <p className="text-sm font-medium leading-none">{user?.name}</p>
+                                    {rank && !isAdmin && (
+                                        <div className={cn("flex items-center gap-1 text-xs font-semibold", rank.color)}>
+                                            <rank.icon className="h-3 w-3" />
+                                            <span>{rank.name}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <p className="text-xs leading-none text-muted-foreground">
+                                    {user?.email}
+                                </p>
                               </div>
                           </DropdownMenuLabel>
                           <DropdownMenuSeparator />
