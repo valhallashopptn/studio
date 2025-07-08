@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { PlusCircle, MoreHorizontal, Trash2, Edit, Sparkles, Loader2 } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Trash2, Edit, Sparkles, Loader2, X, Plus } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +23,7 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -35,6 +35,12 @@ import { generateImage } from '@/ai/flows/generate-image-flow';
 import { Label } from '@/components/ui/label';
 import { useCurrency } from '@/hooks/use-currency';
 import { useCategories } from '@/hooks/use-categories';
+import { Separator } from '@/components/ui/separator';
+
+const productDetailSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  content: z.string().min(1, "Content is required"),
+});
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -45,6 +51,7 @@ const productSchema = z.object({
     message: "Must be a valid URL or a generated data URI",
   }),
   aiHint: z.string().min(1, 'AI Hint is required'),
+  details: z.array(productDetailSchema).default([]),
 });
 
 export default function AdminProductsPage() {
@@ -58,6 +65,11 @@ export default function AdminProductsPage() {
   
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
+  });
+  
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "details"
   });
 
   const imageUrl = form.watch('image');
@@ -79,6 +91,7 @@ export default function AdminProductsPage() {
           category: categories.length > 0 ? categories[0].name : '',
           image: 'https://placehold.co/600x400.png',
           aiHint: '',
+          details: [],
         });
       }
     }
@@ -120,10 +133,8 @@ export default function AdminProductsPage() {
 
   function onSubmit(values: z.infer<typeof productSchema>) {
     if (editingProduct) {
-        // Update existing product
         setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...editingProduct, ...values } : p));
     } else {
-        // Add new product
         const newProduct: Product = {
             id: `prod_${Date.now()}`,
             ...values,
@@ -151,12 +162,12 @@ export default function AdminProductsPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+              <form id="product-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 pr-2">
                 <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
@@ -215,12 +226,51 @@ export default function AdminProductsPage() {
                     </div>
                 </div>
 
-                <DialogFooter>
-                    <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
-                    <Button type="submit">Save changes</Button>
-                </DialogFooter>
+                <Separator />
+                <div className="space-y-4">
+                    <Label>Product Details & Notes</Label>
+                    {fields.map((field, index) => (
+                        <div key={field.id} className="p-3 border rounded-lg space-y-3 relative">
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => remove(index)}><X className="h-4 w-4"/></Button>
+                            <FormField
+                                control={form.control}
+                                name={`details.${index}.title`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Title</FormLabel>
+                                        <FormControl><Input placeholder="e.g. How It Works" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={`details.${index}.content`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Content</FormLabel>
+                                        <FormControl><Textarea placeholder="Describe the details..." {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    ))}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => append({ title: '', content: '' })}
+                    >
+                        <Plus className="mr-2 h-4 w-4" /> Add Detail Section
+                    </Button>
+                </div>
               </form>
           </Form>
+           <DialogFooter className="pt-4 border-t">
+                <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
+                <Button type="submit" form="product-form">Save changes</Button>
+            </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -275,4 +325,3 @@ export default function AdminProductsPage() {
       </Card>
     </div>
   );
-}
