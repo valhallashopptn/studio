@@ -8,7 +8,7 @@ import type { Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, MoreHorizontal, Trash2, Edit, Package, Send, GripVertical, Plus, X } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Trash2, Edit, Package, Send, Plus, X } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +34,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 const customFieldSchema = z.object({
   id: z.string(),
@@ -45,7 +46,9 @@ const customFieldSchema = z.object({
 
 const categorySchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  image: z.string().min(1, 'Image is required'),
+  description: z.string().min(10, 'Description must be at least 10 characters.'),
+  image: z.string().min(1, 'Front image is required'),
+  backImage: z.string().min(1, 'Back image is required'),
   deliveryMethod: z.enum(['manual', 'instant']),
   customFields: z.array(customFieldSchema).optional(),
 });
@@ -70,6 +73,7 @@ export default function AdminCategoriesPage() {
   });
   
   const imageUrl = form.watch('image');
+  const backImageUrl = form.watch('backImage');
   const deliveryMethod = form.watch('deliveryMethod');
 
   useEffect(() => {
@@ -87,7 +91,9 @@ export default function AdminCategoriesPage() {
       } else {
         form.reset({
           name: '',
+          description: '',
           image: 'https://placehold.co/300x200.png',
+          backImage: 'https://placehold.co/300x200.png',
           deliveryMethod: 'manual',
           customFields: [],
         });
@@ -116,6 +122,19 @@ export default function AdminCategoriesPage() {
       reader.onloadend = () => {
         if (typeof reader.result === 'string') {
           form.setValue('image', reader.result, { shouldValidate: true });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBackImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          form.setValue('backImage', reader.result, { shouldValidate: true });
         }
       };
       reader.readAsDataURL(file);
@@ -155,7 +174,7 @@ export default function AdminCategoriesPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
           </DialogHeader>
@@ -167,13 +186,23 @@ export default function AdminCategoriesPage() {
                             <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
 
+                        <FormField control={form.control} name="description" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Description</FormLabel>
+                                <FormControl><Textarea placeholder="Details about the category for the card back..." {...field} rows={3}/></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}/>
+                        
+                        <Separator />
+
                         <div className="space-y-2">
-                            <Label>Category Image Preview</Label>
+                            <Label>Front Image Preview</Label>
                             {imageUrl && (
                                 <div className="relative aspect-video w-full rounded-md border bg-muted/20">
                                     <Image 
                                         src={imageUrl} 
-                                        alt="Category image preview" 
+                                        alt="Category front image preview" 
                                         fill 
                                         className="object-contain rounded-md"
                                         unoptimized={imageUrl.startsWith('data:image')}
@@ -184,12 +213,44 @@ export default function AdminCategoriesPage() {
 
                         <FormField control={form.control} name="image" render={() => (
                             <FormItem>
-                                <FormLabel>Upload Image</FormLabel>
+                                <FormLabel>Upload Front Image</FormLabel>
                                 <FormControl>
                                     <Input 
                                         type="file"
                                         accept="image/*"
                                         onChange={handleFileChange}
+                                        className="file:text-primary file:font-semibold"
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}/>
+                        
+                        <Separator />
+
+                         <div className="space-y-2">
+                            <Label>Back Image Preview</Label>
+                            {backImageUrl && (
+                                <div className="relative aspect-video w-full rounded-md border bg-muted/20">
+                                    <Image 
+                                        src={backImageUrl} 
+                                        alt="Category back image preview" 
+                                        fill 
+                                        className="object-contain rounded-md"
+                                        unoptimized={backImageUrl.startsWith('data:image')}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        <FormField control={form.control} name="backImage" render={() => (
+                            <FormItem>
+                                <FormLabel>Upload Back Image</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleBackImageFileChange}
                                         className="file:text-primary file:font-semibold"
                                     />
                                 </FormControl>
