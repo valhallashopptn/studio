@@ -58,7 +58,7 @@ export default function AdminLayout({
       <AppHeader />
       <div className="flex flex-1 overflow-hidden">
         <AdminSidebar />
-        <main className="flex-1 overflow-auto p-2 md:p-8 bg-secondary/50 pb-24 md:pb-8">
+        <main className="flex-1 overflow-auto min-w-0 p-2 md:p-8 bg-secondary/50 pb-24 md:pb-8">
           {children}
         </main>
       </div>
