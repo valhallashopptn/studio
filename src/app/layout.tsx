@@ -7,6 +7,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { useTranslation } from '@/hooks/use-translation';
+import { LiveChatSupport } from '@/components/live-chat-support';
 
 export default function RootLayout({
   children,
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className={cn('antialiased', effectiveFont)}>
         {children}
         <Toaster />
+        <LiveChatSupport />
       </body>
     </html>
   );
