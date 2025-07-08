@@ -129,7 +129,7 @@ export function AppHeader() {
               </Button>
             </div>
             
-            <div className="hidden md:flex absolute top-1/2 right-6 -translate-y-1/2 items-center gap-2">
+            <div className="hidden md:flex absolute top-1/2 ltr:right-6 rtl:left-6 -translate-y-1/2 items-center gap-2">
                 <CurrencySwitcher />
                 <LanguageSwitcher />
                 <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
@@ -172,18 +172,18 @@ export function AppHeader() {
                         {!isAdmin && (
                             <>
                             <DropdownMenuItem disabled>
-                                <Wallet className="mr-2 h-4 w-4" />
+                                <Wallet className="ltr:mr-2 rtl:ml-2 h-4 w-4" />
                                 <span>{formatPrice(user?.walletBalance ?? 0)}</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             </>
                         )}
                         <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
-                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            <LayoutDashboard className="ltr:mr-2 rtl:ml-2 h-4 w-4" />
                             <span>{t('auth.dashboard')}</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleLogout}>
-                            <LogOut className="mr-2 h-4 w-4" />
+                            <LogOut className="ltr:mr-2 rtl:ml-2 h-4 w-4" />
                             <span>{t('auth.logout')}</span>
                         </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -210,8 +210,11 @@ export function AppHeader() {
             onClick={() => setMobileMenuOpen(false)}
         />
         <div className={cn(
-            "absolute left-0 top-0 h-full w-4/5 max-w-xs bg-background p-6 shadow-xl transition-transform duration-300 ease-in-out",
-            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            "absolute top-0 h-full w-4/5 max-w-xs bg-background p-6 shadow-xl transition-transform duration-300 ease-in-out",
+            "ltr:left-0 rtl:right-0",
+            isMobileMenuOpen
+                ? "translate-x-0"
+                : "ltr:-translate-x-full rtl:translate-x-full"
         )}>
             <div className="flex items-center justify-between mb-8">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
@@ -251,11 +254,11 @@ export function AppHeader() {
                     <div className="space-y-3">
                        <Button asChild className="w-full" variant="secondary" onClick={() => setMobileMenuOpen(false)}>
                            <Link href={isAdmin ? '/admin' : '/dashboard/orders'}>
-                             <LayoutDashboard className="mr-2"/> {t('auth.dashboard')}
+                             <LayoutDashboard className="ltr:mr-2 rtl:ml-2"/> {t('auth.dashboard')}
                            </Link>
                        </Button>
                        <Button asChild className="w-full" variant="destructive" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>
-                           <button><LogOut className="mr-2"/> {t('auth.logout')}</button>
+                           <button><LogOut className="ltr:mr-2 rtl:ml-2"/> {t('auth.logout')}</button>
                        </Button>
                     </div>
                  ) : (
