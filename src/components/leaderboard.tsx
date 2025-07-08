@@ -2,8 +2,7 @@
 'use client';
 
 import { users } from "@/lib/data";
-import { getRank } from "@/lib/ranks";
-import { useCurrency } from "@/hooks/use-currency";
+import { getRank, formatXp, USD_TO_XP_RATE } from "@/lib/ranks";
 import { useMemo, useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,7 +15,6 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 
 export function Leaderboard() {
-    const { formatPrice } = useCurrency();
     const { t } = useTranslation();
     const [isMounted, setIsMounted] = useState(false);
 
@@ -77,7 +75,7 @@ export function Leaderboard() {
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-right font-mono text-sm">
-                                        {isMounted ? formatPrice(user.totalSpent) : <Skeleton className="h-5 w-20 ml-auto" />}
+                                        {isMounted ? formatXp(user.totalSpent * USD_TO_XP_RATE) : <Skeleton className="h-5 w-20 ml-auto" />}
                                     </TableCell>
                                 </TableRow>
                             )

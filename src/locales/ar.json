@@ -236,7 +236,10 @@
     "profileUpdatedToastDesc": "تم حفظ معلومات ملفك الشخصي.",
     "passwordChangedToast": "تم تغيير كلمة المرور",
     "passwordChangedToastDesc": "تم تحديث كلمة المرور بنجاح.",
-    "avatarUpdatedToast": "تم تحديث الصورة الرمزية!"
+    "avatarUpdatedToast": "تم تحديث الصورة الرمزية!",
+    "allRanksDescription": "ارتقِ في المراتب عن طريق إجراء عمليات شراء. المراتب الأعلى تمنحك مكانة أكبر!",
+    "nextRankProgressText": "اكسب {{xp}} إضافية للترقية.",
+    "maxRankText": "لقد وصلت إلى مرتبة الأسطورة! أنت بطل حقيقي."
   },
   "productPage": {
     "noReviews": "لا توجد تقييمات بعد",
@@ -251,15 +254,15 @@
     "buyNow": "اشترِ الآن"
   },
   "leaderboard": {
-    "title": "أفضل الصيادين",
+    "title": "أفضل اللاعبين",
     "headerRank": "#",
-    "headerHunter": "الصياد",
+    "headerHunter": "اللاعب",
     "headerClass": "الرتبة",
-    "headerSpent": "إجمالي الإنفاق",
+    "headerSpent": "إجمالي نقاط الخبرة",
     "viewAll": "عرض الكل",
-    "fullTitle": "قائمة أفضل الصيادين",
-    "fullSubtitle": "شاهد من يتربع على عرش عالم الصيادين الرقميين.",
+    "fullTitle": "لوحة صدارة اللاعبين",
+    "fullSubtitle": "شاهد من يتصدر تصنيفات Marvel Rivals.",
     "fullCardTitle": "الترتيب الكامل",
-    "fullCardDescription": "القائمة الكاملة لجميع الصيادين، مرتبة حسب إجمالي إنفاقهم."
+    "fullCardDescription": "القائمة الكاملة لجميع اللاعبين، مرتبة حسب إجمالي إنفاقهم."
   }
 }

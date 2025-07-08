@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTranslation } from '@/hooks/use-translation';
-import { getRank, getNextRank, ranks as allRanks } from '@/lib/ranks';
+import { getRank, getNextRank, ranks as allRanks, USD_TO_XP_RATE, formatXp } from '@/lib/ranks';
 import { Progress } from '@/components/ui/progress';
 import { useCurrency } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
@@ -63,16 +63,17 @@ export default function SettingsPage() {
     useEffect(() => {
         setIsMounted(true);
     }, []);
-
+    
+    const totalXp = user ? user.totalSpent * USD_TO_XP_RATE : 0;
     const rank = user ? getRank(user.totalSpent) : null;
     const nextRank = user ? getNextRank(user.totalSpent) : null;
 
     const currentRankThreshold = rank?.threshold ?? 0;
     const nextRankThreshold = nextRank?.threshold ?? 0;
-    const progressToNextRank = user ? user.totalSpent - currentRankThreshold : 0;
+    const progressToNextRank = totalXp - currentRankThreshold;
     const requiredForNextRank = nextRankThreshold - currentRankThreshold;
     const progressPercentage = requiredForNextRank > 0 ? (progressToNextRank / requiredForNextRank) * 100 : (nextRank ? 0 : 100);
-    const amountToNextRank = nextRank && user ? nextRank.threshold - user.totalSpent : 0;
+    const amountToNextRank = nextRank ? nextRank.threshold - totalXp : 0;
 
     const profileForm = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
@@ -146,14 +147,14 @@ export default function SettingsPage() {
                                 <DialogHeader>
                                     <DialogTitle>All Available Ranks</DialogTitle>
                                     <DialogDescription>
-                                        Rank up by completing orders. Higher ranks unlock greater prestige!
+                                        {t('dashboardSettings.allRanksDescription')}
                                     </DialogDescription>
                                 </DialogHeader>
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Rank</TableHead>
-                                            <TableHead className="text-right">Spending Required</TableHead>
+                                            <TableHead className="text-right">XP Required</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -166,7 +167,7 @@ export default function SettingsPage() {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right font-mono">
-                                                    {isMounted ? formatPrice(r.threshold) : <Skeleton className="h-5 w-20 ml-auto" />}
+                                                    {isMounted ? formatXp(r.threshold) : <Skeleton className="h-5 w-20 ml-auto" />}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -182,7 +183,7 @@ export default function SettingsPage() {
                             <div>
                                 <h3 className="text-2xl font-bold">{rank.name}</h3>
                                 {isMounted ? (
-                                    <p className="text-muted-foreground">Total Spent: {formatPrice(user?.totalSpent ?? 0)}</p>
+                                    <p className="text-muted-foreground">Total XP: {formatXp(totalXp)}</p>
                                 ) : (
                                     <Skeleton className="h-5 w-32 mt-1" />
                                 )}
@@ -193,7 +194,7 @@ export default function SettingsPage() {
                                 <div className="flex justify-between text-sm text-muted-foreground">
                                     <span>Progress to {nextRank.name}</span>
                                     {isMounted ? (
-                                        <span>{formatPrice(user?.totalSpent ?? 0)} / {formatPrice(nextRank.threshold)}</span>
+                                        <span>{formatXp(totalXp)} / {formatXp(nextRank.threshold)}</span>
                                     ) : (
                                         <Skeleton className="h-5 w-32" />
                                     )}
@@ -202,7 +203,7 @@ export default function SettingsPage() {
                                 <div className="text-sm text-center text-muted-foreground pt-1 h-5">
                                     {isMounted ? (
                                         <p>
-                                            Spend <span className="font-bold text-primary">{formatPrice(amountToNextRank)}</span> more to reach the next rank.
+                                            Earn <span className="font-bold text-primary">{formatXp(amountToNextRank)}</span> more to rank up.
                                         </p>
                                     ) : (
                                         <Skeleton className="h-5 w-48 mx-auto" />
@@ -210,7 +211,7 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center font-semibold text-primary p-2 bg-secondary rounded-md">You have reached the rank of Monarch! There is no one stronger.</div>
+                            <div className="text-center font-semibold text-primary p-2 bg-secondary rounded-md">{t('dashboardSettings.maxRankText')}</div>
                         )}
                     </CardContent>
                 </Card>

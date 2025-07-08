@@ -28,7 +28,7 @@ import { useContentSettings } from '@/hooks/use-content-settings';
 import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import { Skeleton } from './ui/skeleton';
-import { getRank, getNextRank } from '@/lib/ranks';
+import { getRank, getNextRank, formatXp, USD_TO_XP_RATE } from '@/lib/ranks';
 import { Progress } from './ui/progress';
 
 
@@ -48,14 +48,15 @@ export function AppHeader() {
   const { theme } = useTheme();
 
   // Rank logic
+  const totalXp = user ? user.totalSpent * USD_TO_XP_RATE : 0;
   const rank = user ? getRank(user.totalSpent) : null;
   const nextRank = user ? getNextRank(user.totalSpent) : null;
   const currentRankThreshold = rank?.threshold ?? 0;
   const nextRankThreshold = nextRank?.threshold ?? 0;
-  const progressToNextRank = user ? user.totalSpent - currentRankThreshold : 0;
+  const progressToNextRank = totalXp - currentRankThreshold;
   const requiredForNextRank = nextRankThreshold - currentRankThreshold;
   const progressPercentage = requiredForNextRank > 0 ? (progressToNextRank / requiredForNextRank) * 100 : (nextRank ? 0 : 100);
-  const amountToNextRank = nextRank && user ? nextRank.threshold - user.totalSpent : 0;
+  const amountToNextRank = nextRank ? nextRank.threshold - totalXp : 0;
 
   useEffect(() => {
     setIsMounted(true);
@@ -233,11 +234,11 @@ export function AppHeader() {
                                     <div className="space-y-1">
                                         <Progress value={progressPercentage} className="h-1.5" />
                                         <p className="text-xs text-muted-foreground text-center pt-1">
-                                            Spend {formatPrice(amountToNextRank)} more to rank up.
+                                            {t('dashboardSettings.nextRankProgressText', { xp: formatXp(amountToNextRank) })}
                                         </p>
                                     </div>
                                     ) : (
-                                    <div className="text-xs text-center font-semibold text-amber-400 py-1">You are a Monarch!</div>
+                                    <div className="text-xs text-center font-semibold text-primary py-1">{t('dashboardSettings.maxRankText')}</div>
                                     )}
                                 </div>
                                 </>

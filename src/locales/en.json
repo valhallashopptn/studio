@@ -236,7 +236,10 @@
     "profileUpdatedToastDesc": "Your profile information has been saved.",
     "passwordChangedToast": "Password Changed",
     "passwordChangedToastDesc": "Your password has been updated successfully.",
-    "avatarUpdatedToast": "Avatar Updated!"
+    "avatarUpdatedToast": "Avatar Updated!",
+    "allRanksDescription": "Rank up by making purchases. Higher ranks unlock greater prestige!",
+    "nextRankProgressText": "Earn {{xp}} more to rank up.",
+    "maxRankText": "You have reached the rank of Legend! You are a true champion."
   },
   "productPage": {
     "noReviews": "No reviews yet",
@@ -251,15 +254,15 @@
     "buyNow": "Buy Now"
   },
   "leaderboard": {
-    "title": "Top Hunters",
+    "title": "Top Players",
     "headerRank": "#",
-    "headerHunter": "Hunter",
+    "headerHunter": "Player",
     "headerClass": "Rank",
-    "headerSpent": "Total Spent",
+    "headerSpent": "Total XP",
     "viewAll": "View All",
-    "fullTitle": "Hunters Leaderboard",
-    "fullSubtitle": "See who reigns supreme in the realm of digital hunters.",
+    "fullTitle": "Player Leaderboard",
+    "fullSubtitle": "See who's at the top of the Marvel Rivals ranks.",
     "fullCardTitle": "Full Rankings",
-    "fullCardDescription": "The complete list of all hunters, ranked by their total spending."
+    "fullCardDescription": "The complete list of all players, ranked by their total spending."
   }
 }

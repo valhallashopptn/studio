@@ -1,30 +1,33 @@
 
 'use client';
 
-import { Shield, ShieldCheck, Gem, Crown, Star, Flame } from 'lucide-react';
+import { Shield, ShieldCheck, Gem, Crown, Trophy, Diamond, Hexagon } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+
+export const USD_TO_XP_RATE = 1000;
 
 export interface Rank {
     name: string;
-    threshold: number;
+    threshold: number; // This is now in XP
     icon: LucideIcon;
     color: string; // Tailwind color class
 }
 
 export const ranks: Rank[] = [
-    { name: 'E-Rank', threshold: 0, icon: Shield, color: 'text-gray-400' },
-    { name: 'D-Rank', threshold: 25, icon: ShieldCheck, color: 'text-green-400' },
-    { name: 'C-Rank', threshold: 100, icon: Gem, color: 'text-blue-400' },
-    { name: 'B-Rank', threshold: 250, icon: Crown, color: 'text-purple-400' },
-    { name: 'A-Rank', threshold: 500, icon: Star, color: 'text-red-400' },
-    { name: 'S-Rank', threshold: 1000, icon: Flame, color: 'text-violet-500' },
-    { name: 'Monarch', threshold: 2500, icon: Flame, color: 'text-amber-400' },
+    { name: 'Bronze', threshold: 0 * USD_TO_XP_RATE, icon: Shield, color: 'text-orange-400' },
+    { name: 'Silver', threshold: 25 * USD_TO_XP_RATE, icon: ShieldCheck, color: 'text-gray-400' },
+    { name: 'Gold', threshold: 100 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
+    { name: 'Platinum', threshold: 250 * USD_TO_XP_RATE, icon: Gem, color: 'text-cyan-400' },
+    { name: 'Diamond', threshold: 500 * USD_TO_XP_RATE, icon: Diamond, color: 'text-blue-400' },
+    { name: 'Vibranium', threshold: 1000 * USD_TO_XP_RATE, icon: Hexagon, color: 'text-violet-500' },
+    { name: 'Legend', threshold: 2500 * USD_TO_XP_RATE, icon: Crown, color: 'text-red-500' },
 ];
 
 export const getRank = (totalSpent: number): Rank => {
+    const totalXp = totalSpent * USD_TO_XP_RATE;
     let currentRank = ranks[0];
     for (const rank of ranks) {
-        if (totalSpent >= rank.threshold) {
+        if (totalXp >= rank.threshold) {
             currentRank = rank;
         } else {
             break;
@@ -41,3 +44,7 @@ export const getNextRank = (totalSpent: number): Rank | null => {
     }
     return ranks[currentRankIndex + 1];
 }
+
+export const formatXp = (xp: number) => {
+    return `${new Intl.NumberFormat('en-US').format(Math.floor(xp))} XP`;
+};

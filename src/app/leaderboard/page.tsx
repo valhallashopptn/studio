@@ -4,10 +4,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
-import { useCurrency } from "@/hooks/use-currency";
 import { useTranslation } from "@/hooks/use-translation";
 import { users } from "@/lib/data";
-import { getRank } from "@/lib/ranks";
+import { getRank, formatXp, USD_TO_XP_RATE } from "@/lib/ranks";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,7 +15,6 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function LeaderboardPage() {
-    const { formatPrice } = useCurrency();
     const { t } = useTranslation();
     const [isMounted, setIsMounted] = useState(false);
 
@@ -87,7 +85,7 @@ export default function LeaderboardPage() {
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="text-right font-mono text-sm">
-                                                        {isMounted ? formatPrice(user.totalSpent) : <Skeleton className="h-5 w-20 ml-auto" />}
+                                                        {isMounted ? formatXp(user.totalSpent * USD_TO_XP_RATE) : <Skeleton className="h-5 w-20 ml-auto" />}
                                                     </TableCell>
                                                 </TableRow>
                                             )
