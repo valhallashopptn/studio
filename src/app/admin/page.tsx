@@ -1,3 +1,4 @@
+
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -5,10 +6,12 @@ import { products } from "@/lib/data"
 import { Package, Users, DollarSign } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { useEffect, useState } from "react"
+import { useCurrency } from "@/hooks/use-currency"
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [productCount, setProductCount] = useState(0);
+  const { formatPrice } = useCurrency();
 
   useEffect(() => {
     // In a real app, this would be an API call
@@ -45,7 +48,7 @@ export default function AdminDashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$4,231.89</div>
+            <div className="text-2xl font-bold">{formatPrice(4231.89)}</div>
             <p className="text-xs text-muted-foreground">
               +20.1% from last month
             </p>

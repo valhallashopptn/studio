@@ -34,6 +34,7 @@ import type { PaymentMethod, CartItem } from '@/lib/types';
 import { Minus, Plus, Trash2, Landmark, Wallet, CreditCard, Upload } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/hooks/use-translation';
+import { useCurrency } from '@/hooks/use-currency';
 
 
 interface CartSheetProps {
@@ -89,6 +90,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const [orderId, setOrderId] = useState('');
   const { toast } = useToast();
   const { t } = useTranslation();
+  const { formatPrice } = useCurrency();
 
   const categoryMap = useMemo(() => new Map(initialCategories.map(c => [c.name, c])), []);
 
@@ -194,7 +196,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                            <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md object-cover" />
                           <div className="flex-1">
                             <p className="font-semibold">{item.name}</p>
-                            <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
+                            <p className="text-sm text-muted-foreground">{formatPrice(item.price)}</p>
                             <div className="flex items-center gap-2 mt-2">
                               <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.id, item.quantity - 1)}><Minus className="h-3 w-3" /></Button>
                               <Input type="number" value={item.quantity} readOnly className="h-6 w-12 text-center" />
@@ -219,7 +221,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                             )}
                           </div>
                           <div className="text-right">
-                            <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                            <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -278,7 +280,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                 <div className="w-full space-y-4">
                   <div className="flex justify-between items-center text-lg font-bold">
                     <span>{t('cart.total')}</span>
-                    <span className="text-primary">${total.toFixed(2)}</span>
+                    <span className="text-primary">{formatPrice(total)}</span>
                   </div>
                   <Button onClick={handleSubmitOrder} className="w-full" size="lg">
                     {t('cart.submit')}

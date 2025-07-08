@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -32,6 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { generateImage } from '@/ai/flows/generate-image-flow';
 import { Label } from '@/components/ui/label';
+import { useCurrency } from '@/hooks/use-currency';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -51,6 +53,7 @@ export default function AdminProductsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const { formatPrice } = useCurrency();
   
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -161,7 +164,7 @@ export default function AdminProductsPage() {
                     <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField control={form.control} name="price" render={({ field }) => (
-                    <FormItem><FormLabel>Price</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Price (USD)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField control={form.control} name="category" render={({ field }) => (
                     <FormItem><FormLabel>Category</FormLabel>
@@ -245,7 +248,7 @@ export default function AdminProductsPage() {
                       {product.category}
                     </Badge>
                   </TableCell>
-                  <TableCell>${product.price.toFixed(2)}</TableCell>
+                  <TableCell>{formatPrice(product.price)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

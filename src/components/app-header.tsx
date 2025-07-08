@@ -23,6 +23,7 @@ import { useSiteSettings } from '@/hooks/use-site-settings';
 import Image from 'next/image';
 import { LanguageSwitcher } from './language-switcher';
 import { useTranslation } from '@/hooks/use-translation';
+import { CurrencySwitcher } from './currency-switcher';
 
 
 export function AppHeader() {
@@ -81,6 +82,7 @@ export function AppHeader() {
             </nav>
           </div>
           <div className="flex items-center gap-2">
+            <CurrencySwitcher />
             <LanguageSwitcher />
             <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />

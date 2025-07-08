@@ -15,9 +15,17 @@ import { Badge } from '@/components/ui/badge';
 import type { Product } from '@/lib/types';
 import { ShoppingCart } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
+import { useCurrency } from '@/hooks/use-currency';
+
+interface ProductCardProps {
+  product: Product;
+  onAddToCart: () => void;
+}
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const { t } = useTranslation();
+  const { formatPrice } = useCurrency();
+
   return (
     <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full hover:border-primary/50">
       <CardHeader>
@@ -42,7 +50,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       </CardContent>
       <CardFooter className="flex justify-between items-center">
         <p className="text-xl font-bold text-primary">
-          ${product.price.toFixed(2)}
+          {formatPrice(product.price)}
         </p>
         <Button onClick={onAddToCart} className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <ShoppingCart className="mr-2 h-4 w-4" />
