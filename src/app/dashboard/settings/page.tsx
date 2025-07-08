@@ -15,10 +15,27 @@ import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTranslation } from '@/hooks/use-translation';
-import { getRank, getNextRank } from '@/lib/ranks';
+import { getRank, getNextRank, ranks as allRanks } from '@/lib/ranks';
 import { Progress } from '@/components/ui/progress';
 import { useCurrency } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
+import { Info } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -109,7 +126,47 @@ export default function SettingsPage() {
             {rank && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Your Rank & Progress</CardTitle>
+                        <Dialog>
+                            <div className="flex justify-between items-center">
+                                <CardTitle>Your Rank & Progress</CardTitle>
+                                <DialogTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                        <Info className="h-5 w-5 text-muted-foreground hover:text-primary" />
+                                    </Button>
+                                </DialogTrigger>
+                            </div>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>All Available Ranks</DialogTitle>
+                                    <DialogDescription>
+                                        Rank up by completing orders. Higher ranks unlock greater prestige!
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Rank</TableHead>
+                                            <TableHead className="text-right">Spending Required</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {allRanks.map((r) => (
+                                            <TableRow key={r.name}>
+                                                <TableCell>
+                                                    <div className={cn("flex items-center gap-2 font-semibold", r.color)}>
+                                                        <r.icon className="h-5 w-5" />
+                                                        <span>{r.name}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-right font-mono">
+                                                    {formatPrice(r.threshold)}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </DialogContent>
+                        </Dialog>
                         <CardDescription>Track your journey through the ranks. Higher ranks may unlock future benefits!</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">

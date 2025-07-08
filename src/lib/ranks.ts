@@ -18,6 +18,7 @@ export const ranks: Rank[] = [
     { name: 'B-Rank', threshold: 250, icon: Crown, color: 'text-purple-400' },
     { name: 'A-Rank', threshold: 500, icon: Star, color: 'text-red-400' },
     { name: 'S-Rank', threshold: 1000, icon: Flame, color: 'text-violet-500' },
+    { name: 'Monarch', threshold: 2500, icon: Flame, color: 'text-amber-400' },
 ];
 
 export const getRank = (totalSpent: number): Rank => {
