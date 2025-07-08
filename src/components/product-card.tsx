@@ -16,6 +16,8 @@ import type { Product } from '@/lib/types';
 import { ShoppingCart } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { useCurrency } from '@/hooks/use-currency';
+import { useState, useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProductCardProps {
   product: Product;
@@ -25,6 +27,11 @@ interface ProductCardProps {
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full hover:border-primary/50">
@@ -49,9 +56,13 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <p className="text-xl font-bold text-primary">
-          {formatPrice(product.price)}
-        </p>
+        {isMounted ? (
+            <p className="text-xl font-bold text-primary">
+            {formatPrice(product.price)}
+            </p>
+        ) : (
+            <Skeleton className="h-7 w-24" />
+        )}
         <Button onClick={onAddToCart} className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <ShoppingCart className="mr-2 h-4 w-4" />
           {t('productCard.addToOrder')}
