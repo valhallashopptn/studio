@@ -6,7 +6,6 @@ import {
   Card,
 } from '@/components/ui/card';
 import type { Category } from '@/lib/types';
-import { Info } from 'lucide-react';
 
 interface CategoryCardProps {
   category: Category;
@@ -32,9 +31,6 @@ export function CategoryCard({ category, onClick }: CategoryCardProps) {
             />
             <div className="absolute inset-x-0 bottom-0 bg-black/50 p-4 text-center">
               <h3 className="font-semibold text-lg text-white">{category.name}</h3>
-            </div>
-            <div className="absolute top-2 right-2 rounded-full bg-black/50 p-1.5 text-white/80">
-              <Info className="h-4 w-4" />
             </div>
           </div>
         </div>
