@@ -9,7 +9,7 @@ type CouponsState = {
   coupons: Coupon[];
   addCoupon: (coupon: Omit<Coupon, 'id' | 'timesUsed'>) => string;
   deleteCoupon: (couponId: string) => void;
-  validateCoupon: (code: string) => { isValid: boolean; error?: string; coupon?: Coupon };
+  validateCoupon: (code: string, isFirstPurchase: boolean) => { isValid: boolean; error?: string; coupon?: Coupon };
   applyCoupon: (code: string) => void;
 };
 
@@ -22,6 +22,7 @@ const initialCoupons: Coupon[] = [
         expiresAt: new Date(new Date().getFullYear() + 1, 0, 1).toISOString(), // Jan 1st next year
         usageLimit: 100,
         timesUsed: 5,
+        firstPurchaseOnly: false,
     },
     {
         id: 'coupon_2',
@@ -30,6 +31,16 @@ const initialCoupons: Coupon[] = [
         value: 5,
         usageLimit: 50,
         timesUsed: 10,
+        firstPurchaseOnly: false,
+    },
+    {
+        id: 'coupon_3',
+        code: 'WELCOME15',
+        discountType: 'percentage',
+        value: 15,
+        usageLimit: 500,
+        timesUsed: 0,
+        firstPurchaseOnly: true,
     }
 ];
 
@@ -41,6 +52,7 @@ export const useCoupons = create(
         const newCoupon: Coupon = {
             id: `coupon_${Date.now()}`,
             timesUsed: 0,
+            firstPurchaseOnly: false,
             ...couponData,
         };
         set((state) => ({ coupons: [...state.coupons, newCoupon] }));
@@ -51,7 +63,7 @@ export const useCoupons = create(
             coupons: state.coupons.filter(c => c.id !== couponId)
         }));
       },
-      validateCoupon: (code) => {
+      validateCoupon: (code, isFirstPurchase) => {
         const coupon = get().coupons.find(c => c.code.toUpperCase() === code.toUpperCase());
 
         if (!coupon) {
@@ -62,6 +74,9 @@ export const useCoupons = create(
         }
         if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) {
             return { isValid: false, error: 'This coupon has expired.' };
+        }
+        if (coupon.firstPurchaseOnly && !isFirstPurchase) {
+            return { isValid: false, error: 'This coupon is for first-time customers only.'};
         }
 
         return { isValid: true, coupon };

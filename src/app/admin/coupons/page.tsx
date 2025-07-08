@@ -27,7 +27,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -36,6 +36,8 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 
 const couponSchema = z.object({
@@ -44,6 +46,7 @@ const couponSchema = z.object({
   value: z.coerce.number().min(0.01, "Value must be greater than 0."),
   usageLimit: z.coerce.number().min(1, "Usage limit must be at least 1."),
   expiresAt: z.date().optional(),
+  firstPurchaseOnly: z.boolean().optional(),
 });
 
 
@@ -58,6 +61,7 @@ export default function AdminCouponsPage() {
     defaultValues: {
       discountType: 'percentage',
       usageLimit: 100,
+      firstPurchaseOnly: false,
     }
   });
 
@@ -79,6 +83,7 @@ export default function AdminCouponsPage() {
     const newCode = addCoupon({
         ...values,
         expiresAt: values.expiresAt?.toISOString(),
+        firstPurchaseOnly: values.firstPurchaseOnly || false,
     });
     toast({
         title: "Coupon Created!",
@@ -94,6 +99,7 @@ export default function AdminCouponsPage() {
         value: 10,
         usageLimit: 100,
         expiresAt: undefined,
+        firstPurchaseOnly: false,
     });
     setIsDialogOpen(true);
   };
@@ -200,6 +206,27 @@ export default function AdminCouponsPage() {
                         </FormItem>
                     )}/>
                 </div>
+                
+                 <FormField
+                    control={form.control}
+                    name="firstPurchaseOnly"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>First Purchase Only</FormLabel>
+                          <FormDescription>
+                            If checked, this coupon can only be used by new customers.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
 
               </form>
             </Form>
@@ -224,6 +251,7 @@ export default function AdminCouponsPage() {
                 <TableHead>Value</TableHead>
                 <TableHead>Usage</TableHead>
                 <TableHead>Expires</TableHead>
+                <TableHead>Restrictions</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -238,6 +266,9 @@ export default function AdminCouponsPage() {
                   <TableCell>{coupon.timesUsed} / {coupon.usageLimit}</TableCell>
                   <TableCell>
                     {coupon.expiresAt ? format(new Date(coupon.expiresAt), 'P') : 'Never'}
+                  </TableCell>
+                  <TableCell>
+                    {coupon.firstPurchaseOnly && <Badge variant="outline">First Purchase</Badge>}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

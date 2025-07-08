@@ -56,7 +56,7 @@ export default function CheckoutPage() {
     const { items, clearCart, updateCustomFieldValue } = useCart();
     const { paymentMethods } = usePaymentSettings();
     const { categories } = useCategories();
-    const { addOrder } = useOrders();
+    const { orders, addOrder } = useOrders();
     const { user, isAuthenticated, updateWalletBalance } = useAuth();
     const { validateCoupon, applyCoupon } = useCoupons();
 
@@ -121,8 +121,13 @@ export default function CheckoutPage() {
 
     const isWalletDisabled = !isAuthenticated || (user?.walletBalance ?? 0) < total;
 
+    const isFirstPurchase = useMemo(() => {
+        if (!user) return false;
+        return !orders.some(order => order.customer.id === user.id);
+    }, [orders, user]);
+
     const handleApplyCoupon = () => {
-        const { isValid, coupon, error } = validateCoupon(couponCode);
+        const { isValid, coupon, error } = validateCoupon(couponCode, isFirstPurchase);
         if (isValid && coupon) {
             let discount = 0;
             if (coupon.discountType === 'fixed') {

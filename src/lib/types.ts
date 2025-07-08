@@ -1,4 +1,5 @@
 
+
 export interface ProductVariant {
   id: string;
   name: string; // e.g., "1 Month", "100 Diamonds"
@@ -93,6 +94,7 @@ export interface Coupon {
   expiresAt?: string; // ISO date string
   usageLimit: number; // Max number of times the coupon can be used
   timesUsed: number;
+  firstPurchaseOnly?: boolean;
 }
 
 export interface Order {
