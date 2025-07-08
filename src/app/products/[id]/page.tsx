@@ -182,17 +182,28 @@ export default function ProductDetailPage() {
           </div>
           
           <div className="w-full mt-16">
-            <Tabs defaultValue={product.details[0]?.title || 'reviews'}>
-              <TabsList className="w-full justify-start overflow-x-auto overflow-y-hidden">
+            <Tabs defaultValue={product.details[0]?.title || 'reviews'} className="w-full">
+              <TabsList className="w-full justify-start overflow-x-auto overflow-y-hidden border-b bg-transparent p-0 rounded-none">
                  {product.details.map((detail, index) => (
-                    <TabsTrigger key={index} value={detail.title} className="flex-shrink-0">{detail.title}</TabsTrigger>
+                    <TabsTrigger 
+                        key={index} 
+                        value={detail.title} 
+                        className="flex-shrink-0 rounded-none border-b-2 border-transparent bg-transparent p-4 font-semibold text-muted-foreground shadow-none transition-colors hover:text-primary data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none"
+                    >
+                        {detail.title}
+                    </TabsTrigger>
                  ))}
-                 <TabsTrigger value="reviews" className="flex-shrink-0">Reviews ({productReviews.length})</TabsTrigger>
+                 <TabsTrigger 
+                    value="reviews" 
+                    className="flex-shrink-0 rounded-none border-b-2 border-transparent bg-transparent p-4 font-semibold text-muted-foreground shadow-none transition-colors hover:text-primary data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none"
+                >
+                    Reviews ({productReviews.length})
+                </TabsTrigger>
               </TabsList>
 
               {product.details.map((detail, index) => (
-                <TabsContent key={index} value={detail.title}>
-                  <Card>
+                <TabsContent key={index} value={detail.title} className="mt-0">
+                  <Card className="border-t-0 rounded-t-none">
                     <CardContent className="p-6">
                       <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{detail.content}</p>
                     </CardContent>
@@ -200,8 +211,8 @@ export default function ProductDetailPage() {
                 </TabsContent>
               ))}
 
-              <TabsContent value="reviews">
-                <Card>
+              <TabsContent value="reviews" className="mt-0">
+                <Card className="border-t-0 rounded-t-none">
                   <CardContent className="p-6">
                     {productReviews.length > 0 ? (
                       <div className="space-y-6">
