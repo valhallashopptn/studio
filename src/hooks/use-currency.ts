@@ -7,7 +7,7 @@ import { persist } from 'zustand/middleware';
 type Currency = 'USD' | 'TND';
 
 // A mock conversion rate
-const CONVERSION_RATES = {
+export const CONVERSION_RATES = {
   USD: 1,
   TND: 3.1,
 };

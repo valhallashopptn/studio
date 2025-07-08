@@ -33,7 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Image from 'next/image';
 import { generateImage } from '@/ai/flows/generate-image-flow';
 import { Label } from '@/components/ui/label';
-import { useCurrency } from '@/hooks/use-currency';
+import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
 import { useCategories } from '@/hooks/use-categories';
 import { Separator } from '@/components/ui/separator';
 
@@ -93,7 +93,14 @@ export default function AdminProductsPage() {
    useEffect(() => {
     if (isDialogOpen) {
       if (editingProduct) {
-        form.reset(editingProduct);
+        // Convert prices to TND for editing
+        form.reset({
+          ...editingProduct,
+          variants: editingProduct.variants.map(v => ({
+            ...v,
+            price: parseFloat((v.price * CONVERSION_RATES.TND).toFixed(2))
+          }))
+        });
       } else {
         form.reset({
           name: '',
@@ -102,7 +109,7 @@ export default function AdminProductsPage() {
           image: 'https://placehold.co/600x400.png',
           aiHint: '',
           details: [],
-          variants: [{ id: `var_${Date.now()}`, name: 'Standard', price: 10.00 }],
+          variants: [{ id: `var_${Date.now()}`, name: 'Standard', price: 30.00 }],
         });
       }
     }
@@ -143,12 +150,21 @@ export default function AdminProductsPage() {
 
 
   function onSubmit(values: z.infer<typeof productSchema>) {
+    // Convert prices from TND back to USD for storage
+    const valuesInUsd = {
+        ...values,
+        variants: values.variants.map(v => ({
+            ...v,
+            price: v.price / CONVERSION_RATES.TND,
+        }))
+    };
+
     if (editingProduct) {
-        setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...editingProduct, ...values } : p));
+        setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...editingProduct, ...valuesInUsd } : p));
     } else {
         const newProduct: Product = {
             id: `prod_${Date.now()}`,
-            ...values,
+            ...valuesInUsd,
         };
         setProducts(prev => [...prev, newProduct]);
     }
@@ -209,7 +225,7 @@ export default function AdminProductsPage() {
                                     <FormItem><FormLabel>Variant Name</FormLabel><FormControl><Input placeholder="e.g. 1 Month" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                                  <FormField control={form.control} name={`variants.${index}.price`} render={({ field }) => (
-                                    <FormItem><FormLabel>Price (USD)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>Price (TND)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                              </div>
                         </div>
