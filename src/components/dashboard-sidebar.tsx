@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -8,6 +7,7 @@ import { ClipboardList, UserCog, Wallet } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useCurrency } from '@/hooks/use-currency';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const navLinks = [
   { href: '/dashboard/orders', label: 'My Orders', icon: ClipboardList },
@@ -31,13 +31,18 @@ export function DashboardSidebar() {
             <p className="text-sm text-muted-foreground">Customer</p>
         </div>
       </div>
-      <div className="mb-8 p-3 bg-secondary rounded-lg">
-          <div className="flex items-center gap-2 text-sm font-semibold mb-2">
-            <Wallet className="h-5 w-5 text-primary"/>
-            <span>Wallet Balance</span>
-          </div>
-          <p className="text-2xl font-bold">{formatPrice(user?.walletBalance ?? 0)}</p>
-      </div>
+
+      <Card className="mb-8">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-2">
+            <CardTitle className="text-sm font-medium">Wallet Balance</CardTitle>
+            <Wallet className="h-5 w-5 text-primary" />
+        </CardHeader>
+        <CardContent className="p-3 pt-0">
+            <div className="text-2xl font-bold text-primary">{formatPrice(user?.walletBalance ?? 0)}</div>
+            <p className="text-xs text-muted-foreground">Available to spend</p>
+        </CardContent>
+      </Card>
+
       <nav className="flex flex-col gap-2">
         {navLinks.map((link) => (
           <Link
