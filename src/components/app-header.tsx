@@ -81,10 +81,10 @@ export function AppHeader() {
     return (
       <div className="sticky top-0 z-50 w-full bg-background">
         <div className={cn("bg-accent text-accent-foreground text-sm py-2 overflow-hidden", !(announcementEnabled && announcementText) && "hidden")}>
-           <div className="container flex items-center justify-center h-[28px]"></div>
+           <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-center h-[28px] px-4"></div>
         </div>
         <header className="relative w-full border-b bg-background">
-          <div className="container flex h-16 items-center justify-between">
+          <div className="w-full max-w-screen-2xl mx-auto flex h-16 items-center justify-between px-4">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-sm bg-muted"></div>
               <div className="h-6 w-24 rounded-md bg-muted"></div>
@@ -104,7 +104,7 @@ export function AppHeader() {
       <div className="sticky top-0 z-50 w-full bg-background">
         {announcementEnabled && announcementText && (
           <div className="bg-accent text-accent-foreground text-sm py-2 overflow-hidden">
-            <div className="container flex items-center justify-center">
+            <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-center px-4">
               <div className="flex items-center gap-4 animate-slide-down-up">
                 <Megaphone className="h-5 w-5 shrink-0" />
                 <p>
@@ -115,8 +115,7 @@ export function AppHeader() {
           </div>
         )}
         <header className="relative w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container flex h-16 items-center justify-between">
-            
+          <div className="w-full max-w-screen-2xl mx-auto flex h-16 items-center justify-between px-4">
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2">
                 {logoUrl ? (
