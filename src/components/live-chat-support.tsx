@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -73,8 +74,8 @@ export function LiveChatSupport() {
             // Mark messages as read by user
             const sessionRef = doc(db, 'chatSessions', sessionId);
             getDoc(sessionRef).then(docSnap => {
-                if (docSnap.exists() && docSnap.data().hasUnreadUserMessages) {
-                    updateDoc(sessionRef, { hasUnreadUserMessages: false });
+                if (docSnap.exists() && docSnap.data().hasUnreadAdminMessages) {
+                    updateDoc(sessionRef, { hasUnreadAdminMessages: false });
                 }
             });
 
@@ -92,8 +93,14 @@ export function LiveChatSupport() {
 
         const storedSessionId = localStorage.getItem(`chatSessionId_${effectiveUser.id}`);
         if(storedSessionId) {
-            setSessionId(storedSessionId);
-            return;
+            const sessionRef = doc(db, 'chatSessions', storedSessionId);
+            const sessionSnap = await getDoc(sessionRef);
+            if(sessionSnap.exists()) {
+              setSessionId(storedSessionId);
+              return;
+            } else {
+              localStorage.removeItem(`chatSessionId_${effectiveUser.id}`);
+            }
         }
 
         // If no session exists, we wait for the first message to create one.
@@ -173,11 +180,12 @@ export function LiveChatSupport() {
     return (
         <>
             <div className={cn("fixed bottom-4 right-4 z-50 transition-transform duration-300", isOpen && 'translate-y-40')}>
-                <Button 
+                <Button
                     onClick={handleOpenChat}
-                    className="w-16 h-16 rounded-full shadow-lg animate-pulse-slow"
+                    className="h-14 rounded-full shadow-lg animate-pulse-slow px-6"
                 >
-                    <MessageSquare className="h-8 w-8" />
+                    <MessageSquare className="h-6 w-6" />
+                    <span className="ml-2 font-semibold">Live Chat</span>
                 </Button>
             </div>
 
@@ -199,7 +207,7 @@ export function LiveChatSupport() {
                 <CardContent className="flex-1 p-0">
                     <ScrollArea className="h-full" viewportRef={scrollViewportRef}>
                         <div className="p-4 space-y-4">
-                            {isLoading && messages.length === 0 && (
+                            {isLoading && messages.length <= 1 && (
                                 <div className="flex justify-center items-center h-full">
                                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                                 </div>
