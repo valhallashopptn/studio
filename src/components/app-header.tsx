@@ -29,6 +29,9 @@ import { useCurrency } from '@/hooks/use-currency';
 
 
 export function AppHeader() {
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // Hooks that rely on client-side state
   const [isSheetOpen, setSheetOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const items = useCart((state) => state.items);
@@ -37,8 +40,12 @@ export function AppHeader() {
   const { announcementEnabled, announcementText } = useContentSettings();
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { formatPrice } = useCurrency();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const navLinks = [
     { href: '/', label: t('nav.home') },
@@ -71,9 +78,28 @@ export function AppHeader() {
     router.push('/');
   }
   
+  // Render a skeleton placeholder until the component has mounted on the client
+  if (!isMounted) {
+    return (
+      <div className="sticky top-0 z-50 w-full bg-background">
+        {/* Placeholder for announcement bar height */}
+        <div className="h-[40px] bg-muted/50"></div>
+        {/* Placeholder for main header */}
+        <header className="relative w-full border-b bg-background">
+          <div className="container flex h-16 items-center">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-sm bg-muted"></div>
+              <div className="h-6 w-24 rounded-md bg-muted"></div>
+            </div>
+          </div>
+        </header>
+      </div>
+    );
+  }
+
   return (
     <>
-      <div className="sticky top-0 z-30 w-full bg-background">
+      <div className="sticky top-0 z-50 w-full bg-background">
         {announcementEnabled && announcementText && (
           <div className="bg-accent text-accent-foreground text-sm py-2 overflow-hidden">
             <div className="container flex items-center justify-center">
@@ -88,7 +114,7 @@ export function AppHeader() {
         )}
         <header className="relative w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container flex h-16 items-center">
-            <div className="flex flex-1 items-center gap-6">
+            <div className={cn("flex flex-1 items-center gap-6", locale === 'ar' ? 'flex-row-reverse' : '')}>
               <Link href="/" className="flex items-center gap-2">
                 {logoUrl ? (
                   <Image src={logoUrl} alt="Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
@@ -129,7 +155,7 @@ export function AppHeader() {
               </Button>
             </div>
             
-            <div className="hidden md:flex absolute top-1/2 ltr:right-6 rtl:left-6 -translate-y-1/2 items-center gap-2">
+            <div className={cn("hidden md:flex absolute top-1/2 -translate-y-1/2 items-center gap-2", locale === 'ar' ? "left-6" : "right-6")}>
                 <CurrencySwitcher />
                 <LanguageSwitcher />
                 <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
@@ -172,18 +198,18 @@ export function AppHeader() {
                         {!isAdmin && (
                             <>
                             <DropdownMenuItem disabled>
-                                <Wallet className="ltr:mr-2 rtl:ml-2 h-4 w-4" />
+                                <Wallet className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                                 <span>{formatPrice(user?.walletBalance ?? 0)}</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             </>
                         )}
                         <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
-                            <LayoutDashboard className="ltr:mr-2 rtl:ml-2 h-4 w-4" />
+                            <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                             <span>{t('auth.dashboard')}</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={handleLogout}>
-                            <LogOut className="ltr:mr-2 rtl:ml-2 h-4 w-4" />
+                            <LogOut className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                             <span>{t('auth.logout')}</span>
                         </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -204,17 +230,17 @@ export function AppHeader() {
         </header>
       </div>
       
-      <div className={cn("fixed inset-0 z-50 md:hidden", !isMobileMenuOpen && "pointer-events-none")}>
+      <div className={cn("fixed inset-0 z-[60] md:hidden", !isMobileMenuOpen && "pointer-events-none")}>
         <div 
             className={cn("absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity", isMobileMenuOpen ? "opacity-100" : "opacity-0")}
             onClick={() => setMobileMenuOpen(false)}
         />
         <div className={cn(
             "absolute top-0 h-full w-4/5 max-w-xs bg-background p-6 shadow-xl transition-transform duration-300 ease-in-out",
-            "ltr:left-0 rtl:right-0",
+            locale === 'ar' ? "right-0" : "left-0",
             isMobileMenuOpen
                 ? "translate-x-0"
-                : "ltr:-translate-x-full rtl:translate-x-full"
+                : locale === 'ar' ? "translate-x-full" : "-translate-x-full"
         )}>
             <div className="flex items-center justify-between mb-8">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
@@ -254,11 +280,11 @@ export function AppHeader() {
                     <div className="space-y-3">
                        <Button asChild className="w-full" variant="secondary" onClick={() => setMobileMenuOpen(false)}>
                            <Link href={isAdmin ? '/admin' : '/dashboard/orders'}>
-                             <LayoutDashboard className="ltr:mr-2 rtl:ml-2"/> {t('auth.dashboard')}
+                             <LayoutDashboard className={cn(locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.dashboard')}
                            </Link>
                        </Button>
                        <Button asChild className="w-full" variant="destructive" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>
-                           <button><LogOut className="ltr:mr-2 rtl:ml-2"/> {t('auth.logout')}</button>
+                           <button><LogOut className={cn(locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.logout')}</button>
                        </Button>
                     </div>
                  ) : (
