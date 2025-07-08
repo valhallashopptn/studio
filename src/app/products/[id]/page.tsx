@@ -17,7 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ShoppingCart, Star, Minus, Plus, Truck, PackageCheck, Zap } from 'lucide-react';
 
 import { products } from '@/lib/data';
-import type { Product } from '@/lib/types';
+import type { Product, ProductVariant } from '@/lib/types';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { useCurrency } from '@/hooks/use-currency';
@@ -25,6 +25,8 @@ import { useTranslation } from '@/hooks/use-translation';
 import { useReviews } from '@/hooks/use-reviews';
 import { useCategories } from '@/hooks/use-categories';
 import { useStock } from '@/hooks/use-stock';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -33,6 +35,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
   const addItemToCart = useCart((state) => state.addItem);
   const { toast } = useToast();
@@ -46,6 +49,9 @@ export default function ProductDetailPage() {
     const foundProduct = products.find(p => p.id === id);
     if (foundProduct) {
       setProduct(foundProduct);
+      if (foundProduct.variants && foundProduct.variants.length > 0) {
+        setSelectedVariant(foundProduct.variants[0]);
+      }
     }
     setIsLoading(false);
   }, [id]);
@@ -72,17 +78,17 @@ export default function ProductDetailPage() {
   }, [product, category, getAvailableStockCount]);
 
   const handleAddToCart = () => {
-    if (!product) return;
-    addItemToCart(product, quantity);
+    if (!product || !selectedVariant) return;
+    addItemToCart(product, selectedVariant, quantity);
     toast({
       title: t('cart.addItemToastTitle'),
-      description: `${quantity} x ${product.name} has been added to your order.`,
+      description: `${quantity} x ${product.name} (${selectedVariant.name}) has been added to your order.`,
     });
   };
 
   const handleBuyNow = () => {
-    if (!product) return;
-    addItemToCart(product, quantity);
+    if (!product || !selectedVariant) return;
+    addItemToCart(product, selectedVariant, quantity);
     router.push('/checkout');
   };
 
@@ -149,9 +155,31 @@ export default function ProductDetailPage() {
                     </span>
                 </div>
 
-              <p className="text-3xl font-bold text-primary">{formatPrice(product.price)}</p>
+              <p className="text-3xl font-bold text-primary">{selectedVariant ? formatPrice(selectedVariant.price) : '...'}</p>
               <p className="text-muted-foreground leading-relaxed">{product.description}</p>
               
+              {product.variants.length > 1 && (
+                <div>
+                  <Label className="font-semibold mb-2 block">Select Version</Label>
+                  <RadioGroup 
+                    value={selectedVariant?.id} 
+                    onValueChange={(variantId) => {
+                      const newVariant = product.variants.find(v => v.id === variantId);
+                      if (newVariant) setSelectedVariant(newVariant);
+                    }}
+                    className="grid grid-cols-2 gap-2"
+                  >
+                    {product.variants.map((variant) => (
+                       <Label key={variant.id} htmlFor={variant.id} className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground has-[:checked]:border-primary cursor-pointer">
+                           <RadioGroupItem value={variant.id} id={variant.id} className="sr-only" />
+                           <span className="font-semibold">{variant.name}</span>
+                           <span className="text-sm">{formatPrice(variant.price)}</span>
+                       </Label>
+                    ))}
+                  </RadioGroup>
+                </div>
+              )}
+
               <Card className="bg-secondary/50">
                 <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex items-center gap-3">
@@ -184,11 +212,11 @@ export default function ProductDetailPage() {
                     <Button variant="outline" size="icon" className="h-12 w-12" onClick={() => setQuantity(q => q + 1)}><Plus className="h-4 w-4" /></Button>
                   </div>
                   <div className="flex items-center gap-2 flex-1">
-                    <Button size="lg" className="flex-1 h-12" onClick={handleAddToCart}>
+                    <Button size="lg" className="flex-1 h-12" onClick={handleAddToCart} disabled={!selectedVariant}>
                       <ShoppingCart className="mr-2 h-5 w-5" />
                       {t('productCard.addToOrder')}
                     </Button>
-                    <Button variant="secondary" size="lg" className="flex-1 h-12" onClick={handleBuyNow}>
+                    <Button variant="secondary" size="lg" className="flex-1 h-12" onClick={handleBuyNow} disabled={!selectedVariant}>
                       <Zap className="mr-2 h-5 w-5" />
                       {t('productPage.buyNow')}
                     </Button>

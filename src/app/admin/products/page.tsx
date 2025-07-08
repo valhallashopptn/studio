@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { products as initialProducts } from '@/lib/data';
-import type { Product, Category } from '@/lib/types';
+import type { Product, Category, ProductVariant } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -42,16 +42,22 @@ const productDetailSchema = z.object({
   content: z.string().min(1, "Content is required"),
 });
 
+const productVariantSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, "Variant name is required"),
+  price: z.coerce.number().min(0.01, "Price must be greater than 0"),
+});
+
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
-  price: z.coerce.number().min(0.01, 'Price must be greater than 0'),
   category: z.string().min(1, 'Category is required'),
   image: z.string().min(1, 'Image is required').refine(val => val.startsWith('https://') || val.startsWith('data:image'), {
     message: "Must be a valid URL or a generated data URI",
   }),
   aiHint: z.string().min(1, 'AI Hint is required'),
   details: z.array(productDetailSchema).default([]),
+  variants: z.array(productVariantSchema).min(1, "At least one product variant is required."),
 });
 
 export default function AdminProductsPage() {
@@ -67,9 +73,14 @@ export default function AdminProductsPage() {
     resolver: zodResolver(productSchema),
   });
   
-  const { fields, append, remove } = useFieldArray({
+  const { fields: detailFields, append: appendDetail, remove: removeDetail } = useFieldArray({
     control: form.control,
     name: "details"
+  });
+
+  const { fields: variantFields, append: appendVariant, remove: removeVariant } = useFieldArray({
+    control: form.control,
+    name: "variants"
   });
 
   const imageUrl = form.watch('image');
@@ -87,11 +98,11 @@ export default function AdminProductsPage() {
         form.reset({
           name: '',
           description: '',
-          price: 0,
           category: categories.length > 0 ? categories[0].name : '',
           image: 'https://placehold.co/600x400.png',
           aiHint: '',
           details: [],
+          variants: [{ id: `var_${Date.now()}`, name: 'Standard', price: 10.00 }],
         });
       }
     }
@@ -162,20 +173,17 @@ export default function AdminProductsPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
-              <form id="product-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 pr-2">
+              <form id="product-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4 pr-2">
                 <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField control={form.control} name="description" render={({ field }) => (
                     <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
-                )}/>
-                <FormField control={form.control} name="price" render={({ field }) => (
-                    <FormItem><FormLabel>Price (USD)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField control={form.control} name="category" render={({ field }) => (
                     <FormItem><FormLabel>Category</FormLabel>
@@ -189,6 +197,30 @@ export default function AdminProductsPage() {
                     </Select>
                     <FormMessage /></FormItem>
                 )}/>
+                
+                <Separator />
+                <div className="space-y-4">
+                    <Label>Product Variants</Label>
+                    {variantFields.map((field, index) => (
+                        <div key={field.id} className="p-3 border rounded-lg space-y-3 relative">
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => removeVariant(index)}><X className="h-4 w-4"/></Button>
+                             <div className="grid grid-cols-2 gap-4">
+                                <FormField control={form.control} name={`variants.${index}.name`} render={({ field }) => (
+                                    <FormItem><FormLabel>Variant Name</FormLabel><FormControl><Input placeholder="e.g. 1 Month" {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                 <FormField control={form.control} name={`variants.${index}.price`} render={({ field }) => (
+                                    <FormItem><FormLabel>Price (USD)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                             </div>
+                        </div>
+                    ))}
+                    <Button type="button" variant="outline" size="sm" onClick={() => appendVariant({ id: `var_${Date.now()}`, name: '', price: 0 })}>
+                        <Plus className="mr-2 h-4 w-4" /> Add Variant
+                    </Button>
+                    <FormMessage>{form.formState.errors.variants?.message || form.formState.errors.variants?.root?.message}</FormMessage>
+                </div>
+
+                <Separator />
 
                 <FormField control={form.control} name="aiHint" render={({ field }) => (
                     <FormItem><FormLabel>AI Hint for Image Generation</FormLabel><FormControl><Input placeholder="e.g. 'stack of gold coins for a game'" {...field} /></FormControl><FormMessage /></FormItem>
@@ -198,13 +230,7 @@ export default function AdminProductsPage() {
                     <Label>Product Image Preview</Label>
                     {imageUrl && (
                         <div className="relative aspect-video w-full rounded-md border bg-muted/20">
-                            <Image 
-                                src={imageUrl} 
-                                alt="Product image preview" 
-                                fill 
-                                className="object-contain rounded-md"
-                                unoptimized={imageUrl.startsWith('http')}
-                            />
+                            <Image src={imageUrl} alt="Product image preview" fill className="object-contain rounded-md" unoptimized={imageUrl.startsWith('http') || imageUrl.startsWith('data:')}/>
                         </div>
                     )}
                 </div>
@@ -229,45 +255,24 @@ export default function AdminProductsPage() {
                 <Separator />
                 <div className="space-y-4">
                     <Label>Product Details & Notes</Label>
-                    {fields.map((field, index) => (
+                    {detailFields.map((field, index) => (
                         <div key={field.id} className="p-3 border rounded-lg space-y-3 relative">
-                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => remove(index)}><X className="h-4 w-4"/></Button>
-                            <FormField
-                                control={form.control}
-                                name={`details.${index}.title`}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Title</FormLabel>
-                                        <FormControl><Input placeholder="e.g. How It Works" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name={`details.${index}.content`}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Content</FormLabel>
-                                        <FormControl><Textarea placeholder="Describe the details..." {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => removeDetail(index)}><X className="h-4 w-4"/></Button>
+                            <FormField control={form.control} name={`details.${index}.title`} render={({ field }) => (
+                                <FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="e.g. How It Works" {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={form.control} name={`details.${index}.content`} render={({ field }) => (
+                                <FormItem><FormLabel>Content</FormLabel><FormControl><Textarea placeholder="Describe the details..." {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
                         </div>
                     ))}
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => append({ title: '', content: '' })}
-                    >
+                    <Button type="button" variant="outline" size="sm" onClick={() => appendDetail({ title: '', content: '' })}>
                         <Plus className="mr-2 h-4 w-4" /> Add Detail Section
                     </Button>
                 </div>
               </form>
           </Form>
-           <DialogFooter className="pt-4 border-t">
+           <DialogFooter className="pt-4 border-t sticky bottom-0 bg-background -mx-6 -mb-6 px-6 pb-4 rounded-b-lg">
                 <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
                 <Button type="submit" form="product-form">Save changes</Button>
             </DialogFooter>
@@ -298,7 +303,7 @@ export default function AdminProductsPage() {
                       {product.category}
                     </Badge>
                   </TableCell>
-                  <TableCell>{formatPrice(product.price)}</TableCell>
+                  <TableCell>{formatPrice(product.variants[0]?.price ?? 0)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

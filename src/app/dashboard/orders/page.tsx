@@ -126,13 +126,13 @@ export default function CustomerOrdersPage() {
                                         <div className="flex gap-4">
                                             <Image src={item.image} alt={item.name} width={48} height={48} className="rounded-md object-cover" />
                                             <div className="flex-1">
-                                                <p className="font-semibold">{item.name}</p>
+                                                <p className="font-semibold">{item.name} <span className="text-muted-foreground font-normal">({item.variant.name})</span></p>
                                                 <p className="text-sm text-muted-foreground">
-                                                    {item.quantity} x {formatPrice(item.price)}
+                                                    {item.quantity} x {formatPrice(item.variant.price)}
                                                 </p>
                                                 <CustomFieldsDisplay item={item} />
                                             </div>
-                                            <p className="font-semibold">{formatPrice(item.quantity * item.price)}</p>
+                                            <p className="font-semibold">{formatPrice(item.quantity * item.variant.price)}</p>
                                         </div>
                                         <DeliveredItemsDisplay order={viewingOrder} item={item} />
                                     </div>

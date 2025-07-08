@@ -39,10 +39,13 @@ export default function Home() {
   }, []);
 
   const handleAddToCart = (product: Product) => {
-    addItemToCart(product);
+    const defaultVariant = product.variants[0];
+    if (!defaultVariant) return;
+
+    addItemToCart(product, defaultVariant, 1);
     toast({
       title: t('cart.addItemToastTitle'),
-      description: t('cart.addItemToastDescription', { productName: product.name }),
+      description: t('cart.addItemToastDescription', { productName: `${product.name} (${defaultVariant.name})` }),
     });
   };
 

@@ -35,7 +35,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const router = useRouter();
 
   const subtotal = useMemo(() =>
-    items.reduce((acc, item) => acc + item.price * item.quantity, 0),
+    items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0),
     [items]
   );
   
@@ -61,7 +61,8 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                       <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md object-cover" />
                     <div className="flex-1">
                       <p className="font-semibold">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">{formatPrice(item.price)}</p>
+                      <p className="text-sm text-muted-foreground">{item.variant.name}</p>
+                      <p className="text-sm text-muted-foreground">{formatPrice(item.variant.price)}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.id, item.quantity - 1)}><Minus className="h-3 w-3" /></Button>
                         <Input type="number" value={item.quantity} readOnly className="h-6 w-12 text-center" />
@@ -69,7 +70,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                       </div>
                     </div>
                     <div className="text-right flex flex-col items-end justify-between h-full">
-                      <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
+                      <p className="font-semibold">{formatPrice(item.variant.price * item.quantity)}</p>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>

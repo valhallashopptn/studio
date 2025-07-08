@@ -45,7 +45,7 @@ import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { useCurrency } from '@/hooks/use-currency';
 import { useCategories } from '@/hooks/use-categories';
-import { products as initialProducts } from '@/lib/data';
+import { products as allProducts } from '@/lib/data';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -193,13 +193,13 @@ export default function AdminOrdersPage() {
                                         <div className="flex gap-4">
                                             <Image src={item.image} alt={item.name} width={48} height={48} className="rounded-md object-cover" />
                                             <div className="flex-1">
-                                                <p className="font-semibold">{item.name}</p>
+                                                <p className="font-semibold">{item.name} <span className="text-muted-foreground font-normal">({item.variant.name})</span></p>
                                                 <p className="text-sm text-muted-foreground">
-                                                    {item.quantity} x {formatPrice(item.price)}
+                                                    {item.quantity} x {formatPrice(item.variant.price)}
                                                 </p>
                                                 <CustomFieldsDisplay item={item} />
                                             </div>
-                                            <p className="font-semibold">{formatPrice(item.quantity * item.price)}</p>
+                                            <p className="font-semibold">{formatPrice(item.quantity * item.variant.price)}</p>
                                         </div>
                                         <DeliveredItemsDisplay order={viewingOrder} item={item} />
                                     </div>

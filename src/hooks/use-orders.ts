@@ -56,7 +56,7 @@ export const useOrders = create(
                         for (const item of orderToUpdate.items) {
                             const category = categoryMap.get(item.category);
                             if (category?.deliveryMethod === 'instant') {
-                                const deliveredCodes = deliverStockForOrder(item.id, item.quantity);
+                                const deliveredCodes = deliverStockForOrder(item.productId, item.quantity);
                                 if (deliveredCodes.length > 0) {
                                     deliveredItems[item.id] = deliveredCodes;
                                 }

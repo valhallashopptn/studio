@@ -3,14 +3,14 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { CartItem, Product } from '@/lib/types';
+import type { CartItem, Product, ProductVariant } from '@/lib/types';
 
 type CartState = {
   items: CartItem[];
-  addItem: (product: Product, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
-  updateCustomFieldValue: (productId: string, fieldName: string, value: string) => void;
+  addItem: (product: Product, variant: ProductVariant, quantity?: number) => void;
+  removeItem: (itemId: string) => void;
+  updateQuantity: (itemId: string, quantity: number) => void;
+  updateCustomFieldValue: (itemId: string, fieldName: string, value: string) => void;
   clearCart: () => void;
 };
 
@@ -18,38 +18,49 @@ export const useCart = create(
   persist<CartState>(
     (set) => ({
       items: [],
-      addItem: (product, quantity = 1) =>
+      addItem: (product, variant, quantity = 1) =>
         set((state) => {
-          const existingItem = state.items.find((item) => item.id === product.id);
+          const compositeId = `${product.id}-${variant.id}`;
+          const existingItem = state.items.find((item) => item.id === compositeId);
+
           if (existingItem) {
             const updatedItems = state.items.map((item) =>
-              item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+              item.id === compositeId ? { ...item, quantity: item.quantity + quantity } : item
             );
             return { items: updatedItems };
           } else {
-            const newItem: CartItem = { ...product, quantity, customFieldValues: {} };
+            const newItem: CartItem = {
+              id: compositeId,
+              productId: product.id,
+              name: product.name,
+              image: product.image,
+              category: product.category,
+              variant,
+              quantity,
+              customFieldValues: {},
+            };
             return { items: [...state.items, newItem] };
           }
         }),
-      removeItem: (productId) =>
+      removeItem: (itemId) =>
         set((state) => ({
-          items: state.items.filter((item) => item.id !== productId),
+          items: state.items.filter((item) => item.id !== itemId),
         })),
-      updateQuantity: (productId, quantity) =>
+      updateQuantity: (itemId, quantity) =>
         set((state) => {
           if (quantity <= 0) {
-            return { items: state.items.filter((item) => item.id !== productId) };
+            return { items: state.items.filter((item) => item.id !== itemId) };
           }
           return {
             items: state.items.map((item) =>
-              item.id === productId ? { ...item, quantity } : item
+              item.id === itemId ? { ...item, quantity } : item
             ),
           };
         }),
-      updateCustomFieldValue: (productId, fieldName, value) => 
+      updateCustomFieldValue: (itemId, fieldName, value) => 
         set((state) => ({
             items: state.items.map((item) =>
-                item.id === productId 
+                item.id === itemId
                 ? {
                     ...item,
                     customFieldValues: {

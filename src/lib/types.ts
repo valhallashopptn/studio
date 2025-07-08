@@ -1,18 +1,29 @@
 
+export interface ProductVariant {
+  id: string;
+  name: string; // e.g., "1 Month", "100 Diamonds"
+  price: number;
+}
 
 export interface Product {
   id: string;
   name: string;
   description: string;
-  price: number;
+  variants: ProductVariant[];
   image: string;
   category: string;
   aiHint: string;
   details: { title: string; content: string }[];
 }
 
-export interface CartItem extends Product {
+export interface CartItem {
+  id: string; // Composite ID: `${product.id}-${variant.id}`
+  productId: string;
+  name: string; // Product name
+  image: string;
+  category: string;
   quantity: number;
+  variant: ProductVariant;
   customFieldValues?: Record<string, string>;
 }
 
@@ -83,7 +94,7 @@ export interface Order {
   paymentProofImage?: string | null;
   status: OrderStatus;
   createdAt: string;
-  deliveredItems?: { [productId: string]: string[] };
+  deliveredItems?: { [cartItemId: string]: string[] };
   refundReason?: string;
   refundedAt?: string;
 }

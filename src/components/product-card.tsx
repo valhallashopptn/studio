@@ -17,7 +17,7 @@ import type { Product } from '@/lib/types';
 import { ShoppingCart } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { useCurrency } from '@/hooks/use-currency';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProductCardProps {
@@ -38,6 +38,11 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
     e.preventDefault(); // Stop the link from navigating
     onAddToCart();
   };
+
+  const lowestPrice = useMemo(() => {
+    if (!product.variants || product.variants.length === 0) return 0;
+    return Math.min(...product.variants.map(v => v.price));
+  }, [product.variants]);
 
   return (
     <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full hover:border-primary/50 group relative">
@@ -68,7 +73,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       <CardFooter className="flex justify-between items-center mt-auto pt-4 relative z-20">
         {isMounted ? (
             <p className="text-xl font-bold text-primary">
-            {formatPrice(product.price)}
+            {product.variants.length > 1 ? `From ${formatPrice(lowestPrice)}` : formatPrice(lowestPrice)}
             </p>
         ) : (
             <Skeleton className="h-7 w-24" />

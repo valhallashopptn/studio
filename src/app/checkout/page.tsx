@@ -33,6 +33,7 @@ import { cn } from '@/lib/utils';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { products } from '@/lib/data'; // Import products to find details
 
 const icons: { [key: string]: React.ElementType } = {
   Landmark,
@@ -83,15 +84,17 @@ export default function CheckoutPage() {
         setIsVerified(true);
     }, [isAuthenticated, items, router, toast]);
 
-
+    const productMap = useMemo(() => new Map(products.map(p => [p.id, p])), []);
     const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
+
     const itemsWithCustomFields = useMemo(() => items.filter(item => {
         const category = categoryMap.get(item.category);
-        return category?.deliveryMethod === 'manual' && category.customFields.length > 0;
-    }), [items, categoryMap]);
+        const product = productMap.get(item.productId);
+        return product && category?.deliveryMethod === 'manual' && category.customFields.length > 0;
+    }), [items, categoryMap, productMap]);
 
     const subtotal = useMemo(() =>
-        items.reduce((acc, item) => acc + item.price * item.quantity, 0),
+        items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0),
         [items]
     );
 
@@ -240,7 +243,7 @@ export default function CheckoutPage() {
                                             const category = categoryMap.get(item.category) as Category;
                                             return (
                                                 <div key={item.id} className="p-4 border rounded-lg">
-                                                    <h3 className="font-semibold">{item.name}</h3>
+                                                    <h3 className="font-semibold">{item.name} <span className="text-muted-foreground">({item.variant.name})</span></h3>
                                                     <div className="mt-4 space-y-3">
                                                         {category.customFields.map(field => (
                                                             <div key={field.id} className="space-y-1">
@@ -325,10 +328,11 @@ export default function CheckoutPage() {
                                                         <Image src={item.image} alt={item.name} width={40} height={40} className="rounded-md object-cover" />
                                                         <div>
                                                             <p className="font-semibold">{item.name}</p>
-                                                            <p className="text-sm text-muted-foreground">{item.quantity} x {formatPrice(item.price)}</p>
+                                                            <p className="text-sm text-muted-foreground">{item.quantity} x {formatPrice(item.variant.price)}</p>
+                                                            <p className="text-xs text-muted-foreground">({item.variant.name})</p>
                                                         </div>
                                                     </div>
-                                                    <p className="font-semibold">{formatPrice(item.quantity * item.price)}</p>
+                                                    <p className="font-semibold">{formatPrice(item.quantity * item.variant.price)}</p>
                                                 </div>
                                             ))}
                                         </div>

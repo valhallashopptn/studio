@@ -29,7 +29,11 @@ export let products: Product[] = [
     id: 'prod_001',
     name: 'Mobile Legends Diamonds',
     description: 'Instantly top up your Mobile Legends diamonds. Enter your User ID and Zone ID.',
-    price: 5.00,
+    variants: [
+        { id: 'ml_100', name: '100 Diamonds', price: 5.00 },
+        { id: 'ml_500', name: '500 Diamonds', price: 24.00 },
+        { id: 'ml_1000', name: '1000 Diamonds', price: 45.00 },
+    ],
     image: 'https://placehold.co/600x400.png',
     aiHint: 'mobile game',
     category: 'Game',
@@ -43,7 +47,11 @@ export let products: Product[] = [
     id: 'prod_002',
     name: 'Steam Wallet Code',
     description: 'Add funds to your Steam account with this digital wallet code.',
-    price: 10.00,
+    variants: [
+        { id: 'steam_10', name: '$10 Code', price: 10.00 },
+        { id: 'steam_20', name: '$20 Code', price: 20.00 },
+        { id: 'steam_50', name: '$50 Code', price: 50.00 },
+    ],
     image: 'https://placehold.co/600x400.png',
     aiHint: 'pc gaming',
     category: 'Game',
@@ -56,27 +64,34 @@ export let products: Product[] = [
   {
     id: 'prod_003',
     name: 'Netflix Subscription',
-    description: 'Get a one-month premium subscription to Netflix for unlimited streaming.',
-    price: 15.00,
+    description: 'Get a premium subscription to Netflix for unlimited streaming.',
+    variants: [
+        { id: 'netflix_1m', name: '1 Month Premium', price: 15.00 },
+        { id: 'netflix_3m', name: '3 Months Premium', price: 44.00 },
+    ],
     image: 'https://placehold.co/600x400.png',
     aiHint: 'streaming service',
     category: 'Digital',
     details: [
         { title: 'Activation Process', content: 'During checkout, provide the email address of the Netflix account you wish to upgrade. We will process the subscription for that account.' },
-        { title: 'What You Get', content: '1 Month of Netflix Premium plan, including 4K streaming and up to 4 simultaneous screens.' },
+        { title: 'What You Get', content: 'Netflix Premium plan, including 4K streaming and up to 4 simultaneous screens.' },
         { title: 'Please Note', content: 'This is a manual service. Activation may take up to 24 hours after payment is confirmed.' }
     ]
   },
   {
     id: 'prod_004',
     name: 'Spotify Premium',
-    description: 'Enjoy ad-free music and offline downloads with a 1-month Spotify Premium plan.',
-    price: 9.99,
+    description: 'Enjoy ad-free music and offline downloads with a Spotify Premium plan.',
+    variants: [
+        { id: 'spotify_1m', name: '1 Month', price: 9.99 },
+        { id: 'spotify_3m', name: '3 Months', price: 29.97 },
+        { id: 'spotify_1y', name: '1 Year', price: 99.99 },
+    ],
     image: 'https://placehold.co/600x400.png',
     aiHint: 'music streaming',
     category: 'Digital',
     details: [
-        { title: 'Activation Process', content: 'You will receive a unique link via email to activate your 1-month Premium subscription. This will be sent to the email address used for purchase.' },
+        { title: 'Activation Process', content: 'You will receive a unique link via email to activate your Premium subscription. This will be sent to the email address used for purchase.' },
         { title: 'Eligibility', content: 'This offer is valid for both new and existing Spotify users who are not currently on a Premium plan.' },
         { title: 'Delivery Time', content: 'Activation links are typically sent within 1-2 hours of purchase.' }
     ]
@@ -85,7 +100,11 @@ export let products: Product[] = [
     id: 'prod_005',
     name: 'Genshin Impact Crystals',
     description: 'Top up Genesis Crystals to get your favorite characters and weapons.',
-    price: 20.00,
+    variants: [
+        { id: 'genshin_300', name: '300 Crystals', price: 4.99 },
+        { id: 'genshin_980', name: '980 Crystals', price: 14.99 },
+        { id: 'genshin_1980', name: '1980 Crystals', price: 29.99 },
+    ],
     image: 'https://placehold.co/600x400.png',
     aiHint: 'mobile game',
     category: 'Game',
@@ -99,7 +118,11 @@ export let products: Product[] = [
     id: 'prod_006',
     name: 'PlayStation Network Card',
     description: 'A digital code to add funds to your PlayStation account.',
-    price: 25.00,
+    variants: [
+        { id: 'psn_10', name: '$10 Card', price: 10.00 },
+        { id: 'psn_25', name: '$25 Card', price: 25.00 },
+        { id: 'psn_50', name: '$50 Card', price: 50.00 },
+    ],
     image: 'https://placehold.co/600x400.png',
     aiHint: 'console gaming',
     category: 'Game',
@@ -112,8 +135,12 @@ export let products: Product[] = [
   {
     id: 'prod_007',
     name: 'Amazon Gift Card',
-    description: 'A $25 digital gift card for anything on Amazon.',
-    price: 25.00,
+    description: 'A digital gift card for anything on Amazon.',
+    variants: [
+        { id: 'amazon_10', name: '$10 Card', price: 10.00 },
+        { id: 'amazon_25', name: '$25 Card', price: 25.00 },
+        { id: 'amazon_50', name: '$50 Card', price: 50.00 },
+    ],
     image: 'https://placehold.co/600x400.png',
     aiHint: 'gift card',
     category: 'Digital',
@@ -127,7 +154,11 @@ export let products: Product[] = [
     id: 'prod_008',
     name: 'Valorant Points',
     description: 'Purchase Valorant points for weapon skins and other in-game content.',
-    price: 10.00,
+    variants: [
+        { id: 'vp_500', name: '500 Points', price: 5.00 },
+        { id: 'vp_1150', name: '1150 Points', price: 10.00 },
+        { id: 'vp_2400', name: '2400 Points', price: 20.00 },
+    ],
     image: 'https://placehold.co/600x400.png',
     aiHint: 'pc gaming',
     category: 'Game',
