@@ -21,7 +21,7 @@ export function LiveChatSupport() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [inputValue, setInputValue] = useState('');
-    const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const scrollViewportRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Initial greeting from the bot
@@ -36,14 +36,14 @@ export function LiveChatSupport() {
                 setIsLoading(false);
             }, 1000);
         }
-    }, [isOpen]);
+    }, [isOpen, messages.length]);
 
     // Auto-scroll to the latest message
     useEffect(() => {
         setTimeout(() => {
-            if (scrollAreaRef.current) {
-                scrollAreaRef.current.scrollTo({
-                    top: scrollAreaRef.current.scrollHeight,
+            if (scrollViewportRef.current) {
+                scrollViewportRef.current.scrollTo({
+                    top: scrollViewportRef.current.scrollHeight,
                     behavior: 'smooth',
                 });
             }
@@ -121,7 +121,7 @@ export function LiveChatSupport() {
                     </Button>
                 </CardHeader>
                 <CardContent className="flex-1 p-0">
-                    <ScrollArea className="h-full" viewportRef={scrollAreaRef}>
+                    <ScrollArea className="h-full" viewportRef={scrollViewportRef}>
                         <div className="p-4 space-y-4">
                             {messages.map((message, index) => (
                                 <div key={index} className={cn(
