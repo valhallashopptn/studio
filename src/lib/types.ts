@@ -46,6 +46,7 @@ export interface PaymentMethod {
     icon: string;
     instructions: string;
     requiresProof: boolean;
+    taxRate?: number;
 }
 
 export interface User {

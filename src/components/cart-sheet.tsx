@@ -100,10 +100,14 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
 
   const categoryMap = useMemo(() => new Map(initialCategories.map(c => [c.name, c])), []);
 
-  const total = useMemo(() =>
+  const subtotal = useMemo(() =>
     items.reduce((acc, item) => acc + item.price * item.quantity, 0),
     [items]
   );
+  
+  const taxRate = selectedPayment?.taxRate || 0;
+  const taxAmount = subtotal * (taxRate / 100);
+  const total = subtotal + taxAmount;
   
   const walletPaymentMethod: PaymentMethod = {
     id: 'store_wallet',
@@ -111,6 +115,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
     icon: 'Wallet',
     instructions: 'The order total will be deducted from your available wallet balance.',
     requiresProof: false,
+    taxRate: 0,
   };
 
   const isWalletDisabled = !isAuthenticated || (user?.walletBalance ?? 0) < total;
@@ -338,14 +343,25 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                 )}
               </div>
               <SheetFooter className="mt-auto">
-                <div className="w-full space-y-4">
-                  <div className="flex justify-between items-center text-lg font-bold">
-                    <span>{t('cart.total')}</span>
-                    <span className="text-primary">{formatPrice(total)}</span>
-                  </div>
-                  <Button onClick={handleSubmitOrder} className="w-full" size="lg" disabled={!isAuthenticated || !selectedPayment}>
-                    {t('cart.submit')}
-                  </Button>
+                <div className="w-full space-y-2">
+                    <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">{t('cart.subtotal')}</span>
+                            <span>{formatPrice(subtotal)}</span>
+                        </div>
+                         <div className="flex justify-between">
+                            <span className="text-muted-foreground">{t('cart.tax')} ({taxRate}%)</span>
+                            <span>{formatPrice(taxAmount)}</span>
+                        </div>
+                    </div>
+                    <Separator/>
+                    <div className="flex justify-between items-center text-lg font-bold">
+                        <span>{t('cart.total')}</span>
+                        <span className="text-primary">{formatPrice(total)}</span>
+                    </div>
+                    <Button onClick={handleSubmitOrder} className="w-full" size="lg" disabled={!isAuthenticated || !selectedPayment}>
+                        {t('cart.submit')}
+                    </Button>
                 </div>
               </SheetFooter>
             </>

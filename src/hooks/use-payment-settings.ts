@@ -19,6 +19,7 @@ const initialPaymentMethods: PaymentMethod[] = [
         icon: 'Landmark',
         instructions: 'Please transfer the total amount to:\nBank: First National Bank\nAccount Name: TopUp Hub Inc.\nAccount Number: 123-456-7890\n\nPlease include your Order ID in the transaction description.',
         requiresProof: true,
+        taxRate: 0,
     },
     {
         id: 'e_wallet',
@@ -26,6 +27,7 @@ const initialPaymentMethods: PaymentMethod[] = [
         icon: 'Wallet',
         instructions: 'Please send the total amount to:\nService: PayNow\nRecipient Name: TopUp Hub\nPhone Number: +1 987 654 3210\n\nPlease include your Order ID in the payment reference.',
         requiresProof: false,
+        taxRate: 2,
     }
 ];
 

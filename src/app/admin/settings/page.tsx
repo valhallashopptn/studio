@@ -25,7 +25,7 @@ import {
   DialogClose,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -39,6 +39,7 @@ const paymentMethodSchema = z.object({
   icon: z.string().min(1, 'Icon is required'),
   instructions: z.string().min(10, 'Instructions must be at least 10 characters'),
   requiresProof: z.boolean(),
+  taxRate: z.coerce.number().min(0, "Tax must be non-negative.").max(100, "Tax cannot exceed 100%.").default(0),
 });
 
 const icons: { name: string; component: React.ElementType }[] = [
@@ -65,6 +66,7 @@ export default function AdminSettingsPage() {
       icon: 'Landmark',
       instructions: '',
       requiresProof: false,
+      taxRate: 0,
     },
   });
 
@@ -72,7 +74,7 @@ export default function AdminSettingsPage() {
     if (editingMethod) {
       form.reset(editingMethod);
     } else {
-      form.reset({ name: '', icon: 'Landmark', instructions: '', requiresProof: false });
+      form.reset({ name: '', icon: 'Landmark', instructions: '', requiresProof: false, taxRate: 0 });
     }
   }, [editingMethod, form]);
 
@@ -192,6 +194,22 @@ export default function AdminSettingsPage() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="taxRate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tax Rate (%)</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="e.g., 5" {...field} onChange={event => field.onChange(+event.target.value)} />
+                    </FormControl>
+                    <FormDescription>
+                      A percentage fee added to the order total for this method.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <DialogFooter>
                 <DialogClose asChild>
                   <Button type="button" variant="secondary">Cancel</Button>
@@ -214,6 +232,7 @@ export default function AdminSettingsPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Proof Required</TableHead>
+                <TableHead>Tax Rate</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -232,6 +251,7 @@ export default function AdminSettingsPage() {
                       {method.requiresProof ? 'Yes' : 'No'}
                     </Badge>
                   </TableCell>
+                  <TableCell>{method.taxRate ?? 0}%</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

@@ -39,6 +39,8 @@
     "title": "Your Order",
     "description": "Review your items and proceed to payment.",
     "empty": "Your cart is empty.",
+    "subtotal": "Subtotal:",
+    "tax": "Tax:",
     "total": "Total:",
     "submit": "Submit Order",
     "paymentMethod": "Payment Method",
