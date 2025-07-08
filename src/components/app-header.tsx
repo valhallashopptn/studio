@@ -84,10 +84,14 @@ export function AppHeader() {
            <div className="container flex items-center justify-center h-[28px]"></div>
         </div>
         <header className="relative w-full border-b bg-background">
-          <div className="container flex h-16 items-center">
+          <div className="container flex h-16 items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-sm bg-muted"></div>
               <div className="h-6 w-24 rounded-md bg-muted"></div>
+            </div>
+            <div className="flex items-center gap-2">
+                <div className="h-10 w-10 rounded-md bg-muted"></div>
+                <div className="h-10 w-10 rounded-md bg-muted"></div>
             </div>
           </div>
         </header>
