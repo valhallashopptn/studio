@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -5,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { AdminSidebar } from '@/components/admin-sidebar';
 import { Loader2 } from 'lucide-react';
+import { AppHeader } from '@/components/app-header';
 
 export default function AdminLayout({
   children,
@@ -33,11 +35,14 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
-      <AdminSidebar />
-      <main className="flex-1 p-8 bg-secondary/50">
-        {children}
-      </main>
+    <div className="flex flex-col min-h-screen">
+      <AppHeader />
+      <div className="flex flex-1">
+        <AdminSidebar />
+        <main className="flex-1 p-8 bg-secondary/50">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
