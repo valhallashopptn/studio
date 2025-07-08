@@ -12,8 +12,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
-import { ShoppingCart, Star, Minus, Plus, Truck, PackageCheck, Info } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ShoppingCart, Star, Minus, Plus, Truck, PackageCheck } from 'lucide-react';
 
 import { products } from '@/lib/data';
 import type { Product } from '@/lib/types';
@@ -179,22 +180,58 @@ export default function ProductDetailPage() {
 
             </div>
           </div>
-
-          <Separator className="my-16" />
           
-          <div className="w-full max-w-3xl mx-auto">
-            <div className="flex items-center gap-3 mb-8">
-                <Info className="w-8 h-8 text-accent"/>
-                <h2 className="text-2xl font-bold font-headline">Product Details & Information</h2>
-            </div>
-            <div className="space-y-8">
-                {product.details.map((detail, index) => (
-                    <div key={index}>
-                        <h3 className="text-xl font-semibold mb-2">{detail.title}</h3>
-                        <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{detail.content}</p>
-                    </div>
-                ))}
-            </div>
+          <div className="w-full mt-16">
+            <Tabs defaultValue={product.details[0]?.title || 'reviews'}>
+              <TabsList className="w-full justify-start overflow-x-auto overflow-y-hidden">
+                 {product.details.map((detail, index) => (
+                    <TabsTrigger key={index} value={detail.title} className="flex-shrink-0">{detail.title}</TabsTrigger>
+                 ))}
+                 <TabsTrigger value="reviews" className="flex-shrink-0">Reviews ({productReviews.length})</TabsTrigger>
+              </TabsList>
+
+              {product.details.map((detail, index) => (
+                <TabsContent key={index} value={detail.title}>
+                  <Card>
+                    <CardContent className="p-6">
+                      <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{detail.content}</p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              ))}
+
+              <TabsContent value="reviews">
+                <Card>
+                  <CardContent className="p-6">
+                    {productReviews.length > 0 ? (
+                      <div className="space-y-6">
+                        {productReviews.map(review => (
+                          <div key={review.id} className="flex gap-4">
+                            <Avatar>
+                              <AvatarImage src={review.avatar} alt={review.name} />
+                              <AvatarFallback>{review.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-semibold">{review.name}</h4>
+                                <div className="flex items-center">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'text-accent fill-accent' : 'text-muted-foreground/30'}`} />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1 italic">"{review.text}"</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center">No reviews for this product yet.</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
 
         </div>
