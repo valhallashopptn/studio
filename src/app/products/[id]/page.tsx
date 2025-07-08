@@ -49,9 +49,6 @@ export default function ProductDetailPage() {
     const foundProduct = products.find(p => p.id === id);
     if (foundProduct) {
       setProduct(foundProduct);
-      if (foundProduct.variants && foundProduct.variants.length > 0) {
-        setSelectedVariant(foundProduct.variants[0]);
-      }
     }
     setIsLoading(false);
   }, [id]);
