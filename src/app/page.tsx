@@ -4,6 +4,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { ProductCard } from '@/components/product-card';
+import { CategoryCard } from '@/components/category-card';
 import { Recommendations } from '@/components/recommendations';
 import { products, categories as initialCategories } from '@/lib/data';
 import { useCart } from '@/hooks/use-cart';
@@ -18,7 +19,7 @@ import { useSiteSettings } from '@/hooks/use-site-settings';
 import { Reviews } from '@/components/reviews';
 import { useTranslation } from '@/hooks/use-translation';
 
-const categories = ['All', ...initialCategories.map(c => c.name)];
+const categoriesForFilter = ['All', ...initialCategories.map(c => c.name)];
 
 export default function Home() {
   const addItemToCart = useCart((state) => state.addItem);
@@ -39,6 +40,11 @@ export default function Home() {
       title: t('cart.addItemToastTitle'),
       description: t('cart.addItemToastDescription', { productName: product.name }),
     });
+  };
+
+  const handleCategoryClick = (categoryName: string) => {
+    setSelectedCategory(categoryName);
+    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const filteredProducts = useMemo(() => {
@@ -93,6 +99,20 @@ export default function Home() {
         </section>
         
         <div className="container mx-auto px-4">
+            <section id="categories" className="mb-16">
+              <h2 className="text-3xl font-bold mb-8 text-center font-headline">{t('home.ourCategories')}</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {initialCategories.map((category, index) => (
+                  <div key={category.id} className={animationClass} style={{animationDelay: `${200 + index * 100}ms`}}>
+                    <CategoryCard 
+                      category={category}
+                      onClick={() => handleCategoryClick(category.name)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+            
             <section id="products" className="mb-16">
             <h2 className="text-3xl font-bold mb-8 text-center font-headline">{t('home.ourProducts')}</h2>
 
@@ -108,7 +128,7 @@ export default function Home() {
                 />
               </div>
               <div className="flex items-center justify-center gap-2 flex-wrap">
-                {categories.map(category => (
+                {categoriesForFilter.map(category => (
                   <Button 
                     key={category}
                     variant={selectedCategory === category ? 'default' : 'outline'}
