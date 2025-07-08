@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, User, LogOut, Shield, LogIn, LayoutDashboard } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -24,6 +24,7 @@ import Image from 'next/image';
 import { LanguageSwitcher } from './language-switcher';
 import { useTranslation } from '@/hooks/use-translation';
 import { CurrencySwitcher } from './currency-switcher';
+import { useCurrency } from '@/hooks/use-currency';
 
 
 export function AppHeader() {
@@ -34,6 +35,7 @@ export function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useTranslation();
+  const { formatPrice } = useCurrency();
 
   const navLinks = [
     { href: '/', label: t('nav.home') },
@@ -94,35 +96,52 @@ export function AppHeader() {
               <span className="sr-only">Open Cart</span>
             </Button>
             {isAuthenticated ? (
-               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                       <AvatarImage src={user?.avatar} alt={user?.name} />
-                       <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.name}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user?.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      <span>{t('auth.dashboard')}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>{t('auth.logout')}</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+               <>
+                {!isAdmin && (
+                  <div className="hidden sm:flex items-center gap-2 p-2 pr-3 bg-secondary rounded-md border">
+                    <Wallet className="h-5 w-5 text-primary"/>
+                    <span className="font-semibold text-sm whitespace-nowrap">{formatPrice(user?.walletBalance ?? 0)}</span>
+                  </div>
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                         <AvatarImage src={user?.avatar} alt={user?.name} />
+                         <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user?.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {!isAdmin && (
+                       <>
+                        <DropdownMenuItem disabled>
+                          <Wallet className="mr-2 h-4 w-4" />
+                          <span>{formatPrice(user?.walletBalance ?? 0)}</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        <span>{t('auth.dashboard')}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>{t('auth.logout')}</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
                 <div className="flex items-center gap-2">
                     <Button asChild variant="ghost" size="sm">
