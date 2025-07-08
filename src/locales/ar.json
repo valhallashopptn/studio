@@ -141,6 +141,8 @@
     "submittedToastDesc": "شكرا لك على ملاحظاتك."
   },
   "footer": {
-    "copyright": "© {{year}} توب أب هاب. كل الحقوق محفوظة."
+    "copyright": "© {{year}} توب أب هاب. كل الحقوق محفوظة.",
+    "quickLinks": "روابط سريعة",
+    "followUs": "تابعنا"
   }
 }

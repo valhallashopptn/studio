@@ -141,6 +141,8 @@
     "submittedToastDesc": "Thank you for your feedback."
   },
   "footer": {
-    "copyright": "© {{year}} TopUp Hub. All Rights Reserved."
+    "copyright": "© {{year}} TopUp Hub. All Rights Reserved.",
+    "quickLinks": "Quick Links",
+    "followUs": "Follow Us"
   }
 }
