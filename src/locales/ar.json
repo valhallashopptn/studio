@@ -11,7 +11,8 @@
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب",
     "logout": "تسجيل الخروج",
-    "adminDashboard": "لوحة التحكم"
+    "adminDashboard": "لوحة التحكم",
+    "dashboard": "لوحة التحكم"
   },
   "login": {
     "title": "مرحباً بعودتك",

@@ -4,22 +4,13 @@
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { useOrders } from '@/hooks/use-orders';
-import type { Order, OrderStatus, CartItem, Product } from '@/lib/types';
+import { useAuth } from '@/hooks/use-auth';
+import type { Order, OrderStatus, CartItem } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Eye, CheckCircle, XCircle, RefreshCw, KeyRound, Copy } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuPortal,
-} from '@/components/ui/dropdown-menu';
+import { Eye, CheckCircle, XCircle, RefreshCw, KeyRound, Copy } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -32,7 +23,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { useCurrency } from '@/hooks/use-currency';
-import { categories as initialCategories, products as initialProducts } from '@/lib/data';
+import { categories as initialCategories } from '@/lib/data';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 
@@ -63,7 +54,7 @@ const CustomFieldsDisplay = ({ item }: { item: CartItem }) => {
             })}
         </div>
     )
-}
+};
 
 const DeliveredItemsDisplay = ({ order, item }: { order: Order, item: CartItem }) => {
     const { toast } = useToast();
@@ -96,17 +87,22 @@ const DeliveredItemsDisplay = ({ order, item }: { order: Order, item: CartItem }
     );
 };
 
-
-export default function AdminOrdersPage() {
-  const { orders, updateOrderStatus } = useOrders();
+export default function CustomerOrdersPage() {
+  const { user } = useAuth();
+  const { orders } = useOrders();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const { formatPrice } = useCurrency();
+
+  const customerOrders = useMemo(() => {
+    if (!user) return [];
+    return orders.filter(order => order.customer.id === user.id);
+  }, [orders, user]);
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Orders</h1>
-        <p className="text-muted-foreground">View and manage customer orders.</p>
+        <h1 className="text-3xl font-bold">My Orders</h1>
+        <p className="text-muted-foreground">Here's a history of all your purchases.</p>
       </div>
 
       <Dialog open={!!viewingOrder} onOpenChange={(isOpen) => !isOpen && setViewingOrder(null)}>
@@ -118,20 +114,6 @@ export default function AdminOrdersPage() {
             {viewingOrder && (
                 <ScrollArea className="max-h-[70vh]">
                     <div className="pr-6 space-y-6">
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <h4 className="font-semibold">Customer</h4>
-                                <p>{viewingOrder.customer.name}</p>
-                                <p className="text-muted-foreground">{viewingOrder.customer.email}</p>
-                            </div>
-                             <div>
-                                <h4 className="font-semibold">Date</h4>
-                                <p>{format(new Date(viewingOrder.createdAt), 'PPpp')}</p>
-                            </div>
-                        </div>
-
-                        <Separator />
-                        
                         <div>
                             <h4 className="font-semibold mb-2">Items</h4>
                             <div className="space-y-4">
@@ -190,7 +172,7 @@ export default function AdminOrdersPage() {
       <Card>
         <CardHeader>
           <CardTitle>Order History</CardTitle>
-          <CardDescription>A list of all orders placed in your store.</CardDescription>
+          <CardDescription>A list of all your past orders.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -198,20 +180,18 @@ export default function AdminOrdersPage() {
               <TableRow>
                 <TableHead>Order ID</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Customer</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order) => {
+              {customerOrders.length > 0 ? customerOrders.map((order) => {
                 const statusInfo = statusConfig[order.status];
                 return (
                   <TableRow key={order.id}>
                     <TableCell className="font-mono text-xs">{order.id}</TableCell>
                     <TableCell>{format(new Date(order.createdAt), 'P')}</TableCell>
-                    <TableCell className="font-medium">{order.customer.name}</TableCell>
                     <TableCell className="font-semibold">{formatPrice(order.total)}</TableCell>
                     <TableCell>
                       <Badge variant={statusInfo.variant} className="gap-1">
@@ -220,39 +200,17 @@ export default function AdminOrdersPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setViewingOrder(order)}>
-                            <Eye className="mr-2 h-4 w-4" /> View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                                <RefreshCw className="mr-2 h-4 w-4" />
-                                <span>Update Status</span>
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                                <DropdownMenuSubContent>
-                                    {Object.entries(statusConfig).map(([statusKey, config]) => (
-                                        <DropdownMenuItem key={statusKey} onClick={() => updateOrderStatus(order.id, statusKey as OrderStatus)}>
-                                            <config.icon className="mr-2 h-4 w-4" />
-                                            {config.label}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <Button variant="ghost" size="sm" onClick={() => setViewingOrder(order)}>
+                        <Eye className="mr-2 h-4 w-4" /> View
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );
-              })}
+              }) : (
+                <TableRow>
+                    <TableCell colSpan={5} className="text-center h-24">You haven't placed any orders yet.</TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>

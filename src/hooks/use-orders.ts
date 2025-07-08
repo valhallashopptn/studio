@@ -4,6 +4,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Order, OrderStatus } from '@/lib/types';
+import { useStock } from '@/hooks/use-stock';
+import { categories as initialCategories } from '@/lib/data';
 
 type OrdersState = {
     orders: Order[];
@@ -23,11 +25,38 @@ export const useOrders = create(
                 set((state) => ({ orders: [newOrder, ...state.orders] }));
             },
             updateOrderStatus: (orderId, status) => {
-                set((state) => ({
-                    orders: state.orders.map((order) =>
-                        order.id === orderId ? { ...order, status } : order
-                    ),
-                }));
+                set((state) => {
+                    const orderToUpdate = state.orders.find((o) => o.id === orderId);
+                    if (!orderToUpdate) return { orders: state.orders };
+
+                    if (status === 'completed' && orderToUpdate.status !== 'completed') {
+                        const { deliverStockForOrder } = useStock.getState();
+                        const deliveredItems: Order['deliveredItems'] = { ...orderToUpdate.deliveredItems };
+                        
+                        for (const item of orderToUpdate.items) {
+                            const category = initialCategories.find(c => c.name === item.category);
+                            if (category?.deliveryMethod === 'instant') {
+                                const deliveredCodes = deliverStockForOrder(item.id, item.quantity);
+                                if (deliveredCodes.length > 0) {
+                                    deliveredItems[item.id] = deliveredCodes;
+                                }
+                            }
+                        }
+                        
+                        const updatedOrder = { ...orderToUpdate, status, deliveredItems };
+                        return {
+                            orders: state.orders.map((order) =>
+                                order.id === orderId ? updatedOrder : order
+                            ),
+                        };
+                    } else {
+                        return {
+                            orders: state.orders.map((order) =>
+                                order.id === orderId ? { ...order, status } : order
+                            ),
+                        };
+                    }
+                });
             },
         }),
         {

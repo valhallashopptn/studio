@@ -37,6 +37,7 @@ export interface StockItem {
   code: string;
   isUsed: boolean;
   addedAt: string;
+  usedAt?: string;
 }
 
 export interface PaymentMethod {
@@ -53,6 +54,7 @@ export interface User {
   email: string;
   password?: string;
   isAdmin?: boolean;
+  avatar?: string;
 }
 
 export interface Review {
@@ -76,4 +78,5 @@ export interface Order {
   paymentProofImage?: string | null;
   status: OrderStatus;
   createdAt: string;
+  deliveredItems?: { [productId: string]: string[] };
 }

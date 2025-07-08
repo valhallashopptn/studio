@@ -12,13 +12,16 @@ type AuthState = {
   login: (credentials: Pick<User, 'email' | 'password'>) => boolean;
   logout: () => void;
   register: (userDetails: Omit<User, 'id' | 'isAdmin'>) => boolean;
+  updateUser: (userId: string, updates: Partial<Pick<User, 'name' | 'email'>>) => boolean;
+  changePassword: (userId: string, newPassword: string) => boolean;
+  updateAvatar: (userId: string, avatar: string) => void;
 };
 
 // Mock users database
-const users: User[] = [
-    { id: '1', name: 'Admin User', email: 'admin@topuphub.com', password: 'admin', isAdmin: true },
-    { id: '2', name: 'Test User', email: 'user@topuphub.com', password: 'user', isAdmin: false },
-    { id: '3', name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password123', isAdmin: false },
+let users: User[] = [
+    { id: '1', name: 'Admin User', email: 'admin@topuphub.com', password: 'admin', isAdmin: true, avatar: 'https://placehold.co/100x100.png' },
+    { id: '2', name: 'Test User', email: 'user@topuphub.com', password: 'user', isAdmin: false, avatar: 'https://placehold.co/100x100.png' },
+    { id: '3', name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png' },
 ];
 
 export const useAuth = create(
@@ -46,12 +49,37 @@ export const useAuth = create(
         const newUser: User = {
             id: `user_${Date.now()}`,
             ...userDetails,
-            isAdmin: false
+            isAdmin: false,
+            avatar: 'https://placehold.co/100x100.png',
         };
         users.push(newUser);
         set({ user: newUser, isAuthenticated: true, isAdmin: false });
         return true;
       },
+      updateUser: (userId, updates) => {
+        const userIndex = users.findIndex(u => u.id === userId);
+        if (userIndex > -1) {
+            users[userIndex] = { ...users[userIndex], ...updates };
+            set(state => ({ user: state.user ? { ...state.user, ...updates } : null }));
+            return true;
+        }
+        return false;
+      },
+      changePassword: (userId, newPassword) => {
+         const userIndex = users.findIndex(u => u.id === userId);
+         if (userIndex > -1) {
+             users[userIndex].password = newPassword;
+             return true;
+         }
+         return false;
+      },
+      updateAvatar: (userId, avatar) => {
+         const userIndex = users.findIndex(u => u.id === userId);
+         if (userIndex > -1) {
+             users[userIndex].avatar = avatar;
+             set(state => ({ user: state.user ? { ...state.user, avatar } : null }));
+         }
+      }
     }),
     {
       name: 'topup-hub-auth',
