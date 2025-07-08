@@ -14,7 +14,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ShoppingCart, Star, Minus, Plus, Truck, PackageCheck, Zap } from 'lucide-react';
+import { ShoppingCart, Star, Minus, Plus, UserCheck, PackageCheck, Zap } from 'lucide-react';
 
 import { products } from '@/lib/data';
 import type { Product, ProductVariant } from '@/lib/types';
@@ -186,7 +186,7 @@ export default function ProductDetailPage() {
                         {category?.deliveryMethod === 'instant' ? (
                           <Zap className="h-6 w-6 text-primary" />
                         ) : (
-                          <Truck className="h-6 w-6 text-primary" />
+                          <UserCheck className="h-6 w-6 text-primary" />
                         )}
                         <div>
                             <p className="font-semibold">{t('productPage.deliveryMethod')}</p>
