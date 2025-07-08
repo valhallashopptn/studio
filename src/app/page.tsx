@@ -32,6 +32,7 @@ export default function Home() {
   const { t } = useTranslation();
 
   const categoriesForFilter = useMemo(() => ['All', ...categories.map(c => c.name)], [categories]);
+  const categoriesToShow = useMemo(() => categories.slice(0, 8), [categories]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -102,13 +103,21 @@ export default function Home() {
             <section id="categories" className="mb-16">
               <h2 className="text-3xl font-bold mb-8 text-center font-headline">{t('home.ourCategories')}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {categories.map((category, index) => (
+                {categoriesToShow.map((category, index) => (
                   <div key={category.id} className={`${animationClass} aspect-video`} style={{animationDelay: `${200 + index * 100}ms`}}>
                     <CategoryCard 
                       category={category}
                     />
                   </div>
                 ))}
+              </div>
+              <div className="mt-12 text-center">
+                  <Button asChild size="lg" variant="outline">
+                    <Link href="/categories">
+                      {t('home.viewAllCategories')}
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
               </div>
             </section>
             

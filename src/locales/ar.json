@@ -4,6 +4,7 @@
   "nav": {
     "home": "الرئيسية",
     "products": "المنتجات",
+    "categories": "الفئات",
     "about": "من نحن",
     "contact": "اتصل بنا",
     "reviews": "التقييمات"
@@ -59,11 +60,16 @@
     "searchPlaceholder": "ابحث عن منتجات...",
     "all": "الكل",
     "noProductsFound": "لم يتم العثور على منتجات. حاول تعديل البحث أو الفلاتر.",
-    "viewAllProducts": "عرض كل المنتجات"
+    "viewAllProducts": "عرض كل المنتجات",
+    "viewAllCategories": "عرض جميع الفئات"
   },
   "productsPage": {
     "title": "جميع المنتجات",
     "subtitle": "استكشف كتالوجنا الكامل من السلع الرقمية وشحن الألعاب."
+  },
+   "categoriesPage": {
+    "title": "جميع الفئات",
+    "subtitle": "تصفح جميع الفئات المتاحة للعثور على ما تبحث عنه بالضبط."
   },
   "productCard": {
     "addToOrder": "أضف للطلب"

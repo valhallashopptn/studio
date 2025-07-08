@@ -4,6 +4,7 @@
   "nav": {
     "home": "Home",
     "products": "Products",
+    "categories": "Categories",
     "about": "About Us",
     "contact": "Contact Us",
     "reviews": "Reviews"
@@ -59,11 +60,16 @@
     "searchPlaceholder": "Search products...",
     "all": "All",
     "noProductsFound": "No products found. Try adjusting your search or filters.",
-    "viewAllProducts": "View All Products"
+    "viewAllProducts": "View All Products",
+    "viewAllCategories": "View All Categories"
   },
   "productsPage": {
     "title": "All Products",
     "subtitle": "Explore our full catalog of digital goods and game top-ups."
+  },
+  "categoriesPage": {
+    "title": "All Categories",
+    "subtitle": "Browse through all available categories to find exactly what you're looking for."
   },
   "productCard": {
     "addToOrder": "Add to Order"

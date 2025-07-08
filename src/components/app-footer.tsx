@@ -12,10 +12,11 @@ import { Separator } from './ui/separator';
 
 const footerNavLinks = [
     { href: '/', labelKey: 'nav.home' },
-    { href: '/reviews', labelKey: 'nav.reviews' },
-    { href: '/contact', labelKey: 'nav.contact' },
     { href: '/products', labelKey: 'nav.products' },
+    { href: '/categories', labelKey: 'nav.categories' },
     { href: '/about', labelKey: 'nav.about' },
+    { href: '/contact', labelKey: 'nav.contact' },
+    { href: '/reviews', labelKey: 'nav.reviews' },
 ];
 
 const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
