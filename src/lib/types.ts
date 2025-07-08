@@ -86,3 +86,24 @@ export interface Order {
   refundReason?: string;
   refundedAt?: string;
 }
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'admin';
+  text: string;
+  timestamp: any; // Firestore Timestamp
+  userName: string;
+  userAvatar?: string;
+}
+
+export interface ChatSession {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  lastMessageText: string;
+  lastMessageAt: any; // Firestore Timestamp
+  status: 'open' | 'closed' | 'new';
+  hasUnreadAdminMessages: boolean;
+  hasUnreadUserMessages: boolean;
+}
