@@ -58,11 +58,11 @@ export default function AdminLayout({
       <AppHeader />
       <div className="flex flex-1">
         <AdminSidebar />
-        <main className="flex-1 p-4 md:p-8 bg-secondary/50 pb-24 md:pb-8">
+        <main className="flex-1 p-2 md:p-8 bg-secondary/50 pb-24 md:pb-8">
           {children}
         </main>
-        <MobileNav links={adminNavLinks} />
       </div>
+      <MobileNav links={adminNavLinks} />
     </div>
   );
 }
