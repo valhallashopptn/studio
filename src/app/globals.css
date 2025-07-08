@@ -259,4 +259,17 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Custom Scrollbar Styles */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-lg;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/80;
+  }
 }
