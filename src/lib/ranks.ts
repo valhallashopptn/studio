@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Shield, ShieldCheck, Gem, Crown, Trophy, Diamond, Hexagon } from 'lucide-react';
+import { ShieldOff, Shield, ShieldCheck, Sword, Swords, Gem, Diamond, Trophy, Crown, Hexagon } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export const USD_TO_XP_RATE = 1000;
@@ -14,13 +14,16 @@ export interface Rank {
 }
 
 export const ranks: Rank[] = [
-    { name: 'Bronze', threshold: 0 * USD_TO_XP_RATE, icon: Shield, color: 'text-orange-400' },
-    { name: 'Silver', threshold: 25 * USD_TO_XP_RATE, icon: ShieldCheck, color: 'text-gray-400' },
-    { name: 'Gold', threshold: 100 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
-    { name: 'Platinum', threshold: 250 * USD_TO_XP_RATE, icon: Gem, color: 'text-cyan-400' },
-    { name: 'Diamond', threshold: 500 * USD_TO_XP_RATE, icon: Diamond, color: 'text-blue-400' },
-    { name: 'Vibranium', threshold: 1000 * USD_TO_XP_RATE, icon: Hexagon, color: 'text-violet-500' },
-    { name: 'Legend', threshold: 2500 * USD_TO_XP_RATE, icon: Crown, color: 'text-red-500' },
+    { name: 'F-Rank', threshold: 0 * USD_TO_XP_RATE, icon: ShieldOff, color: 'text-gray-500' },
+    { name: 'E-Rank', threshold: 10 * USD_TO_XP_RATE, icon: Shield, color: 'text-orange-400' },
+    { name: 'D-Rank', threshold: 50 * USD_TO_XP_RATE, icon: ShieldCheck, color: 'text-lime-500' },
+    { name: 'C-Rank', threshold: 150 * USD_TO_XP_RATE, icon: Sword, color: 'text-sky-500' },
+    { name: 'B-Rank', threshold: 300 * USD_TO_XP_RATE, icon: Swords, color: 'text-blue-500' },
+    { name: 'A-Rank', threshold: 600 * USD_TO_XP_RATE, icon: Gem, color: 'text-purple-500' },
+    { name: 'S-Rank', threshold: 1200 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
+    { name: 'SS-Rank', threshold: 2500 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
+    { name: 'Legend', threshold: 5000 * USD_TO_XP_RATE, icon: Crown, color: 'text-yellow-300' },
+    { name: 'Lord', threshold: 10000 * USD_TO_XP_RATE, icon: Hexagon, color: 'text-violet-400' },
 ];
 
 export const getRank = (totalSpent: number): Rank => {
