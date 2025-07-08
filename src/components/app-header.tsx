@@ -28,7 +28,8 @@ import { useContentSettings } from '@/hooks/use-content-settings';
 import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import { Skeleton } from './ui/skeleton';
-import { getRank } from '@/lib/ranks';
+import { getRank, getNextRank } from '@/lib/ranks';
+import { Progress } from './ui/progress';
 
 
 export function AppHeader() {
@@ -45,7 +46,16 @@ export function AppHeader() {
   const { t, locale } = useTranslation();
   const { formatPrice } = useCurrency();
   const { theme } = useTheme();
+
+  // Rank logic
   const rank = user ? getRank(user.totalSpent) : null;
+  const nextRank = user ? getNextRank(user.totalSpent) : null;
+  const currentRankThreshold = rank?.threshold ?? 0;
+  const nextRankThreshold = nextRank?.threshold ?? 0;
+  const progressToNextRank = user ? user.totalSpent - currentRankThreshold : 0;
+  const requiredForNextRank = nextRankThreshold - currentRankThreshold;
+  const progressPercentage = requiredForNextRank > 0 ? (progressToNextRank / requiredForNextRank) * 100 : (nextRank ? 0 : 100);
+  const amountToNextRank = nextRank && user ? nextRank.threshold - user.totalSpent : 0;
 
   useEffect(() => {
     setIsMounted(true);
@@ -193,41 +203,55 @@ export function AppHeader() {
                               )}
                           </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-56" align={locale === 'ar' ? 'start' : 'end'} forceMount>
-                          <DropdownMenuLabel className="font-normal">
-                              <div className="flex flex-col space-y-1">
-                                <div className="flex justify-between items-center">
-                                    <p className="text-sm font-medium leading-none">{user?.name}</p>
-                                    {rank && !isAdmin && (
-                                        <div className={cn("flex items-center gap-1 text-xs font-semibold", rank.color)}>
-                                            <rank.icon className="h-3 w-3" />
-                                            <span>{rank.name}</span>
-                                        </div>
-                                    )}
-                                </div>
+                          <DropdownMenuContent className="w-64" align={locale === 'ar' ? 'start' : 'end'} forceMount>
+                            <DropdownMenuLabel className="font-normal">
+                                <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium leading-none">{user?.name}</p>
                                 <p className="text-xs leading-none text-muted-foreground">
                                     {user?.email}
                                 </p>
-                              </div>
-                          </DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          {!isAdmin && (
-                              <>
-                              <DropdownMenuItem disabled>
-                                  <Wallet className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                                  <span>{formatPrice(user?.walletBalance ?? 0)}</span>
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              </>
-                          )}
-                          <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
-                              <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                              <span>{t('auth.dashboard')}</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={handleLogout}>
-                              <LogOut className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                              <span>{t('auth.logout')}</span>
-                          </DropdownMenuItem>
+                                </div>
+                            </DropdownMenuLabel>
+                            
+                            {isAuthenticated && !isAdmin && rank && (
+                                <>
+                                <DropdownMenuSeparator />
+                                <div className="px-2 py-2 text-sm">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <div className={cn("flex items-center gap-1.5 font-semibold", rank.color)}>
+                                            <rank.icon className="h-4 w-4" />
+                                            <span>{rank.name}</span>
+                                        </div>
+                                        {nextRank && (
+                                            <div className={cn("flex items-center gap-1.5 font-semibold text-xs", nextRank.color)}>
+                                                <span>{nextRank.name}</span>
+                                                <nextRank.icon className="h-4 w-4" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    {nextRank ? (
+                                    <div className="space-y-1">
+                                        <Progress value={progressPercentage} className="h-1.5" />
+                                        <p className="text-xs text-muted-foreground text-center pt-1">
+                                            Spend {formatPrice(amountToNextRank)} more to rank up.
+                                        </p>
+                                    </div>
+                                    ) : (
+                                    <div className="text-xs text-center font-semibold text-amber-400 py-1">You are a Monarch!</div>
+                                    )}
+                                </div>
+                                </>
+                            )}
+                          
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
+                                <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                                <span>{t('auth.dashboard')}</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleLogout}>
+                                <LogOut className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                                <span>{t('auth.logout')}</span>
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                       </DropdownMenu>
                       </>
