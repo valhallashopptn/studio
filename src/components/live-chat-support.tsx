@@ -13,10 +13,12 @@ import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/lib/firebase';
 import { collection, doc, addDoc, onSnapshot, updateDoc, arrayUnion, serverTimestamp, query, orderBy, getDoc, setDoc } from 'firebase/firestore';
 import type { ChatMessage, ChatSession } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 
 export function LiveChatSupport() {
     const { user, isAuthenticated } = useAuth();
+    const { toast } = useToast();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -119,12 +121,22 @@ export function LiveChatSupport() {
 
         const text = inputValue;
         setInputValue('');
-        setIsLoading(true);
-        
+
+        const tempId = `temp_${Date.now()}`;
+        const optimisticMessage: ChatMessage = {
+            id: tempId,
+            sender: 'user',
+            text,
+            timestamp: new Date(),
+            userName: effectiveUser.name,
+            userAvatar: effectiveUser.avatar,
+        };
+
+        setMessages(prev => prev.filter(m => m.id !== 'initial').concat(optimisticMessage));
+
         let currentSessionId = sessionId;
-        
+
         try {
-            // Create session if it doesn't exist
             if (!currentSessionId) {
                 const sessionData: Omit<ChatSession, 'id'> = {
                     userId: effectiveUser.id,
@@ -134,7 +146,7 @@ export function LiveChatSupport() {
                     lastMessageAt: serverTimestamp(),
                     status: 'new',
                     hasUnreadAdminMessages: false,
-                    hasUnreadUserMessages: true, // Admin needs to see this
+                    hasUnreadUserMessages: true,
                 };
                 const sessionRef = await addDoc(collection(db, 'chatSessions'), sessionData);
                 currentSessionId = sessionRef.id;
@@ -142,7 +154,6 @@ export function LiveChatSupport() {
                 localStorage.setItem(`chatSessionId_${effectiveUser.id}`, currentSessionId);
             }
 
-            // Add message to the subcollection
             const messageData: Omit<ChatMessage, 'id'> = {
                 sender: 'user',
                 text,
@@ -150,21 +161,27 @@ export function LiveChatSupport() {
                 userName: effectiveUser.name,
                 userAvatar: effectiveUser.avatar,
             };
+
+            if (!currentSessionId) {
+              throw new Error("Session ID is not available");
+            }
+
             await addDoc(collection(db, 'chatSessions', currentSessionId, 'messages'), messageData);
             
-            // Update session document with last message info
             await updateDoc(doc(db, 'chatSessions', currentSessionId), {
                 lastMessageText: text,
                 lastMessageAt: serverTimestamp(),
                 status: 'open',
                 hasUnreadUserMessages: true,
             });
-
         } catch (error) {
             console.error('Failed to send message:', error);
-            // Optionally show an error message to the user
-        } finally {
-            setIsLoading(false);
+            setMessages(prev => prev.filter(m => m.id !== tempId));
+            toast({
+                variant: 'destructive',
+                title: 'Error sending message',
+                description: 'Please try again.',
+            });
         }
     };
 
@@ -207,7 +224,7 @@ export function LiveChatSupport() {
                 <CardContent className="flex-1 p-0">
                     <ScrollArea className="h-full" viewportRef={scrollViewportRef}>
                         <div className="p-4 space-y-4">
-                            {isLoading && messages.length <= 1 && (
+                            {isLoading && messages.length === 0 && (
                                 <div className="flex justify-center items-center h-full">
                                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                                 </div>
