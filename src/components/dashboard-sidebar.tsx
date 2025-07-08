@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -50,7 +51,7 @@ export function DashboardSidebar() {
             href={link.href}
             className={cn(
               'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-primary/10',
-              (pathname === link.href || (link.href === '/dashboard/orders' && pathname === '/dashboard')) && 'bg-primary/10 text-primary'
+              (pathname.startsWith(link.href)) && 'bg-primary/10 text-primary'
             )}
           >
             <link.icon className="h-4 w-4" />

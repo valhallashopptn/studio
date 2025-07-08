@@ -7,7 +7,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { DashboardSidebar } from '@/components/dashboard-sidebar';
 import { Loader2 } from 'lucide-react';
 import { AppHeader } from '@/components/app-header';
-import { AppFooter } from '@/components/app-footer';
 
 export default function DashboardLayout({
   children,
@@ -46,7 +45,6 @@ export default function DashboardLayout({
                 {children}
             </main>
         </div>
-        <AppFooter />
     </div>
   );
 }
