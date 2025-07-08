@@ -20,22 +20,29 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, user, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const router = useRouter();
-  const [isVerified, setIsVerified] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // This effect runs on the client after hydration
-    if (!isAuthenticated) {
-      router.push('/login');
-    } else if(isAdmin) {
-      router.push('/admin');
-    } else {
-      setIsVerified(true);
-    }
-  }, [isAuthenticated, isAdmin, router]);
+    setIsMounted(true);
+  }, []);
 
-  if (!isVerified) {
+  useEffect(() => {
+    // Wait until the component has mounted to check auth state.
+    // By this time, Zustand's store will be rehydrated from localStorage.
+    if (isMounted) {
+      if (!isAuthenticated) {
+        router.push('/login');
+      } else if(isAdmin) {
+        router.push('/admin');
+      }
+    }
+  }, [isMounted, isAuthenticated, isAdmin, router]);
+
+  // While not mounted, or if the user is not a regular customer, show a loader.
+  // This prevents a flash of content before the logic in useEffect can redirect.
+  if (!isMounted || !isAuthenticated || isAdmin) {
     return (
         <div className="flex h-screen w-full items-center justify-center bg-background">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -43,6 +50,7 @@ export default function DashboardLayout({
     );
   }
 
+  // If mounted and this is an authenticated, non-admin user, show the content.
   return (
     <div className="flex flex-col min-h-screen">
         <AppHeader />

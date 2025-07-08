@@ -28,18 +28,23 @@ export default function AdminLayout({
 }) {
   const { isAdmin, isAuthenticated } = useAuth();
   const router = useRouter();
-  const [isVerified, setIsVerified] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // This effect runs on the client after hydration
-    if (!isAuthenticated || !isAdmin) {
-      router.push('/login');
-    } else {
-      setIsVerified(true);
-    }
-  }, [isAuthenticated, isAdmin, router]);
+    setIsMounted(true);
+  }, []);
 
-  if (!isVerified) {
+  useEffect(() => {
+    // Wait until the component has mounted to check auth state.
+    // By this time, Zustand's store will be rehydrated from localStorage.
+    if (isMounted && (!isAuthenticated || !isAdmin)) {
+      router.push('/login');
+    }
+  }, [isMounted, isAuthenticated, isAdmin, router]);
+
+  // While not mounted, or if mounted but not authenticated as an admin, show a loader.
+  // This prevents a flash of content before the logic in useEffect can redirect.
+  if (!isMounted || !isAuthenticated || !isAdmin) {
     return (
         <div className="flex h-screen w-full items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -47,6 +52,7 @@ export default function AdminLayout({
     );
   }
 
+  // If mounted and authenticated as an admin, show the content.
   return (
     <div className="flex flex-col min-h-screen">
       <AppHeader />
