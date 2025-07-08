@@ -16,10 +16,19 @@ export interface Category {
   id: string;
   name: string;
   image: string;
+  deliveryMethod: 'manual' | 'instant';
+}
+
+export interface StockItem {
+  id: string;
+  productId: string;
+  code: string;
+  isUsed: boolean;
+  addedAt: string;
 }
 
 export interface PaymentMethod {
-    id: string;
+    id:string;
     name: string;
     icon: React.ComponentType<{ className?: string }>;
 }

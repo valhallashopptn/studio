@@ -1,9 +1,9 @@
-import type { Product, PaymentMethod, Review, Category } from '@/lib/types';
+import type { Product, PaymentMethod, Review, Category, StockItem } from '@/lib/types';
 import { Landmark, Wallet } from 'lucide-react';
 
 export let categories: Category[] = [
-  { id: 'cat_1', name: 'Game', image: 'https://placehold.co/300x200.png' },
-  { id: 'cat_2', name: 'Digital', image: 'https://placehold.co/300x200.png' },
+  { id: 'cat_1', name: 'Game', image: 'https://placehold.co/300x200.png', deliveryMethod: 'instant' },
+  { id: 'cat_2', name: 'Digital', image: 'https://placehold.co/300x200.png', deliveryMethod: 'manual' },
 ];
 
 export let products: Product[] = [
@@ -80,6 +80,14 @@ export let products: Product[] = [
     category: 'Game',
   },
 ];
+
+export let stock: StockItem[] = [
+    { id: 'stk_001', productId: 'prod_002', code: 'STEAM-ABCD-1234', isUsed: false, addedAt: new Date().toISOString() },
+    { id: 'stk_002', productId: 'prod_002', code: 'STEAM-EFGH-5678', isUsed: false, addedAt: new Date().toISOString() },
+    { id: 'stk_003', productId: 'prod_002', code: 'STEAM-IJKL-9012', isUsed: true, addedAt: new Date().toISOString() },
+    { id: 'stk_004', productId: 'prod_006', code: 'PSN-QWER-ASDF', isUsed: false, addedAt: new Date().toISOString() },
+];
+
 
 export let paymentMethods: PaymentMethod[] = [
     {

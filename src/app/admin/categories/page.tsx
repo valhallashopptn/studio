@@ -8,7 +8,7 @@ import type { Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, MoreHorizontal, Trash2, Edit } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Trash2, Edit, Package, Send } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,10 +30,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Badge } from '@/components/ui/badge';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'Name is required'),
   image: z.string().min(1, 'Image is required'),
+  deliveryMethod: z.enum(['manual', 'instant']),
 });
 
 export default function AdminCategoriesPage() {
@@ -44,6 +47,9 @@ export default function AdminCategoriesPage() {
 
   const form = useForm<z.infer<typeof categorySchema>>({
     resolver: zodResolver(categorySchema),
+    defaultValues: {
+      deliveryMethod: 'manual',
+    }
   });
   
   const imageUrl = form.watch('image');
@@ -61,6 +67,7 @@ export default function AdminCategoriesPage() {
         form.reset({
           name: '',
           image: 'https://placehold.co/300x200.png',
+          deliveryMethod: 'manual',
         });
       }
     }
@@ -96,10 +103,8 @@ export default function AdminCategoriesPage() {
 
   function onSubmit(values: z.infer<typeof categorySchema>) {
     if (editingCategory) {
-        // Update existing category
         setCategories(prev => prev.map(c => c.id === editingCategory.id ? { ...editingCategory, ...values } : c));
     } else {
-        // Add new category
         const newCategory: Category = {
             id: `cat_${Date.now()}`,
             ...values,
@@ -166,6 +171,35 @@ export default function AdminCategoriesPage() {
                         <FormMessage />
                     </FormItem>
                 )}/>
+                
+                <FormField control={form.control} name="deliveryMethod" render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Delivery Method</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl><RadioGroupItem value="manual" /></FormControl>
+                          <FormLabel className="font-normal flex items-center gap-2">
+                            <Package className="w-4 h-4"/> Manual (e.g., requires admin action)
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl><RadioGroupItem value="instant" /></FormControl>
+                          <FormLabel className="font-normal flex items-center gap-2">
+                            <Send className="w-4 h-4"/> Instant (delivers a key/code from stock)
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
 
                 <DialogFooter>
                     <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
@@ -187,6 +221,7 @@ export default function AdminCategoriesPage() {
               <TableRow>
                 <TableHead>Image</TableHead>
                 <TableHead>Name</TableHead>
+                <TableHead>Delivery</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -197,6 +232,11 @@ export default function AdminCategoriesPage() {
                     <Image src={category.image} alt={category.name} width={40} height={40} className="rounded-md object-cover" unoptimized={category.image.startsWith('data:image')} />
                   </TableCell>
                   <TableCell className="font-medium">{category.name}</TableCell>
+                  <TableCell>
+                    <Badge variant={category.deliveryMethod === 'instant' ? 'default' : 'secondary'}>
+                      {category.deliveryMethod}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
