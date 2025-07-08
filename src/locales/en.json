@@ -90,6 +90,11 @@
     "description": "Real reviews from our awesome community of gamers and digital enthusiasts.",
     "leaveReview": "Leave a Review"
   },
+  "statsSection": {
+    "productsLive": "Products Live",
+    "transactionsCompleted": "Transactions Completed",
+    "dedicatedSupport": "Dedicated Support"
+  },
   "aboutPage": {
     "title": "About {{siteTitle}}",
     "subtitle": "We are dedicated to providing a seamless and secure platform for all your digital top-up needs.",

@@ -4,28 +4,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, ShoppingCart, LifeBuoy } from 'lucide-react';
-
-const stats = [
-  {
-    icon: Package,
-    title: 'Products Live',
-    target: 120,
-    suffix: '+',
-  },
-  {
-    icon: ShoppingCart,
-    title: 'Transactions Completed',
-    target: 15,
-    suffix: 'k+',
-  },
-  {
-    icon: LifeBuoy,
-    title: 'Dedicated Support',
-    target: 24,
-    suffix: '/7',
-    isStaticText: true,
-  },
-];
+import { useTranslation } from '@/hooks/use-translation';
 
 const Counter = ({ target, suffix = '', duration = 2000 }: { target: number, suffix?: string, duration?: number }) => {
   const [count, setCount] = useState(0);
@@ -56,9 +35,33 @@ const Counter = ({ target, suffix = '', duration = 2000 }: { target: number, suf
 
 
 export function StatsSection() {
+    const { t } = useTranslation();
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => setIsMounted(true), []);
     const animationClass = (delay: number) => isMounted ? `opacity-0 animate-fade-in-up [animation-fill-mode:forwards] [animation-delay:${delay}ms]` : 'opacity-0';
+    
+    const stats = [
+      {
+        icon: Package,
+        title: t('statsSection.productsLive'),
+        target: 120,
+        suffix: '+',
+      },
+      {
+        icon: ShoppingCart,
+        title: t('statsSection.transactionsCompleted'),
+        target: 15,
+        suffix: 'k+',
+      },
+      {
+        icon: LifeBuoy,
+        title: t('statsSection.dedicatedSupport'),
+        target: 24,
+        suffix: '/7',
+        isStaticText: true,
+      },
+    ];
+
 
   return (
     <section className="bg-secondary/30 py-16 my-16">

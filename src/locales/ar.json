@@ -90,6 +90,11 @@
     "description": "تقييمات حقيقية من مجتمعنا الرائع من اللاعبين وعشاق المحتوى الرقمي.",
     "leaveReview": "اترك تقييمًا"
   },
+  "statsSection": {
+    "productsLive": "منتجات متاحة",
+    "transactionsCompleted": "معاملات مكتملة",
+    "dedicatedSupport": "دعم مخصص"
+  },
   "aboutPage": {
     "title": "عن {{siteTitle}}",
     "subtitle": "نحن ملتزمون بتوفير منصة سلسة وآمنة لجميع احتياجات الشحن الرقمي الخاصة بك.",
