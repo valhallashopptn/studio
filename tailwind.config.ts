@@ -114,6 +114,10 @@ export default {
           '0%, 100%': { opacity: '1', transform: 'scale(1)' },
           '50%': { opacity: '0.8', transform: 'scale(1.05)' },
         },
+        'snowfall': {
+          '0%': { transform: 'translateY(-10vh)', opacity: '1' },
+          '100%': { transform: 'translateY(110vh)', opacity: '1' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -122,6 +126,7 @@ export default {
         'slow-pan': 'slow-pan 20s ease-in-out infinite',
         'slide-down-up': 'slide-down-up 8s ease-in-out infinite',
         'pulse-slow': 'pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'snowfall': 'snowfall linear infinite',
       },
     },
   },

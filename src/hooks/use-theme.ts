@@ -4,7 +4,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeName = 'violet-fusion' | 'cyber-green' | 'solar-flare' | 'classic-light';
+export type ThemeName = 'violet-fusion' | 'cyber-green' | 'solar-flare' | 'classic-light' | 'winter-wonderland';
 
 type ThemeState = {
   theme: ThemeName;

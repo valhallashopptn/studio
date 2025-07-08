@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { useTranslation } from '@/hooks/use-translation';
 import { LiveChatSupport } from '@/components/live-chat-support';
+import { Snowfall } from '@/components/snowfall';
 
 export default function RootLayout({
   children,
@@ -18,7 +19,8 @@ export default function RootLayout({
   const { siteTitle } = useSiteSettings();
   const { locale } = useTranslation();
 
-  const isDark = theme !== 'classic-light';
+  const isDark = !['classic-light', 'winter-wonderland'].includes(theme);
+  const isWinterTheme = theme === 'winter-wonderland';
   const baseFont = theme === 'cyber-green' ? 'font-mono' : 'font-sans';
   const effectiveFont = locale === 'ar' ? 'font-cairo' : baseFont;
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
@@ -33,6 +35,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&family=Cairo:wght@400;500;700&display=swap" rel="stylesheet"></link>
       </head>
       <body className={cn('antialiased', effectiveFont)}>
+        {isWinterTheme && <Snowfall />}
         {children}
         <Toaster />
         <LiveChatSupport />

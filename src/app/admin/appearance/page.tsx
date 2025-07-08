@@ -21,6 +21,7 @@ const themes: { name: ThemeName; label: string; primary: string; accent: string;
   { name: 'cyber-green', label: 'Cyber Green', primary: 'bg-[#16a34a]', accent: 'bg-[#4ade80]', bg: 'bg-[#0a0a0a]', font: 'font-mono' },
   { name: 'solar-flare', label: 'Solar Flare', primary: 'bg-[#f97316]', accent: 'bg-[#facc15]', bg: 'bg-[#1c1917]', font: 'font-sans' },
   { name: 'classic-light', label: 'Classic Light', primary: 'bg-[#1d4ed8]', accent: 'bg-[#22c55e]', bg: 'bg-white', font: 'font-sans' },
+  { name: 'winter-wonderland', label: 'Winter Wonderland', primary: 'bg-[#0a749e]', accent: 'bg-[#ef4444]', bg: 'bg-[#f0f9ff]', font: 'font-sans' },
 ];
 
 const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -126,7 +127,7 @@ export default function AdminAppearancePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {themes.map((t) => (
               <div key={t.name}>
                 <button

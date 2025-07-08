@@ -32,6 +32,35 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
   }
+
+  /* Winter Wonderland Theme */
+  :root[data-theme="winter-wonderland"] {
+    --background: 207 100% 97%; /* sky-50 */
+    --foreground: 215 28% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 28% 17%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 4.9%;
+    --primary: 196 86% 33%; /* Winter Blue */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 207 100% 92%; /* sky-100 */
+    --secondary-foreground: 222 47.4% 11.2%;
+    --muted: 207 100% 92%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 0 84% 60%; /* Festive Red */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 207 100% 88%; /* sky-200 */
+    --input: 207 100% 88%;
+    --ring: 196 86% 33%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
  
   /* Violet Fusion (Default Dark) */
   .dark, .dark[data-theme="violet-fusion"] {

@@ -26,6 +26,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import { CurrencySwitcher } from './currency-switcher';
 import { useContentSettings } from '@/hooks/use-content-settings';
 import { useCurrency } from '@/hooks/use-currency';
+import { useTheme } from '@/hooks/use-theme';
 
 
 export function AppHeader() {
@@ -41,6 +42,7 @@ export function AppHeader() {
   const router = useRouter();
   const { t, locale } = useTranslation();
   const { formatPrice } = useCurrency();
+  const { theme } = useTheme();
 
   useEffect(() => {
     setIsMounted(true);
@@ -56,6 +58,7 @@ export function AppHeader() {
   ];
 
   const [totalItems, setTotalItems] = useState(0);
+  const isWinterTheme = theme === 'winter-wonderland';
 
   useEffect(() => {
     setTotalItems(items.reduce((acc, item) => acc + item.quantity, 0));
@@ -171,6 +174,15 @@ export function AppHeader() {
                               <AvatarImage src={user?.avatar} alt={user?.name} />
                               <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                               </Avatar>
+                              {isWinterTheme && (
+                                <div className="absolute -top-2 -right-2 transform rotate-12" style={{ width: '24px', height: '24px' }}>
+                                  <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                                    <path d="M41,112.5c-11.85,0-21.5-9.65-21.5-21.5S29.15,69.5,41,69.5h38c11.85,0,21.5,9.65,21.5,21.5S90.85,112.5,79,112.5H41z" fill="#fff"/>
+                                    <path d="M79,77.5H41c-3.83,0-7.3,1.75-9.65,4.55L70.5,21.5c1.92-3.32,5.55-5.5,9.7-5.5c6.63,0,12,5.37,12,12 c0,4.15-2.18,7.78-5.5,9.7L79,77.5z" fill="#ef4444"/>
+                                    <circle cx="91.5" cy="27.5" r="11" fill="#fff"/>
+                                  </svg>
+                                </div>
+                              )}
                           </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="w-56" align={locale === 'ar' ? 'start' : 'end'} forceMount>
