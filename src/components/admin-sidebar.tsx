@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Package, Settings, Flame, Paintbrush, Shapes, Boxes } from 'lucide-react';
+import { LayoutDashboard, Package, Settings, Flame, Paintbrush, Shapes, Boxes, ClipboardList } from 'lucide-react';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import Image from 'next/image';
 
@@ -13,6 +14,7 @@ const adminNavLinks = [
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/categories', label: 'Categories', icon: Shapes },
   { href: '/admin/stock', label: 'Stock', icon: Boxes },
+  { href: '/admin/orders', label: 'Orders', icon: ClipboardList },
   { href: '/admin/settings', label: 'Payments', icon: Settings },
   { href: '/admin/appearance', label: 'Appearance', icon: Paintbrush },
 ];

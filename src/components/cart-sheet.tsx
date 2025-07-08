@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -28,9 +29,11 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useCart } from '@/hooks/use-cart';
+import { useAuth } from '@/hooks/use-auth';
+import { useOrders } from '@/hooks/use-orders';
 import { usePaymentSettings } from '@/hooks/use-payment-settings';
 import { categories as initialCategories } from '@/lib/data';
-import type { PaymentMethod, CartItem } from '@/lib/types';
+import type { PaymentMethod, CartItem, Order } from '@/lib/types';
 import { Minus, Plus, Trash2, Landmark, Wallet, CreditCard, Upload } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/hooks/use-translation';
@@ -84,6 +87,8 @@ const CustomFieldsDisplay = ({ item }: { item: CartItem }) => {
 export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { items, removeItem, updateQuantity, clearCart, updateCustomFieldValue } = useCart();
   const { paymentMethods } = usePaymentSettings();
+  const { addOrder } = useOrders();
+  const { user, isAuthenticated } = useAuth();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
   const [paymentProofImage, setPaymentProofImage] = useState<string | null>(null);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
@@ -113,6 +118,15 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   };
 
   const handleSubmitOrder = () => {
+     if (!isAuthenticated || !user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "Please log in or create an account to place an order.",
+      });
+      return;
+    }
+    
     if (items.length === 0) {
       toast({
         variant: "destructive",
@@ -156,8 +170,20 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
         });
         return;
     }
-
-    setOrderId(`TUH-${Math.random().toString(36).substr(2, 9).toUpperCase()}`);
+    
+    const newOrderId = `TUH-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    setOrderId(newOrderId);
+    
+    const newOrder: Omit<Order, 'createdAt'> = {
+        id: newOrderId,
+        customer: user,
+        items,
+        total,
+        paymentMethod: selectedPayment,
+        paymentProofImage,
+        status: 'pending',
+    };
+    addOrder(newOrder);
     setConfirmOpen(true);
   };
 
@@ -282,7 +308,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                     <span>{t('cart.total')}</span>
                     <span className="text-primary">{formatPrice(total)}</span>
                   </div>
-                  <Button onClick={handleSubmitOrder} className="w-full" size="lg">
+                  <Button onClick={handleSubmitOrder} className="w-full" size="lg" disabled={!isAuthenticated}>
                     {t('cart.submit')}
                   </Button>
                 </div>

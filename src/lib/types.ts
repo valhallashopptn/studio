@@ -1,4 +1,5 @@
 
+
 export interface Product {
   id: string;
   name: string;
@@ -62,4 +63,17 @@ export interface Review {
   text: string;
   product: string;
   proofImage?: string;
+}
+
+export type OrderStatus = 'pending' | 'completed' | 'refunded';
+
+export interface Order {
+  id: string;
+  customer: User;
+  items: CartItem[];
+  total: number;
+  paymentMethod: PaymentMethod;
+  paymentProofImage?: string | null;
+  status: OrderStatus;
+  createdAt: string;
 }
