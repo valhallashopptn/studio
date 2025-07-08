@@ -3,6 +3,7 @@
   "siteTitle": "توب أب هاب",
   "nav": {
     "home": "الرئيسية",
+    "products": "المنتجات",
     "about": "من نحن",
     "contact": "اتصل بنا",
     "reviews": "التقييمات"
@@ -57,7 +58,12 @@
     "ourCategories": "تصفح حسب الفئة",
     "searchPlaceholder": "ابحث عن منتجات...",
     "all": "الكل",
-    "noProductsFound": "لم يتم العثور على منتجات. حاول تعديل البحث أو الفلاتر."
+    "noProductsFound": "لم يتم العثور على منتجات. حاول تعديل البحث أو الفلاتر.",
+    "viewAllProducts": "عرض كل المنتجات"
+  },
+  "productsPage": {
+    "title": "جميع المنتجات",
+    "subtitle": "استكشف كتالوجنا الكامل من السلع الرقمية وشحن الألعاب."
   },
   "productCard": {
     "addToOrder": "أضف للطلب"

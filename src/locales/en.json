@@ -3,6 +3,7 @@
   "siteTitle": "TopUp Hub",
   "nav": {
     "home": "Home",
+    "products": "Products",
     "about": "About Us",
     "contact": "Contact Us",
     "reviews": "Reviews"
@@ -57,7 +58,12 @@
     "ourCategories": "Browse by Category",
     "searchPlaceholder": "Search products...",
     "all": "All",
-    "noProductsFound": "No products found. Try adjusting your search or filters."
+    "noProductsFound": "No products found. Try adjusting your search or filters.",
+    "viewAllProducts": "View All Products"
+  },
+  "productsPage": {
+    "title": "All Products",
+    "subtitle": "Explore our full catalog of digital goods and game top-ups."
   },
   "productCard": {
     "addToOrder": "Add to Order"

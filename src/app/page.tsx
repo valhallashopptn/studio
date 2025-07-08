@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { AppHeader } from '@/components/app-header';
 import { ProductCard } from '@/components/product-card';
 import { CategoryCard } from '@/components/category-card';
@@ -12,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Product } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, ArrowRight } from 'lucide-react';
 import { AppFooter } from '@/components/app-footer';
 import Image from 'next/image';
 import { useSiteSettings } from '@/hooks/use-site-settings';
@@ -56,6 +57,8 @@ export default function Home() {
       return matchesCategory && matchesSearch;
     });
   }, [searchTerm, selectedCategory]);
+
+  const productsToShow = filteredProducts.slice(0, 12);
 
   const animationClass = isMounted ? 'opacity-0 animate-fade-in-up [animation-fill-mode:forwards]' : 'opacity-0';
   
@@ -143,8 +146,8 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                {filteredProducts.length > 0 ? (
-                    filteredProducts.map((product, index) => (
+                {productsToShow.length > 0 ? (
+                    productsToShow.map((product, index) => (
                     <div key={product.id} className={animationClass} style={{animationDelay: `${400 + index * 100}ms`}}>
                         <ProductCard 
                             product={product} 
@@ -156,6 +159,16 @@ export default function Home() {
                     <p className="col-span-full text-center text-muted-foreground">{t('home.noProductsFound')}</p>
                 )}
             </div>
+            
+            <div className="mt-12 text-center">
+              <Button asChild size="lg" variant="outline">
+                <Link href="/products">
+                  {t('home.viewAllProducts')}
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+
             </section>
         </div>
         

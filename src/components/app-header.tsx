@@ -39,6 +39,7 @@ export function AppHeader() {
 
   const navLinks = [
     { href: '/', label: t('nav.home') },
+    { href: '/products', label: t('nav.products') },
     { href: '/about', label: t('nav.about') },
     { href: '/contact', label: t('nav.contact') },
     { href: '/reviews', label: t('nav.reviews') },
