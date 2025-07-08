@@ -2,6 +2,7 @@
 "use client"
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -33,16 +34,25 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
     setIsMounted(true);
   }, []);
 
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Stop the link from navigating
+    onAddToCart();
+  };
+
   return (
-    <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full hover:border-primary/50">
+    <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full hover:border-primary/50 group relative">
+      {/* The link overlay makes the entire card clickable */}
+      <Link href={`/products/${product.id}`} className="absolute inset-0 z-10" aria-label={`View details for ${product.name}`} />
+      
+      {/* All content sits above the link conceptually */}
       <CardHeader>
         <div className="flex justify-between items-start">
-            <CardTitle className="font-headline text-lg mb-2">{product.name}</CardTitle>
+            <CardTitle className="font-headline text-lg mb-2 group-hover:text-primary transition-colors">{product.name}</CardTitle>
             <Badge variant="secondary" className="flex items-center">
               {product.category}
             </Badge>
         </div>
-        <CardDescription>{product.description}</CardDescription>
+        <CardDescription className="line-clamp-2">{product.description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="relative aspect-video w-full">
@@ -55,7 +65,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
             />
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between items-center">
+      <CardFooter className="flex justify-between items-center mt-auto pt-4 relative z-20">
         {isMounted ? (
             <p className="text-xl font-bold text-primary">
             {formatPrice(product.price)}
@@ -63,7 +73,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         ) : (
             <Skeleton className="h-7 w-24" />
         )}
-        <Button onClick={onAddToCart} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button onClick={handleButtonClick} className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <ShoppingCart className="mr-2 h-4 w-4" />
           {t('productCard.addToOrder')}
         </Button>
