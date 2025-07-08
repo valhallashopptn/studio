@@ -11,18 +11,19 @@ type AuthState = {
   isAdmin: boolean;
   login: (credentials: Pick<User, 'email' | 'password'>) => boolean;
   logout: () => void;
-  register: (userDetails: Omit<User, 'id' | 'isAdmin'>) => boolean;
+  register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent'>) => boolean;
   updateUser: (userId: string, updates: Partial<Pick<User, 'name' | 'email'>>) => boolean;
   changePassword: (userId: string, newPassword: string) => boolean;
   updateAvatar: (userId: string, avatar: string) => void;
   updateWalletBalance: (userId: string, amount: number) => void;
+  updateTotalSpent: (userId: string, amount: number) => void;
 };
 
 // Mock users database
 let users: User[] = [
-    { id: '1', name: 'Admin User', email: 'admin@topuphub.com', password: 'admin', isAdmin: true, avatar: 'https://placehold.co/100x100.png', walletBalance: 1000 },
-    { id: '2', name: 'Test User', email: 'user@topuphub.com', password: 'user', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 50 },
-    { id: '3', name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 25.50 },
+    { id: '1', name: 'Admin User', email: 'admin@topuphub.com', password: 'admin', isAdmin: true, avatar: 'https://placehold.co/100x100.png', walletBalance: 1000, totalSpent: 0 },
+    { id: '2', name: 'Test User', email: 'user@topuphub.com', password: 'user', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 50, totalSpent: 250 },
+    { id: '3', name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 25.50, totalSpent: 25.50 },
 ];
 
 export const useAuth = create(
@@ -53,6 +54,7 @@ export const useAuth = create(
             isAdmin: false,
             avatar: 'https://placehold.co/100x100.png',
             walletBalance: 0,
+            totalSpent: 0,
         };
         users.push(newUser);
         set({ user: newUser, isAuthenticated: true, isAdmin: false });
@@ -90,6 +92,18 @@ export const useAuth = create(
             set(state => ({
                 user: state.user && state.user.id === userId
                     ? { ...state.user, walletBalance: newBalance }
+                    : state.user
+            }));
+        }
+      },
+      updateTotalSpent: (userId, amount) => {
+        const userIndex = users.findIndex(u => u.id === userId);
+        if (userIndex > -1) {
+            const newTotal = users[userIndex].totalSpent + amount;
+            users[userIndex].totalSpent = newTotal;
+            set(state => ({
+                user: state.user && state.user.id === userId
+                    ? { ...state.user, totalSpent: newTotal }
                     : state.user
             }));
         }

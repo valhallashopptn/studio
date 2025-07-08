@@ -15,6 +15,10 @@ import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTranslation } from '@/hooks/use-translation';
+import { getRank, getNextRank } from '@/lib/ranks';
+import { Progress } from '@/components/ui/progress';
+import { useCurrency } from '@/hooks/use-currency';
+import { cn } from '@/lib/utils';
 
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -34,6 +38,16 @@ export default function SettingsPage() {
     const { user, updateUser, changePassword, updateAvatar } = useAuth();
     const { toast } = useToast();
     const { t } = useTranslation();
+    const { formatPrice } = useCurrency();
+
+    const rank = user ? getRank(user.totalSpent) : null;
+    const nextRank = user ? getNextRank(user.totalSpent) : null;
+
+    const currentRankThreshold = rank?.threshold ?? 0;
+    const nextRankThreshold = nextRank?.threshold ?? 0;
+    const progressToNextRank = user ? user.totalSpent - currentRankThreshold : 0;
+    const requiredForNextRank = nextRankThreshold - currentRankThreshold;
+    const progressPercentage = requiredForNextRank > 0 ? (progressToNextRank / requiredForNextRank) * 100 : (nextRank ? 0 : 100);
 
     const profileForm = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
@@ -90,6 +104,35 @@ export default function SettingsPage() {
                 <h1 className="text-3xl font-bold">{t('dashboardSettings.title')}</h1>
                 <p className="text-muted-foreground">{t('dashboardSettings.subtitle')}</p>
             </div>
+
+            {rank && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Your Rank</CardTitle>
+                        <CardDescription>You rank up by making purchases on our site. Higher ranks may unlock future benefits!</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex items-center gap-4 p-4 bg-secondary rounded-lg">
+                            <rank.icon className={cn("h-12 w-12", rank.color)} />
+                            <div>
+                                <h3 className="text-2xl font-bold">{rank.name}</h3>
+                                <p className="text-muted-foreground">Total Spent: {formatPrice(user?.totalSpent ?? 0)}</p>
+                            </div>
+                        </div>
+                        {nextRank ? (
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-sm text-muted-foreground">
+                                    <span>Progress to {nextRank.name}</span>
+                                    <span>{formatPrice(user?.totalSpent ?? 0)} / {formatPrice(nextRank.threshold)}</span>
+                                </div>
+                                <Progress value={progressPercentage} className="w-full" />
+                            </div>
+                        ) : (
+                            <div className="text-center font-semibold text-primary">You have reached the highest rank!</div>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
 
             <Card>
                 <CardHeader>

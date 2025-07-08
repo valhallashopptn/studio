@@ -32,12 +32,13 @@ export const useOrders = create(
 
                     const orders = [...state.orders];
                     const orderToUpdate = { ...orders[orderIndex] };
+                    const previousStatus = orderToUpdate.status;
 
-                    // Prevent re-processing if status is the same
-                    if (orderToUpdate.status === status) return state;
+                    // Prevent redundant updates
+                    if (previousStatus === status) return state;
 
                     // Process refund logic
-                    if (status === 'refunded' && orderToUpdate.status !== 'refunded') {
+                    if (status === 'refunded' && previousStatus !== 'refunded') {
                         if (orderToUpdate.paymentMethod.id === 'store_wallet') {
                             useAuth.getState().updateWalletBalance(orderToUpdate.customer.id, orderToUpdate.total);
                         }
@@ -46,8 +47,11 @@ export const useOrders = create(
                         // Note: stock is not returned on refund in this implementation
                     }
 
-                    // Process completion logic
-                    if (status === 'completed') {
+                    // Process completion logic - only if moving from a non-completed state
+                    if (status === 'completed' && previousStatus !== 'completed') {
+                        const { updateTotalSpent } = useAuth.getState();
+                        updateTotalSpent(orderToUpdate.customer.id, orderToUpdate.total);
+
                         const { deliverStockForOrder } = useStock.getState();
                         const { categories } = useCategoriesStore.getState();
                         const categoryMap = new Map(categories.map(c => [c.name, c]));

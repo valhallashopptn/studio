@@ -72,6 +72,7 @@ export interface User {
   isAdmin?: boolean;
   avatar?: string;
   walletBalance: number;
+  totalSpent: number;
 }
 
 export interface Review {

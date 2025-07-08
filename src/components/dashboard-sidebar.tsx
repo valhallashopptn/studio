@@ -10,12 +10,15 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useCurrency } from '@/hooks/use-currency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/use-translation';
+import { getRank } from '@/lib/ranks';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
   const { formatPrice } = useCurrency();
   const { t } = useTranslation();
+  const rank = user ? getRank(user.totalSpent) : null;
+
 
   const navLinks = [
     { href: '/dashboard/orders', label: t('dashboardSidebar.myOrders'), icon: ClipboardList },
@@ -31,7 +34,12 @@ export function DashboardSidebar() {
         </Avatar>
         <div>
             <h2 className="text-lg font-bold">{user?.name}</h2>
-            <p className="text-sm text-muted-foreground">{t('dashboardSidebar.customer')}</p>
+            {rank && (
+                <div className={cn("flex items-center gap-1 text-sm font-semibold", rank.color)}>
+                    <rank.icon className="h-4 w-4" />
+                    <span>{rank.name}</span>
+                </div>
+            )}
         </div>
       </div>
 
