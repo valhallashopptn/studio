@@ -2,11 +2,21 @@
 import type { Product, Review, Category, StockItem } from '@/lib/types';
 
 export let categories: Category[] = [
-  { id: 'cat_1', name: 'Game', image: 'https://placehold.co/300x200.png', deliveryMethod: 'instant', customFields: [] },
+  { 
+    id: 'cat_1', 
+    name: 'Game', 
+    image: 'https://placehold.co/300x200.png', 
+    backImage: 'https://placehold.co/300x200.png',
+    description: 'Instant codes and top-ups for popular games on PC, console, and mobile.',
+    deliveryMethod: 'instant', 
+    customFields: [] 
+  },
   { 
     id: 'cat_2', 
     name: 'Digital', 
     image: 'https://placehold.co/300x200.png', 
+    backImage: 'https://placehold.co/300x200.png',
+    description: 'Gift cards and subscriptions for streaming, music, and online shopping.',
     deliveryMethod: 'manual', 
     customFields: [
       { id: 'field_1', name: 'account_email', label: 'Account Email', type: 'email', placeholder: 'Enter the account email' }

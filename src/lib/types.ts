@@ -27,6 +27,8 @@ export interface Category {
   id: string;
   name: string;
   image: string;
+  backImage: string;
+  description: string;
   deliveryMethod: 'manual' | 'instant';
   customFields: CustomField[];
 }
