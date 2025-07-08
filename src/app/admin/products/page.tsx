@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { products as initialProducts, categories as initialCategories } from '@/lib/data';
+import { products as initialProducts } from '@/lib/data';
 import type { Product, Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,6 +34,7 @@ import Image from 'next/image';
 import { generateImage } from '@/ai/flows/generate-image-flow';
 import { Label } from '@/components/ui/label';
 import { useCurrency } from '@/hooks/use-currency';
+import { useCategories } from '@/hooks/use-categories';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -48,7 +49,7 @@ const productSchema = z.object({
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { categories } = useCategories();
   const [isMounted, setIsMounted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -63,7 +64,6 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     setProducts(initialProducts);
-    setCategories(initialCategories);
     setIsMounted(true);
   }, []);
 

@@ -4,7 +4,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import type React from 'react';
 import { useStock } from '@/hooks/use-stock';
-import { products as initialProducts, categories as initialCategories } from '@/lib/data';
+import { products as initialProducts } from '@/lib/data';
+import { useCategories } from '@/hooks/use-categories';
 import type { Product, StockItem } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,13 +28,14 @@ import { format } from 'date-fns';
 
 export default function AdminStockPage() {
   const { stock, getAvailableStockCount, getStockForProduct, addStockItems } = useStock();
+  const { categories } = useCategories();
   const [isMounted, setIsMounted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [newCodes, setNewCodes] = useState('');
   const { toast } = useToast();
 
-  const categoryMap = useMemo(() => new Map(initialCategories.map(c => [c.name, c])), []);
+  const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
 
   useEffect(() => {
     setIsMounted(true);

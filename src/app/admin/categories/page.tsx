@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import type React from 'react';
-import { categories as initialCategories } from '@/lib/data';
+import { useCategories } from '@/hooks/use-categories';
 import type { Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,7 +35,6 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 const customFieldSchema = z.object({
   id: z.string(),
@@ -55,7 +54,7 @@ const categorySchema = z.object({
 });
 
 export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { categories, addCategory, updateCategory, deleteCategory } = useCategories();
   const [isMounted, setIsMounted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -78,7 +77,6 @@ export default function AdminCategoriesPage() {
   const deliveryMethod = form.watch('deliveryMethod');
 
   useEffect(() => {
-    setCategories(initialCategories);
     setIsMounted(true);
   }, []);
 
@@ -113,7 +111,7 @@ export default function AdminCategoriesPage() {
   };
   
   const handleDelete = (categoryId: string) => {
-    setCategories(prev => prev.filter(c => c.id !== categoryId));
+    deleteCategory(categoryId);
   };
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,14 +143,9 @@ export default function AdminCategoriesPage() {
 
   function onSubmit(values: z.infer<typeof categorySchema>) {
     if (editingCategory) {
-        setCategories(prev => prev.map(c => c.id === editingCategory.id ? { ...c, ...values } : c));
+        updateCategory({ ...editingCategory, ...values });
     } else {
-        const newCategory: Category = {
-            id: `cat_${Date.now()}`,
-            ...values,
-            customFields: values.customFields || [],
-        };
-        setCategories(prev => [...prev, newCategory]);
+        addCategory(values);
     }
     setIsDialogOpen(false);
     setEditingCategory(null);

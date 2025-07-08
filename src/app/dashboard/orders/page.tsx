@@ -23,7 +23,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { useCurrency } from '@/hooks/use-currency';
-import { categories as initialCategories } from '@/lib/data';
+import { useCategories } from '@/hooks/use-categories';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,7 +34,8 @@ const statusConfig: { [key in OrderStatus]: { variant: 'default' | 'secondary' |
 };
 
 const CustomFieldsDisplay = ({ item }: { item: CartItem }) => {
-    const categoryMap = useMemo(() => new Map(initialCategories.map(c => [c.name, c])), []);
+    const { categories } = useCategories();
+    const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
     const category = categoryMap.get(item.category);
     if (!category || category.deliveryMethod !== 'manual' || !item.customFieldValues || Object.keys(item.customFieldValues).length === 0) {
         return null;

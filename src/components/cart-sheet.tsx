@@ -32,7 +32,7 @@ import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
 import { useOrders } from '@/hooks/use-orders';
 import { usePaymentSettings } from '@/hooks/use-payment-settings';
-import { categories as initialCategories } from '@/lib/data';
+import { useCategories } from '@/hooks/use-categories';
 import type { PaymentMethod, CartItem, Order } from '@/lib/types';
 import { Minus, Plus, Trash2, Landmark, Wallet as WalletIcon, CreditCard, Upload } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -62,11 +62,13 @@ const PaymentInstructions = ({ method }: { method: PaymentMethod | null }) => {
 };
 
 const CustomFieldsDisplay = ({ item }: { item: CartItem }) => {
+    const { categories } = useCategories();
+    const category = categories.find(c => c.name === item.category);
+
     if (!item.customFieldValues || Object.keys(item.customFieldValues).length === 0) {
         return null;
     }
 
-    const category = initialCategories.find(c => c.name === item.category);
     if (!category || !category.customFields) return null;
 
     return (
@@ -88,6 +90,7 @@ const CustomFieldsDisplay = ({ item }: { item: CartItem }) => {
 export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { items, removeItem, updateQuantity, clearCart, updateCustomFieldValue } = useCart();
   const { paymentMethods } = usePaymentSettings();
+  const { categories } = useCategories();
   const { addOrder } = useOrders();
   const { user, isAuthenticated, updateWalletBalance } = useAuth();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
@@ -98,7 +101,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
 
-  const categoryMap = useMemo(() => new Map(initialCategories.map(c => [c.name, c])), []);
+  const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
 
   const subtotal = useMemo(() =>
     items.reduce((acc, item) => acc + item.price * item.quantity, 0),

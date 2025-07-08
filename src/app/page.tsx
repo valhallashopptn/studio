@@ -5,7 +5,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { ProductCard } from '@/components/product-card';
 import { CategoryCard } from '@/components/category-card';
-import { products, categories as initialCategories } from '@/lib/data';
+import { products } from '@/lib/data';
+import { useCategories } from '@/hooks/use-categories';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from '@/lib/types';
@@ -19,16 +20,17 @@ import { Reviews } from '@/components/reviews';
 import { useTranslation } from '@/hooks/use-translation';
 import { StatsSection } from '@/components/stats-section';
 
-const categoriesForFilter = ['All', ...initialCategories.map(c => c.name)];
-
 export default function Home() {
   const addItemToCart = useCart((state) => state.addItem);
   const { toast } = useToast();
+  const { categories } = useCategories();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isMounted, setIsMounted] = useState(false);
   const { heroImageUrl } = useSiteSettings();
   const { t } = useTranslation();
+
+  const categoriesForFilter = useMemo(() => ['All', ...categories.map(c => c.name)], [categories]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -102,7 +104,7 @@ export default function Home() {
             <section id="categories" className="mb-16">
               <h2 className="text-3xl font-bold mb-8 text-center font-headline">{t('home.ourCategories')}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {initialCategories.map((category, index) => (
+                {categories.map((category, index) => (
                   <div key={category.id} className={`${animationClass} aspect-video`} style={{animationDelay: `${200 + index * 100}ms`}}>
                     <CategoryCard 
                       category={category}
