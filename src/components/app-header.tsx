@@ -62,9 +62,9 @@ export function AppHeader() {
     <>
       <div className="sticky top-0 z-40 w-full bg-background">
         {announcementEnabled && announcementText && (
-          <div className="bg-accent text-accent-foreground text-sm py-2">
+          <div className="bg-accent text-accent-foreground text-sm py-2 overflow-hidden">
             <div className="container flex items-center justify-center">
-              <div className="flex items-center gap-4 animate-fade-in-out">
+              <div className="flex items-center gap-4 animate-slide-down-up">
                 <Megaphone className="h-5 w-5 shrink-0" />
                 <p>
                   {announcementText}
