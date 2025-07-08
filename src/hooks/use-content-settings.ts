@@ -41,6 +41,18 @@ type ContentSettingsState = {
   setAnnouncementText: (text: string) => void;
   announcementEnabled: boolean;
   setAnnouncementEnabled: (enabled: boolean) => void;
+
+  // Social Media Links
+  facebookUrl: string;
+  setFacebookUrl: (url: string) => void;
+  instagramUrl: string;
+  setInstagramUrl: (url: string) => void;
+  discordUrl: string;
+  setDiscordUrl: (url: string) => void;
+  tiktokUrl: string;
+  setTiktokUrl: (url: string) => void;
+  telegramUrl: string;
+  setTelegramUrl: (url: string) => void;
 };
 
 const defaultAboutSubtitle = "We are dedicated to providing a seamless and secure platform for all your digital top-up needs.";
@@ -59,6 +71,12 @@ const defaultContactEmail = "support@topuphub.com";
 const defaultContactPhone = "+1 (555) 123-4567";
 const defaultContactAddress = "123 Digital Lane, Tech City, 12345";
 const defaultAnnouncementText = "🎉 New products added! Check out our latest game top-ups and digital gift cards. Limited time offers available!";
+
+const defaultFacebookUrl = "https://facebook.com";
+const defaultInstagramUrl = "https://instagram.com";
+const defaultDiscordUrl = "https://discord.com";
+const defaultTiktokUrl = "https://tiktok.com";
+const defaultTelegramUrl = "https://telegram.org";
 
 
 export const useContentSettings = create(
@@ -98,6 +116,18 @@ export const useContentSettings = create(
       setAnnouncementText: (text) => set({ announcementText: text }),
       announcementEnabled: true,
       setAnnouncementEnabled: (enabled) => set({ announcementEnabled: enabled }),
+
+      // Social Media Links
+      facebookUrl: defaultFacebookUrl,
+      setFacebookUrl: (url) => set({ facebookUrl: url }),
+      instagramUrl: defaultInstagramUrl,
+      setInstagramUrl: (url) => set({ instagramUrl: url }),
+      discordUrl: defaultDiscordUrl,
+      setDiscordUrl: (url) => set({ discordUrl: url }),
+      tiktokUrl: defaultTiktokUrl,
+      setTiktokUrl: (url) => set({ tiktokUrl: url }),
+      telegramUrl: defaultTelegramUrl,
+      setTelegramUrl: (url) => set({ telegramUrl: url }),
     }),
     {
       name: 'topup-hub-content-settings',

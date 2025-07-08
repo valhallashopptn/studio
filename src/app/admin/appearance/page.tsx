@@ -5,7 +5,7 @@ import { useTheme, type ThemeName } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { CheckCircle, Flame } from 'lucide-react';
+import { CheckCircle, Flame, Facebook, Instagram, Send } from 'lucide-react';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,18 @@ const themes: { name: ThemeName; label: string; primary: string; accent: string;
   { name: 'solar-flare', label: 'Solar Flare', primary: 'bg-[#f97316]', accent: 'bg-[#facc15]', bg: 'bg-[#1c1917]', font: 'font-sans' },
   { name: 'classic-light', label: 'Classic Light', primary: 'bg-[#1d4ed8]', accent: 'bg-[#22c55e]', bg: 'bg-white', font: 'font-sans' },
 ];
+
+const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-2.0441-.2733-4.2158-.2733-6.2599 0-.1636-.3847-.3973-.8742-.6082-1.2495a.0741.0741 0 00-.0785-.0371 19.7363 19.7363 0 00-4.8852 1.5152.069.069 0 00-.0321.0233C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0586c.2148.1354.4363.254.66.3615a.0751.0751 0 00.0776-.0206c.6776-.5545 1.133-1.2312 1.442-2.0022a.076.076 0 00-.0416-.1064c-.3997-.1582-.7882-.345-1.153-.56a.0726.0726 0 01.011-.0883c.311-.2411.6114-.492.896-.759a.0741.0741 0 01.0728-.011c3.9452 1.7646 8.18 1.7646 12.1252 0a.0741.0741 0 01.0727.011c.2847.267.585.5179.896.759a.0726.0726 0 01.011.0883c-.3648.214-.7533.4008-1.153.56a.076.076 0 00-.0416.1064c.309.7709.7644 1.4477 1.442 2.0022a.0751.0751 0 00.0776.0206c.2236-.1075.4451-.2261.66-.3615a.0824.0824 0 00.0312-.0586c.4182-4.4779-.4334-8.9808-2.3484-13.6647a.069.069 0 00-.032-.0233zM8.02 15.3312c-.7812 0-1.416-.6562-1.416-1.4655S7.2388 12.4 8.02 12.4s1.416.6562 1.416 1.4657-.6348 1.4655-1.416 1.4655zm7.96 0c-.7812 0-1.416-.6562-1.416-1.4655s.6348-1.4655 1.416-1.4655 1.416.6562 1.416 1.4657-.6348 1.4655-1.416 1.4655z"/>
+    </svg>
+);
+
+const TiktokIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <path d="M12.525.02c1.31-.02 2.61-.01 3.91.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.05-4.84-.46-6.63-1.8-1.79-1.34-2.83-3.31-3.02-5.4-.28-3.08.38-6.19 2.13-8.81.91-1.36 2.15-2.5 3.59-3.29.13-.07.26-.15.39-.22.18-.1.36-.2.54-.29 1.1-.53 2.29-.83 3.49-1.02.01-.58-.01-1.16.01-1.74.02-1.58.01-3.16.01-4.74z"/>
+    </svg>
+);
 
 export default function AdminAppearancePage() {
   const { theme, setTheme } = useTheme();
@@ -43,6 +55,11 @@ export default function AdminAppearancePage() {
     contactAddress, setContactAddress,
     announcementText, setAnnouncementText,
     announcementEnabled, setAnnouncementEnabled,
+    facebookUrl, setFacebookUrl,
+    instagramUrl, setInstagramUrl,
+    discordUrl, setDiscordUrl,
+    tiktokUrl, setTiktokUrl,
+    telegramUrl, setTelegramUrl,
   } = useContentSettings();
 
 
@@ -329,6 +346,49 @@ export default function AdminAppearancePage() {
           </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+            <CardTitle>Social Media Links</CardTitle>
+            <CardDescription>Manage the links that appear in your site's footer. Leave a field blank to hide the icon.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div className="flex items-center gap-4">
+                <Facebook className="h-5 w-5 text-muted-foreground" />
+                <div className="flex-grow">
+                    <Label htmlFor="facebook-url" className="sr-only">Facebook URL</Label>
+                    <Input id="facebook-url" value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} placeholder="https://facebook.com/yourpage" />
+                </div>
+            </div>
+            <div className="flex items-center gap-4">
+                <Instagram className="h-5 w-5 text-muted-foreground" />
+                <div className="flex-grow">
+                    <Label htmlFor="instagram-url" className="sr-only">Instagram URL</Label>
+                    <Input id="instagram-url" value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://instagram.com/yourprofile" />
+                </div>
+            </div>
+            <div className="flex items-center gap-4">
+                <DiscordIcon className="h-5 w-5 text-muted-foreground fill-current" />
+                <div className="flex-grow">
+                    <Label htmlFor="discord-url" className="sr-only">Discord URL</Label>
+                    <Input id="discord-url" value={discordUrl} onChange={(e) => setDiscordUrl(e.target.value)} placeholder="https://discord.gg/yourserver" />
+                </div>
+            </div>
+            <div className="flex items-center gap-4">
+                <TiktokIcon className="h-5 w-5 text-muted-foreground fill-current" />
+                <div className="flex-grow">
+                    <Label htmlFor="tiktok-url" className="sr-only">TikTok URL</Label>
+                    <Input id="tiktok-url" value={tiktokUrl} onChange={(e) => setTiktokUrl(e.target.value)} placeholder="https://tiktok.com/@yourusername" />
+                </div>
+            </div>
+            <div className="flex items-center gap-4">
+                <Send className="h-5 w-5 text-muted-foreground" />
+                <div className="flex-grow">
+                    <Label htmlFor="telegram-url" className="sr-only">Telegram URL</Label>
+                    <Input id="telegram-url" value={telegramUrl} onChange={(e) => setTelegramUrl(e.target.value)} placeholder="https://t.me/yourchannel" />
+                </div>
+            </div>
+        </CardContent>
+      </Card>
 
     </div>
   );
