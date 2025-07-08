@@ -1,6 +1,5 @@
 
-import type { Product, PaymentMethod, Review, Category, StockItem } from '@/lib/types';
-import { Landmark, Wallet } from 'lucide-react';
+import type { Product, Review, Category, StockItem } from '@/lib/types';
 
 export let categories: Category[] = [
   { id: 'cat_1', name: 'Game', image: 'https://placehold.co/300x200.png', deliveryMethod: 'instant', customFields: [] },
@@ -97,19 +96,6 @@ export let stock: StockItem[] = [
     { id: 'stk_004', productId: 'prod_006', code: 'PSN-QWER-ASDF', isUsed: false, addedAt: new Date().toISOString() },
 ];
 
-
-export let paymentMethods: PaymentMethod[] = [
-    {
-        id: 'bank_transfer',
-        name: 'Bank Transfer',
-        icon: Landmark,
-    },
-    {
-        id: 'e_wallet',
-        name: 'E-Wallet',
-        icon: Wallet,
-    }
-];
 
 export const reviews: Review[] = [
   {

@@ -41,7 +41,9 @@ export interface StockItem {
 export interface PaymentMethod {
     id:string;
     name: string;
-    icon: React.ComponentType<{ className?: string }>;
+    icon: string;
+    instructions: string;
+    requiresProof: boolean;
 }
 
 export interface User {

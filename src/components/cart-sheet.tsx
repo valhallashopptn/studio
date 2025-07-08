@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,9 +28,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useCart } from '@/hooks/use-cart';
-import { paymentMethods, categories as initialCategories } from '@/lib/data';
-import type { PaymentMethod, CartItem, CustomField } from '@/lib/types';
-import { Minus, Plus, Trash2, X } from 'lucide-react';
+import { usePaymentSettings } from '@/hooks/use-payment-settings';
+import { categories as initialCategories } from '@/lib/data';
+import type { PaymentMethod, CartItem } from '@/lib/types';
+import { Minus, Plus, Trash2, Landmark, Wallet, CreditCard, Upload } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -40,34 +41,19 @@ interface CartSheetProps {
   onOpenChange: (isOpen: boolean) => void;
 }
 
+const icons: { [key: string]: React.ElementType } = {
+  Landmark,
+  Wallet,
+  CreditCard,
+};
+
 const PaymentInstructions = ({ method }: { method: PaymentMethod | null }) => {
     if (!method) return null;
-
-    if (method.id === 'bank_transfer') {
-        return (
-            <div className="text-sm space-y-2">
-                <p>Please transfer the total amount to the following bank account:</p>
-                <p><strong>Bank:</strong> First National Bank</p>
-                <p><strong>Account Name:</strong> TopUp Hub Inc.</p>
-                <p><strong>Account Number:</strong> 123-456-7890</p>
-                <p className="font-semibold">Please include your Order ID in the transaction description.</p>
-            </div>
-        );
-    }
-
-    if (method.id === 'e_wallet') {
-        return (
-            <div className="text-sm space-y-2">
-                <p>Please send the total amount to the following e-wallet account:</p>
-                <p><strong>Service:</strong> PayNow</p>
-                <p><strong>Recipient Name:</strong> TopUp Hub</p>
-                <p><strong>Phone Number:</strong> +1 987 654 3210</p>
-                <p className="font-semibold">Please include your Order ID in the payment reference.</p>
-            </div>
-        );
-    }
-
-    return null;
+    return (
+        <div className="text-sm space-y-2 whitespace-pre-wrap">
+            <p>{method.instructions}</p>
+        </div>
+    );
 };
 
 const CustomFieldsDisplay = ({ item }: { item: CartItem }) => {
@@ -96,7 +82,9 @@ const CustomFieldsDisplay = ({ item }: { item: CartItem }) => {
 
 export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { items, removeItem, updateQuantity, clearCart, updateCustomFieldValue } = useCart();
+  const { paymentMethods } = usePaymentSettings();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
+  const [paymentProofImage, setPaymentProofImage] = useState<string | null>(null);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
   const [orderId, setOrderId] = useState('');
   const { toast } = useToast();
@@ -108,6 +96,19 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
     items.reduce((acc, item) => acc + item.price * item.quantity, 0),
     [items]
   );
+  
+  const handlePaymentProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          setPaymentProofImage(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmitOrder = () => {
     if (items.length === 0) {
@@ -119,7 +120,6 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
       return;
     }
 
-    // Check if all required custom fields are filled
     for (const item of items) {
         const category = categoryMap.get(item.category);
         const customFields = category?.deliveryMethod === 'manual' ? category.customFields : [];
@@ -137,7 +137,6 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
         }
     }
 
-
     if (!selectedPayment) {
        toast({
         variant: "destructive",
@@ -146,6 +145,16 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
       });
       return;
     }
+
+    if (selectedPayment.requiresProof && !paymentProofImage) {
+        toast({
+            variant: "destructive",
+            title: "Payment Proof Required",
+            description: `Please upload proof of payment for the ${selectedPayment.name} method.`,
+        });
+        return;
+    }
+
     setOrderId(`TUH-${Math.random().toString(36).substr(2, 9).toUpperCase()}`);
     setConfirmOpen(true);
   };
@@ -153,8 +162,15 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const handleCloseConfirmation = () => {
     setConfirmOpen(false);
     clearCart();
+    setSelectedPayment(null);
+    setPaymentProofImage(null);
     onOpenChange(false);
   };
+  
+  const handlePaymentChange = (id: string) => {
+    setPaymentProofImage(null);
+    setSelectedPayment(paymentMethods.find(p => p.id === id) || null)
+  }
 
   return (
     <>
@@ -224,20 +240,37 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
               <Separator />
               <div className="p-4 space-y-4 bg-secondary/50 rounded-lg">
                 <h4 className="font-semibold">{t('cart.paymentMethod')}</h4>
-                <RadioGroup onValueChange={(id) => setSelectedPayment(paymentMethods.find(p => p.id === id) || null)}>
-                  {paymentMethods.map(method => (
-                    <div key={method.id} className="flex items-center space-x-2">
-                       <RadioGroupItem value={method.id} id={method.id} />
-                       <Label htmlFor={method.id} className="flex items-center gap-2 cursor-pointer">
-                         <method.icon className="h-5 w-5" />
-                         {method.name}
-                       </Label>
-                    </div>
-                  ))}
+                <RadioGroup onValueChange={handlePaymentChange}>
+                  {paymentMethods.map(method => {
+                    const Icon = icons[method.icon];
+                    return (
+                        <div key={method.id} className="flex items-center space-x-2">
+                           <RadioGroupItem value={method.id} id={method.id} />
+                           <Label htmlFor={method.id} className="flex items-center gap-2 cursor-pointer">
+                             {Icon && <Icon className="h-5 w-5" />}
+                             {method.name}
+                           </Label>
+                        </div>
+                    )
+                  })}
                 </RadioGroup>
                 {selectedPayment && (
-                    <div className="mt-4 p-3 bg-background rounded-md border text-sm">
+                    <div className="mt-4 p-3 bg-background rounded-md border text-sm space-y-4">
                         <PaymentInstructions method={selectedPayment} />
+                        {selectedPayment.requiresProof && (
+                            <div>
+                                <Separator className="my-3" />
+                                <Label htmlFor="payment-proof" className="font-semibold flex items-center gap-2 mb-2">
+                                    <Upload className="h-4 w-4" /> Upload Payment Proof
+                                </Label>
+                                <Input id="payment-proof" type="file" accept="image/*" onChange={handlePaymentProofChange} className="file:text-primary file:font-semibold h-auto" />
+                                {paymentProofImage && (
+                                    <div className="relative aspect-video w-32 mt-2 rounded-md border">
+                                        <Image src={paymentProofImage} alt="Payment proof preview" fill className="object-contain rounded-md" />
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
               </div>
@@ -266,21 +299,30 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
               Please follow the payment instructions below to complete your purchase.
             </AlertDialogDescription>
           </AlertDialogHeader>
-
-          <div className="my-4 space-y-4 max-h-60 overflow-y-auto">
-             <h4 className="font-semibold">Order Summary</h4>
-             {items.map(item => (
-                <div key={item.id} className="p-2 border rounded-md">
-                    <p className="font-semibold">{item.name} <span className="text-muted-foreground font-normal">x {item.quantity}</span></p>
-                    <CustomFieldsDisplay item={item} />
+          <ScrollArea className="max-h-60">
+            <div className="my-4 space-y-4">
+              <h4 className="font-semibold">Order Summary</h4>
+              {items.map(item => (
+                  <div key={item.id} className="p-2 border rounded-md">
+                      <p className="font-semibold">{item.name} <span className="text-muted-foreground font-normal">x {item.quantity}</span></p>
+                      <CustomFieldsDisplay item={item} />
+                  </div>
+              ))}
+              {paymentProofImage && (
+                <div className="space-y-2">
+                    <h4 className="font-semibold">Payment Proof</h4>
+                    <div className="relative aspect-video w-full rounded-md border">
+                        <Image src={paymentProofImage} alt="Payment proof" fill className="object-contain rounded-md" />
+                    </div>
                 </div>
-             ))}
-          </div>
+              )}
+            </div>
+          </ScrollArea>
 
           {selectedPayment && (
             <div className="my-4 p-4 bg-secondary/50 rounded-lg border">
                 <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <selectedPayment.icon className="h-5 w-5" />
+                    {React.createElement(icons[selectedPayment.icon], { className: 'h-5 w-5' })}
                     {selectedPayment.name} Instructions
                 </h4>
                 <PaymentInstructions method={selectedPayment} />
