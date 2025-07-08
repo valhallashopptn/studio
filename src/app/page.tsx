@@ -101,15 +101,7 @@ export default function Home() {
         
         <div className="container mx-auto px-4">
             <section id="categories" className="mb-16">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-3xl font-bold font-headline">{t('home.ourCategories')}</h2>
-                <Button asChild variant="outline">
-                  <Link href="/categories">
-                    {t('home.viewAllCategories')}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
+              <h2 className="text-3xl font-bold mb-8 text-center font-headline">{t('home.ourCategories')}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {categoriesToShow.map((category, index) => (
                   <div key={category.id} className={`${animationClass} aspect-video`} style={{animationDelay: `${200 + index * 100}ms`}}>
@@ -118,6 +110,14 @@ export default function Home() {
                     />
                   </div>
                 ))}
+              </div>
+              <div className="mt-12 text-center">
+                <Button asChild size="lg" variant="outline">
+                  <Link href="/categories">
+                    {t('home.viewAllCategories')}
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
               </div>
             </section>
             
