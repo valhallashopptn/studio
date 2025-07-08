@@ -5,8 +5,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { DashboardSidebar } from '@/components/dashboard-sidebar';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ClipboardList, UserCog } from 'lucide-react';
 import { AppHeader } from '@/components/app-header';
+import { MobileNav, type NavLink } from '@/components/mobile-nav';
+
+const dashboardNavLinks: NavLink[] = [
+  { href: '/dashboard/orders', label: 'My Orders', icon: ClipboardList },
+  { href: '/dashboard/settings', label: 'Settings', icon: UserCog },
+];
+
 
 export default function DashboardLayout({
   children,
@@ -41,9 +48,10 @@ export default function DashboardLayout({
         <AppHeader />
         <div className="flex flex-1">
             <DashboardSidebar />
-            <main className="flex-1 p-8 bg-secondary/50">
+            <main className="flex-1 p-8 bg-secondary/50 pb-24 md:pb-8">
                 {children}
             </main>
+            <MobileNav links={dashboardNavLinks} />
         </div>
     </div>
   );
