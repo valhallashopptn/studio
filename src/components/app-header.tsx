@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -24,12 +24,13 @@ import Image from 'next/image';
 import { LanguageSwitcher } from './language-switcher';
 import { useTranslation } from '@/hooks/use-translation';
 import { CurrencySwitcher } from './currency-switcher';
-import { useCurrency } from '@/hooks/use-currency';
 import { useContentSettings } from '@/hooks/use-content-settings';
+import { useCurrency } from '@/hooks/use-currency';
 
 
 export function AppHeader() {
   const [isSheetOpen, setSheetOpen] = useState(false);
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const items = useCart((state) => state.items);
   const { isAuthenticated, user, isAdmin, logout } = useAuth();
   const { logoUrl, siteTitle } = useSiteSettings();
@@ -53,6 +54,17 @@ export function AppHeader() {
   useEffect(() => {
     setTotalItems(items.reduce((acc, item) => acc + item.quantity, 0));
   }, [items]);
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [isMobileMenuOpen]);
 
   const handleLogout = () => {
     logout();
@@ -160,7 +172,7 @@ export function AppHeader() {
                   </DropdownMenu>
                 </>
               ) : (
-                  <div className="flex items-center gap-2">
+                  <div className="hidden sm:flex items-center gap-2">
                       <Button asChild variant="ghost" size="sm">
                           <Link href="/login">{t('auth.login')}</Link>
                       </Button>
@@ -169,10 +181,69 @@ export function AppHeader() {
                       </Button>
                   </div>
               )}
+               <div className="flex items-center md:hidden">
+                <Button onClick={() => setMobileMenuOpen(true)} variant="ghost" size="icon">
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Open Menu</span>
+                </Button>
+               </div>
             </div>
           </div>
         </header>
       </div>
+      
+      {/* Mobile Menu Panel */}
+      <div className={cn("fixed inset-0 z-50 md:hidden", !isMobileMenuOpen && "pointer-events-none")}>
+        <div 
+            className={cn("absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity", isMobileMenuOpen ? "opacity-100" : "opacity-0")}
+            onClick={() => setMobileMenuOpen(false)}
+        />
+        <div className={cn(
+            "absolute left-0 top-0 h-full w-4/5 max-w-xs bg-background p-6 shadow-xl transition-transform duration-300 ease-in-out",
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        )}>
+            <div className="flex items-center justify-between mb-8">
+                <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                    {logoUrl ? (
+                        <Image src={logoUrl} alt="Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
+                    ) : (
+                        <Flame className="h-6 w-6 text-primary" />
+                    )}
+                    <h1 className="text-xl font-bold font-headline">{siteTitle}</h1>
+                </Link>
+                <Button onClick={() => setMobileMenuOpen(false)} variant="ghost" size="icon">
+                    <X className="h-6 w-6" />
+                    <span className="sr-only">Close menu</span>
+                </Button>
+            </div>
+            <nav className="flex flex-col gap-4">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={cn(
+                      "text-lg font-medium transition-colors hover:text-primary",
+                      pathname === link.href ? "text-primary" : "text-muted-foreground"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+            </nav>
+            {!isAuthenticated && (
+                <div className="mt-8 pt-6 border-t space-y-3">
+                     <Button asChild className="w-full">
+                        <Link href="/login" onClick={() => setMobileMenuOpen(false)}>{t('auth.login')}</Link>
+                    </Button>
+                    <Button asChild variant="secondary" className="w-full">
+                        <Link href="/register" onClick={() => setMobileMenuOpen(false)}>{t('auth.register')}</Link>
+                    </Button>
+                </div>
+            )}
+        </div>
+      </div>
+
       <CartSheet isOpen={isSheetOpen} onOpenChange={setSheetOpen} />
     </>
   );
