@@ -31,7 +31,6 @@ import { useCurrency } from '@/hooks/use-currency';
 export function AppHeader() {
   const [isMounted, setIsMounted] = useState(false);
   
-  // Hooks that rely on client-side state
   const [isSheetOpen, setSheetOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const items = useCart((state) => state.items);
@@ -112,33 +111,33 @@ export function AppHeader() {
           </div>
         )}
         <header className="relative w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container flex h-16 items-center justify-between">
-            <div className="flex items-center gap-6">
-              <Link href="/" className="flex items-center gap-2">
-                {logoUrl ? (
-                  <Image src={logoUrl} alt="Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
-                ) : (
-                  <Flame className="h-6 w-6 text-primary" />
-                )}
-                <h1 className="text-xl font-bold font-headline">{siteTitle}</h1>
-              </Link>
-              <nav className="hidden md:flex items-center gap-4">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "text-sm font-medium transition-colors hover:text-primary",
-                      pathname === link.href ? "text-primary" : "text-muted-foreground"
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
+          <div className="container flex h-16 items-center">
+            
+            <Link href="/" className="flex items-center gap-2">
+              {logoUrl ? (
+                <Image src={logoUrl} alt="Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
+              ) : (
+                <Flame className="h-6 w-6 text-primary" />
+              )}
+              <h1 className="text-xl font-bold font-headline">{siteTitle}</h1>
+            </Link>
 
-            <div className="flex items-center gap-2">
+            <nav className="hidden md:flex items-center gap-4 ms-6">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "text-sm font-medium transition-colors hover:text-primary",
+                    pathname === link.href ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="flex items-center gap-2 ms-auto">
               <div className="hidden md:flex items-center gap-2">
                   <CurrencySwitcher />
                   <LanguageSwitcher />
