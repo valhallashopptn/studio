@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, UserCog } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -114,25 +114,20 @@ export function AppHeader() {
             </div>
 
             <div className="flex items-center gap-2">
-                {/* Desktop-only actions */}
+                {/* --- Desktop Actions --- */}
                 <div className="hidden md:flex items-center gap-2">
                     <CurrencySwitcher />
                     <LanguageSwitcher />
-                </div>
-                
-                {/* Cart is always visible */}
-                <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
-                    <ShoppingCart className="h-5 w-5" />
-                    {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
-                        {totalItems}
-                    </span>
-                    )}
-                    <span className="sr-only">Open Cart</span>
-                </Button>
-                
-                {/* Desktop-only auth controls */}
-                <div className="hidden md:flex items-center gap-2">
+                    <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
+                        <ShoppingCart className="h-5 w-5" />
+                        {totalItems > 0 && (
+                        <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
+                            {totalItems}
+                        </span>
+                        )}
+                        <span className="sr-only">Open Cart</span>
+                    </Button>
+                    
                     {isAuthenticated ? (
                         <>
                         {!isAdmin && (
@@ -192,8 +187,17 @@ export function AppHeader() {
                     )}
                 </div>
 
-                {/* Mobile-only menu trigger */}
+                {/* --- Mobile Actions --- */}
                 <div className="flex items-center md:hidden">
+                    <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
+                        <ShoppingCart className="h-5 w-5" />
+                        {totalItems > 0 && (
+                        <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
+                            {totalItems}
+                        </span>
+                        )}
+                        <span className="sr-only">Open Cart</span>
+                    </Button>
                     <Button onClick={() => setMobileMenuOpen(true)} variant="ghost" size="icon">
                         <Menu className="h-6 w-6" />
                         <span className="sr-only">Open Menu</span>
