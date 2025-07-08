@@ -27,6 +27,7 @@ import { CurrencySwitcher } from './currency-switcher';
 import { useContentSettings } from '@/hooks/use-content-settings';
 import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
+import { Skeleton } from './ui/skeleton';
 
 
 export function AppHeader() {
@@ -82,41 +83,46 @@ export function AppHeader() {
   
   if (!isMounted) {
     return (
-      <div className="sticky top-0 z-50 w-full bg-background">
-        <div className={cn("bg-accent text-accent-foreground text-sm py-2 overflow-hidden", !(announcementEnabled && announcementText) && "hidden")}>
-           <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-center h-[28px] px-4"></div>
-        </div>
-        <header className="relative w-full border-b bg-background">
-          <div className="w-full max-w-screen-2xl mx-auto flex h-16 items-center justify-between px-4">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-sm bg-muted"></div>
-              <div className="h-6 w-24 rounded-md bg-muted"></div>
-            </div>
-            <div className="flex items-center gap-2">
-                <div className="h-10 w-10 rounded-md bg-muted"></div>
-                <div className="h-10 w-10 rounded-md bg-muted"></div>
-            </div>
+      <>
+        <div className="bg-background">
+          <div className="container mx-auto px-4 py-2">
+            <Skeleton className="h-11 rounded-full" />
           </div>
-        </header>
-      </div>
+        </div>
+        <div className="sticky top-0 z-50 w-full bg-background border-b">
+          <header className="w-full max-w-screen-2xl mx-auto flex h-16 items-center justify-between px-4">
+            <div className="flex items-center gap-6">
+              <Skeleton className="h-8 w-32" />
+              <div className="hidden md:flex items-center gap-4">
+                <Skeleton className="h-5 w-16" />
+                <Skeleton className="h-5 w-16" />
+                <Skeleton className="h-5 w-16" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-10 w-10" />
+              <Skeleton className="h-10 w-10" />
+              <Skeleton className="h-10 w-10 rounded-full" />
+            </div>
+          </header>
+        </div>
+      </>
     );
   }
 
   return (
     <>
-      <div className="sticky top-0 z-50 w-full bg-background">
-        {announcementEnabled && announcementText && (
-          <div className="bg-accent text-accent-foreground text-sm py-2 overflow-hidden">
-            <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-center px-4">
-              <div className="flex items-center gap-4 animate-slide-down-up">
-                <Megaphone className="h-5 w-5 shrink-0" />
-                <p>
-                  {announcementText}
-                </p>
-              </div>
+      {announcementEnabled && announcementText && (
+        <div className="bg-background">
+            <div className="container mx-auto px-4 py-2">
+                <div className="bg-accent text-accent-foreground text-sm font-medium p-3 rounded-full flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow">
+                    <Megaphone className="h-5 w-5 shrink-0" />
+                    <p>{announcementText}</p>
+                </div>
             </div>
-          </div>
-        )}
+        </div>
+      )}
+      <div className="sticky top-0 z-50 w-full bg-background">
         <header className="relative w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="w-full max-w-screen-2xl mx-auto flex h-16 items-center justify-between px-4">
             <div className="flex items-center gap-6">
