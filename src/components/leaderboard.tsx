@@ -69,7 +69,7 @@ export function Leaderboard() {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <div className={cn("flex items-center gap-1.5 text-xs font-semibold", rank.color)}>
+                                        <div className={cn("flex items-center gap-1.5 font-semibold", rank.color)}>
                                             <rank.icon className="h-4 w-4" />
                                             <span>{rank.name}</span>
                                         </div>
