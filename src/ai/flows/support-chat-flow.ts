@@ -9,8 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {getProductCatalogForAI} from '@/lib/data';
-import {generate} from 'genkit/generate';
-import {z} from 'genkit';
+import {generate, z} from 'genkit';
 import type {Message} from 'genkit';
 
 const SupportChatInputSchema = z.object({
