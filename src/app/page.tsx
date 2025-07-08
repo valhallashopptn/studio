@@ -112,9 +112,9 @@ export default function Home() {
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                 {categoriesToShow.map((category, index) => (
-                  <div key={category.id} className={`${animationClass} aspect-video`} style={{animationDelay: `${200 + index * 100}ms`}}>
+                  <div key={category.id} className={`${animationClass} aspect-[3/2]`} style={{animationDelay: `${200 + index * 100}ms`}}>
                     <CategoryCard 
                       category={category}
                     />

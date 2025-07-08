@@ -34,9 +34,9 @@ export default function CategoriesPage() {
 
                 <section className="py-16">
                     <div className="container mx-auto px-4">
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-8">
                             {categories.map((category, index) => (
-                                <div key={category.id} className={`aspect-video ${animationClass(100 + index * 50)}`}>
+                                <div key={category.id} className={`aspect-[3/2] ${animationClass(100 + index * 50)}`}>
                                     <CategoryCard category={category} />
                                 </div>
                             ))}
