@@ -196,7 +196,7 @@ export function LiveChatSupport() {
 
     return (
         <>
-            <div className={cn("fixed bottom-4 right-4 z-50 transition-transform duration-300", isOpen && 'translate-y-40')}>
+            <div className={cn("fixed bottom-4 right-4 z-40 transition-transform duration-300", isOpen && 'translate-y-40')}>
                 <Button
                     onClick={handleOpenChat}
                     className="h-14 rounded-full shadow-lg animate-pulse-slow px-6"
@@ -207,7 +207,7 @@ export function LiveChatSupport() {
             </div>
 
             <Card className={cn(
-                "fixed bottom-4 right-4 z-50 w-[calc(100vw-2rem)] max-w-sm h-[70vh] max-h-[600px] flex flex-col shadow-2xl origin-bottom-right transition-all duration-300 ease-in-out",
+                "fixed bottom-4 right-4 z-50 h-[70vh] max-h-[600px] flex flex-col shadow-2xl origin-bottom-right transition-all duration-300 ease-in-out left-4 sm:left-auto sm:w-full max-w-sm",
                 isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
             )}>
                 <CardHeader className="flex flex-row items-center justify-between p-4 border-b">

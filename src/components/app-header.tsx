@@ -73,7 +73,7 @@ export function AppHeader() {
   
   return (
     <>
-      <div className="sticky top-0 z-40 w-full bg-background">
+      <div className="sticky top-0 z-30 w-full bg-background">
         {announcementEnabled && announcementText && (
           <div className="bg-accent text-accent-foreground text-sm py-2 overflow-hidden">
             <div className="container flex items-center justify-center">

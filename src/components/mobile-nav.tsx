@@ -31,7 +31,7 @@ export function MobileNav({ links }: MobileNavProps) {
   const secondaryLinks = links.slice(4);
 
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t md:hidden">
+    <div className="fixed bottom-0 left-0 z-40 w-full h-16 bg-background border-t md:hidden">
       <div className="flex h-full mx-auto font-medium">
         {primaryLinks.map((link) => {
           const isActive = pathname === link.href;
