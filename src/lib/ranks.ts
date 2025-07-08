@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Shield, Award, Crown, Diamond, Gem } from 'lucide-react';
+import { Shield, ShieldCheck, Gem, Crown, Star, Flame } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface Rank {
@@ -12,11 +12,12 @@ export interface Rank {
 }
 
 export const ranks: Rank[] = [
-    { name: 'Bronze', threshold: 0, icon: Shield, color: 'text-orange-400' },
-    { name: 'Silver', threshold: 50, icon: Award, color: 'text-gray-400' },
-    { name: 'Gold', threshold: 200, icon: Crown, color: 'text-yellow-500' },
-    { name: 'Platinum', threshold: 500, icon: Gem, color: 'text-cyan-400' },
-    { name: 'Diamond', threshold: 1000, icon: Diamond, color: 'text-violet-400' },
+    { name: 'E-Rank', threshold: 0, icon: Shield, color: 'text-gray-400' },
+    { name: 'D-Rank', threshold: 25, icon: ShieldCheck, color: 'text-green-400' },
+    { name: 'C-Rank', threshold: 100, icon: Gem, color: 'text-blue-400' },
+    { name: 'B-Rank', threshold: 250, icon: Crown, color: 'text-purple-400' },
+    { name: 'A-Rank', threshold: 500, icon: Star, color: 'text-red-400' },
+    { name: 'S-Rank', threshold: 1000, icon: Flame, color: 'text-violet-500' },
 ];
 
 export const getRank = (totalSpent: number): Rank => {

@@ -48,6 +48,7 @@ export default function SettingsPage() {
     const progressToNextRank = user ? user.totalSpent - currentRankThreshold : 0;
     const requiredForNextRank = nextRankThreshold - currentRankThreshold;
     const progressPercentage = requiredForNextRank > 0 ? (progressToNextRank / requiredForNextRank) * 100 : (nextRank ? 0 : 100);
+    const amountToNextRank = nextRank && user ? nextRank.threshold - user.totalSpent : 0;
 
     const profileForm = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
@@ -108,8 +109,8 @@ export default function SettingsPage() {
             {rank && (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Your Rank</CardTitle>
-                        <CardDescription>You rank up by making purchases on our site. Higher ranks may unlock future benefits!</CardDescription>
+                        <CardTitle>Your Rank & Progress</CardTitle>
+                        <CardDescription>Track your journey through the ranks. Higher ranks may unlock future benefits!</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center gap-4 p-4 bg-secondary rounded-lg">
@@ -126,9 +127,12 @@ export default function SettingsPage() {
                                     <span>{formatPrice(user?.totalSpent ?? 0)} / {formatPrice(nextRank.threshold)}</span>
                                 </div>
                                 <Progress value={progressPercentage} className="w-full" />
+                                <p className="text-sm text-center text-muted-foreground pt-1">
+                                    Spend <span className="font-bold text-primary">{formatPrice(amountToNextRank)}</span> more to reach the next rank.
+                                </p>
                             </div>
                         ) : (
-                            <div className="text-center font-semibold text-primary">You have reached the highest rank!</div>
+                            <div className="text-center font-semibold text-primary p-2 bg-secondary rounded-md">You have reached the rank of Monarch! There is no one stronger.</div>
                         )}
                     </CardContent>
                 </Card>
