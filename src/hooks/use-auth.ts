@@ -1,9 +1,11 @@
+
 'use client';
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User } from '@/lib/types';
 import { useRouter } from 'next/navigation';
+import { users as initialUsers } from '@/lib/data';
 
 type AuthState = {
   user: User | null;
@@ -20,11 +22,7 @@ type AuthState = {
 };
 
 // Mock users database
-let users: User[] = [
-    { id: '1', name: 'Admin User', email: 'admin@topuphub.com', password: 'admin', isAdmin: true, avatar: 'https://placehold.co/100x100.png', walletBalance: 1000, totalSpent: 0 },
-    { id: '2', name: 'Test User', email: 'user@topuphub.com', password: 'user', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 50, totalSpent: 250 },
-    { id: '3', name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 25.50, totalSpent: 25.50 },
-];
+let users: User[] = JSON.parse(JSON.stringify(initialUsers));
 
 export const useAuth = create(
   persist<AuthState>(

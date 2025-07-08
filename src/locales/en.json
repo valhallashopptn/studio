@@ -249,5 +249,12 @@
     "reviewsTab": "Reviews ({{count}})",
     "noReviewsForProduct": "No reviews for this product yet.",
     "buyNow": "Buy Now"
+  },
+  "leaderboard": {
+    "title": "Top Hunters",
+    "headerRank": "#",
+    "headerHunter": "Hunter",
+    "headerClass": "Rank",
+    "headerSpent": "Total Spent"
   }
 }

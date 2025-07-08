@@ -249,5 +249,12 @@
     "reviewsTab": "التقييمات ({{count}})",
     "noReviewsForProduct": "لا توجد تقييمات لهذا المنتج بعد.",
     "buyNow": "اشترِ الآن"
+  },
+  "leaderboard": {
+    "title": "أفضل الصيادين",
+    "headerRank": "#",
+    "headerHunter": "الصياد",
+    "headerClass": "الرتبة",
+    "headerSpent": "إجمالي الإنفاق"
   }
 }

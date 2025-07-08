@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { ReviewForm } from "./review-form";
 import { useTranslation } from "@/hooks/use-translation";
+import { Leaderboard } from "./leaderboard";
 
 
 function ReviewCard({ review }: { review: Review }) {
@@ -69,52 +70,63 @@ export function Reviews() {
     };
 
   return (
-    <section id="reviews" className="w-full py-16 bg-secondary/30">
-      <div className="container mx-auto text-center">
-        <h2 className="text-3xl font-bold mb-2 font-headline">{t('reviewsSection.title')}</h2>
-        <p className="text-muted-foreground mb-12 max-w-2xl mx-auto">{t('reviewsSection.description')}</p>
-        
-        <Carousel
-          plugins={[plugin.current]}
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          className="w-full max-w-5xl mx-auto"
-          onMouseEnter={plugin.current.stop}
-          onMouseLeave={plugin.current.reset}
-        >
-          <CarouselContent>
-            {reviews.map((review) => (
-              <CarouselItem key={review.id} className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-2 h-full">
-                  <ReviewCard review={review} />
+    <section id="community" className="w-full py-16 bg-secondary/30">
+      <div className="container mx-auto">
+        <div className="grid lg:grid-cols-5 gap-12 items-start">
+            <div className="lg:col-span-3">
+                <div className="text-center lg:text-left">
+                    <h2 className="text-3xl font-bold mb-2 font-headline">{t('reviewsSection.title')}</h2>
+                    <p className="text-muted-foreground mb-12 max-w-2xl">{t('reviewsSection.description')}</p>
                 </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex" />
-          <CarouselNext className="hidden sm:flex" />
-        </Carousel>
+                
+                <Carousel
+                    plugins={[plugin.current]}
+                    opts={{
+                        align: "start",
+                        loop: true,
+                    }}
+                    className="w-full"
+                    onMouseEnter={plugin.current.stop}
+                    onMouseLeave={plugin.current.reset}
+                >
+                    <CarouselContent>
+                        {reviews.map((review) => (
+                        <CarouselItem key={review.id} className="md:basis-1/2">
+                            <div className="p-2 h-full">
+                            <ReviewCard review={review} />
+                            </div>
+                        </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="hidden sm:flex -left-4" />
+                    <CarouselNext className="hidden sm:flex -right-4" />
+                </Carousel>
 
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-            <DialogTrigger asChild>
-                <Button className="mt-12">
-                    <MessageSquarePlus className="mr-2 h-5 w-5" />
-                    {t('reviewsSection.leaveReview')}
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>{t('reviewForm.title')}</DialogTitle>
-                    <DialogDescription>
-                        {t('reviewForm.description')}
-                    </DialogDescription>
-                </DialogHeader>
-                <ReviewForm onReviewSubmitted={handleReviewSubmitted} />
-            </DialogContent>
-        </Dialog>
+                <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+                    <DialogTrigger asChild>
+                        <div className="text-center lg:text-left">
+                            <Button className="mt-12">
+                                <MessageSquarePlus className="mr-2 h-5 w-5" />
+                                {t('reviewsSection.leaveReview')}
+                            </Button>
+                        </div>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>{t('reviewForm.title')}</DialogTitle>
+                            <DialogDescription>
+                                {t('reviewForm.description')}
+                            </DialogDescription>
+                        </DialogHeader>
+                        <ReviewForm onReviewSubmitted={handleReviewSubmitted} />
+                    </DialogContent>
+                </Dialog>
+            </div>
 
+            <div className="lg:col-span-2">
+                <Leaderboard />
+            </div>
+        </div>
       </div>
     </section>
   )
