@@ -155,7 +155,11 @@ export default function ProductDetailPage() {
               <Card className="bg-secondary/50">
                 <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex items-center gap-3">
-                        <Truck className="h-6 w-6 text-primary" />
+                        {category?.deliveryMethod === 'instant' ? (
+                          <Zap className="h-6 w-6 text-primary" />
+                        ) : (
+                          <Truck className="h-6 w-6 text-primary" />
+                        )}
                         <div>
                             <p className="font-semibold">{t('productPage.deliveryMethod')}</p>
                             <p className="text-sm text-muted-foreground capitalize">{category?.deliveryMethod === 'instant' ? t('productPage.instantDelivery') : t('productPage.manualProcessing')}</p>
