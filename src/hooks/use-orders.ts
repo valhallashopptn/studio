@@ -6,6 +6,7 @@ import { persist } from 'zustand/middleware';
 import type { Order, OrderStatus } from '@/lib/types';
 import { useStock } from '@/hooks/use-stock';
 import { categories as initialCategories } from '@/lib/data';
+import { useAuth } from './use-auth';
 
 type OrdersState = {
     orders: Order[];
@@ -26,10 +27,25 @@ export const useOrders = create(
             },
             updateOrderStatus: (orderId, status) => {
                 set((state) => {
-                    const orderToUpdate = state.orders.find((o) => o.id === orderId);
-                    if (!orderToUpdate) return { orders: state.orders };
+                    const orderIndex = state.orders.findIndex((o) => o.id === orderId);
+                    if (orderIndex === -1) return state;
 
-                    if (status === 'completed' && orderToUpdate.status !== 'completed') {
+                    const orders = [...state.orders];
+                    const orderToUpdate = { ...orders[orderIndex] };
+
+                    // Prevent re-processing if status is the same
+                    if (orderToUpdate.status === status) return state;
+
+                    // Process refund logic
+                    if (status === 'refunded') {
+                        if (orderToUpdate.paymentMethod.id === 'store_wallet') {
+                            useAuth.getState().updateWalletBalance(orderToUpdate.customer.id, orderToUpdate.total);
+                        }
+                        // Note: stock is not returned on refund in this implementation
+                    }
+
+                    // Process completion logic
+                    if (status === 'completed') {
                         const { deliverStockForOrder } = useStock.getState();
                         const deliveredItems: Order['deliveredItems'] = { ...orderToUpdate.deliveredItems };
                         
@@ -42,20 +58,13 @@ export const useOrders = create(
                                 }
                             }
                         }
-                        
-                        const updatedOrder = { ...orderToUpdate, status, deliveredItems };
-                        return {
-                            orders: state.orders.map((order) =>
-                                order.id === orderId ? updatedOrder : order
-                            ),
-                        };
-                    } else {
-                        return {
-                            orders: state.orders.map((order) =>
-                                order.id === orderId ? { ...order, status } : order
-                            ),
-                        };
+                        orderToUpdate.deliveredItems = deliveredItems;
                     }
+
+                    orderToUpdate.status = status;
+                    orders[orderIndex] = orderToUpdate;
+                    
+                    return { orders };
                 });
             },
         }),

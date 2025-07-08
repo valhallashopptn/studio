@@ -55,6 +55,7 @@ export interface User {
   password?: string;
   isAdmin?: boolean;
   avatar?: string;
+  walletBalance: number;
 }
 
 export interface Review {

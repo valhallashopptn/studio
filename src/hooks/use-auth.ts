@@ -15,13 +15,14 @@ type AuthState = {
   updateUser: (userId: string, updates: Partial<Pick<User, 'name' | 'email'>>) => boolean;
   changePassword: (userId: string, newPassword: string) => boolean;
   updateAvatar: (userId: string, avatar: string) => void;
+  updateWalletBalance: (userId: string, amount: number) => void;
 };
 
 // Mock users database
 let users: User[] = [
-    { id: '1', name: 'Admin User', email: 'admin@topuphub.com', password: 'admin', isAdmin: true, avatar: 'https://placehold.co/100x100.png' },
-    { id: '2', name: 'Test User', email: 'user@topuphub.com', password: 'user', isAdmin: false, avatar: 'https://placehold.co/100x100.png' },
-    { id: '3', name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png' },
+    { id: '1', name: 'Admin User', email: 'admin@topuphub.com', password: 'admin', isAdmin: true, avatar: 'https://placehold.co/100x100.png', walletBalance: 1000 },
+    { id: '2', name: 'Test User', email: 'user@topuphub.com', password: 'user', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 50 },
+    { id: '3', name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 25.50 },
 ];
 
 export const useAuth = create(
@@ -51,6 +52,7 @@ export const useAuth = create(
             ...userDetails,
             isAdmin: false,
             avatar: 'https://placehold.co/100x100.png',
+            walletBalance: 0,
         };
         users.push(newUser);
         set({ user: newUser, isAuthenticated: true, isAdmin: false });
@@ -79,7 +81,19 @@ export const useAuth = create(
              users[userIndex].avatar = avatar;
              set(state => ({ user: state.user ? { ...state.user, avatar } : null }));
          }
-      }
+      },
+      updateWalletBalance: (userId, amount) => {
+        const userIndex = users.findIndex(u => u.id === userId);
+        if (userIndex > -1) {
+            const newBalance = users[userIndex].walletBalance + amount;
+            users[userIndex].walletBalance = newBalance;
+            set(state => ({
+                user: state.user && state.user.id === userId
+                    ? { ...state.user, walletBalance: newBalance }
+                    : state.user
+            }));
+        }
+      },
     }),
     {
       name: 'topup-hub-auth',

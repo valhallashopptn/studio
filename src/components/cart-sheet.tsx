@@ -34,10 +34,11 @@ import { useOrders } from '@/hooks/use-orders';
 import { usePaymentSettings } from '@/hooks/use-payment-settings';
 import { categories as initialCategories } from '@/lib/data';
 import type { PaymentMethod, CartItem, Order } from '@/lib/types';
-import { Minus, Plus, Trash2, Landmark, Wallet, CreditCard, Upload } from 'lucide-react';
+import { Minus, Plus, Trash2, Landmark, Wallet as WalletIcon, CreditCard, Upload } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/hooks/use-translation';
 import { useCurrency } from '@/hooks/use-currency';
+import { cn } from '@/lib/utils';
 
 
 interface CartSheetProps {
@@ -47,7 +48,7 @@ interface CartSheetProps {
 
 const icons: { [key: string]: React.ElementType } = {
   Landmark,
-  Wallet,
+  Wallet: WalletIcon,
   CreditCard,
 };
 
@@ -88,7 +89,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   const { items, removeItem, updateQuantity, clearCart, updateCustomFieldValue } = useCart();
   const { paymentMethods } = usePaymentSettings();
   const { addOrder } = useOrders();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, updateWalletBalance } = useAuth();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
   const [paymentProofImage, setPaymentProofImage] = useState<string | null>(null);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
@@ -104,6 +105,16 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
     [items]
   );
   
+  const walletPaymentMethod: PaymentMethod = {
+    id: 'store_wallet',
+    name: 'Store Wallet',
+    icon: 'Wallet',
+    instructions: 'The order total will be deducted from your available wallet balance.',
+    requiresProof: false,
+  };
+
+  const isWalletDisabled = !isAuthenticated || (user?.walletBalance ?? 0) < total;
+
   const handlePaymentProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -170,6 +181,19 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
         });
         return;
     }
+
+    if (selectedPayment.id === 'store_wallet') {
+        if (user && user.walletBalance >= total) {
+            updateWalletBalance(user.id, -total);
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Insufficient Balance",
+                description: "You do not have enough funds in your wallet to complete this purchase.",
+            });
+            return;
+        }
+    }
     
     const newOrderId = `TUH-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
     setOrderId(newOrderId);
@@ -197,7 +221,11 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
   
   const handlePaymentChange = (id: string) => {
     setPaymentProofImage(null);
-    setSelectedPayment(paymentMethods.find(p => p.id === id) || null)
+    if (id === 'store_wallet') {
+        setSelectedPayment(walletPaymentMethod);
+    } else {
+        setSelectedPayment(paymentMethods.find(p => p.id === id) || null);
+    }
   }
 
   return (
@@ -269,6 +297,13 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
               <div className="p-4 space-y-4 bg-secondary/50 rounded-lg">
                 <h4 className="font-semibold">{t('cart.paymentMethod')}</h4>
                 <RadioGroup onValueChange={handlePaymentChange}>
+                  <div className="flex items-center space-x-2">
+                     <RadioGroupItem value={walletPaymentMethod.id} id={walletPaymentMethod.id} disabled={isWalletDisabled} />
+                     <Label htmlFor={walletPaymentMethod.id} className={cn("flex items-center gap-2 cursor-pointer", isWalletDisabled && "text-muted-foreground opacity-50")}>
+                       <WalletIcon className="h-5 w-5" />
+                       Store Wallet ({formatPrice(user?.walletBalance ?? 0)})
+                     </Label>
+                  </div>
                   {paymentMethods.map(method => {
                     const Icon = icons[method.icon];
                     return (
@@ -308,7 +343,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                     <span>{t('cart.total')}</span>
                     <span className="text-primary">{formatPrice(total)}</span>
                   </div>
-                  <Button onClick={handleSubmitOrder} className="w-full" size="lg" disabled={!isAuthenticated}>
+                  <Button onClick={handleSubmitOrder} className="w-full" size="lg" disabled={!isAuthenticated || !selectedPayment}>
                     {t('cart.submit')}
                   </Button>
                 </div>
