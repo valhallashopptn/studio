@@ -35,6 +35,12 @@ type ContentSettingsState = {
   setContactPhone: (text: string) => void;
   contactAddress: string;
   setContactAddress: (text: string) => void;
+
+  // Announcement
+  announcementText: string;
+  setAnnouncementText: (text: string) => void;
+  announcementEnabled: boolean;
+  setAnnouncementEnabled: (enabled: boolean) => void;
 };
 
 const defaultAboutSubtitle = "We are dedicated to providing a seamless and secure platform for all your digital top-up needs.";
@@ -52,6 +58,7 @@ const defaultContactSubtitle = "Have questions or feedback? We'd love to hear fr
 const defaultContactEmail = "support@topuphub.com";
 const defaultContactPhone = "+1 (555) 123-4567";
 const defaultContactAddress = "123 Digital Lane, Tech City, 12345";
+const defaultAnnouncementText = "🎉 New products added! Check out our latest game top-ups and digital gift cards. Limited time offers available!";
 
 
 export const useContentSettings = create(
@@ -86,6 +93,11 @@ export const useContentSettings = create(
       setContactPhone: (text) => set({ contactPhone: text }),
       contactAddress: defaultContactAddress,
       setContactAddress: (text) => set({ contactAddress: text }),
+
+      announcementText: defaultAnnouncementText,
+      setAnnouncementText: (text) => set({ announcementText: text }),
+      announcementEnabled: true,
+      setAnnouncementEnabled: (enabled) => set({ announcementEnabled: enabled }),
     }),
     {
       name: 'topup-hub-content-settings',

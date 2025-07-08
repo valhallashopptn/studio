@@ -13,6 +13,8 @@ import type React from 'react';
 import Image from 'next/image';
 import { useContentSettings } from '@/hooks/use-content-settings';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Form, FormControl, FormItem } from '@/components/ui/form';
 
 const themes: { name: ThemeName; label: string; primary: string; accent: string; bg: string, font: string }[] = [
   { name: 'violet-fusion', label: 'Violet Fusion', primary: 'bg-[#7c3aed]', accent: 'bg-[#22d3ee]', bg: 'bg-[#0f172a]', font: 'font-sans' },
@@ -39,6 +41,8 @@ export default function AdminAppearancePage() {
     contactEmail, setContactEmail,
     contactPhone, setContactPhone,
     contactAddress, setContactAddress,
+    announcementText, setAnnouncementText,
+    announcementEnabled, setAnnouncementEnabled,
   } = useContentSettings();
 
 
@@ -212,6 +216,34 @@ export default function AdminAppearancePage() {
           </div>
         </CardContent>
       </Card>
+      
+      <Card>
+          <CardHeader>
+              <CardTitle>Store Announcement</CardTitle>
+              <CardDescription>Display a scrolling announcement bar at the top of your site.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="announcement-enabled" 
+                  checked={announcementEnabled}
+                  onCheckedChange={setAnnouncementEnabled}
+                />
+                <Label htmlFor="announcement-enabled">Enable Announcement Bar</Label>
+              </div>
+
+              <div className="space-y-2">
+                  <Label htmlFor="announcement-text">Announcement Text</Label>
+                  <Textarea 
+                    id="announcement-text"
+                    value={announcementText} 
+                    onChange={(e) => setAnnouncementText(e.target.value)}
+                    disabled={!announcementEnabled}
+                  />
+              </div>
+          </CardContent>
+      </Card>
+
 
       <Card>
         <CardHeader>

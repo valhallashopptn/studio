@@ -1,11 +1,10 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -25,6 +24,7 @@ import { LanguageSwitcher } from './language-switcher';
 import { useTranslation } from '@/hooks/use-translation';
 import { CurrencySwitcher } from './currency-switcher';
 import { useCurrency } from '@/hooks/use-currency';
+import { useContentSettings } from '@/hooks/use-content-settings';
 
 
 export function AppHeader() {
@@ -32,6 +32,7 @@ export function AppHeader() {
   const items = useCart((state) => state.items);
   const { isAuthenticated, user, isAdmin, logout } = useAuth();
   const { logoUrl, siteTitle } = useSiteSettings();
+  const { announcementEnabled, announcementText } = useContentSettings();
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useTranslation();
@@ -155,6 +156,16 @@ export function AppHeader() {
             )}
           </div>
         </div>
+        {announcementEnabled && announcementText && (
+          <div className="bg-accent text-accent-foreground text-sm py-2 overflow-hidden">
+            <div className="container flex items-center gap-4">
+              <Megaphone className="h-5 w-5 shrink-0" />
+              <p className="animate-marquee whitespace-nowrap">
+                {announcementText}
+              </p>
+            </div>
+          </div>
+        )}
       </header>
       <CartSheet isOpen={isSheetOpen} onOpenChange={setSheetOpen} />
     </>

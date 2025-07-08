@@ -1,4 +1,3 @@
-
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -106,12 +105,17 @@ export default {
           '50%': { transform: 'scale(1.05) translate(2%, -2%)' },
           '100%': { transform: 'scale(1.05) translate(0, 0)' },
         },
+        marquee: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in-up': 'fade-in-up 0.6s ease-out',
         'slow-pan': 'slow-pan 20s ease-in-out infinite',
+        marquee: 'marquee 25s linear infinite',
       },
     },
   },
