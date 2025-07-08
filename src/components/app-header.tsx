@@ -1,5 +1,5 @@
 
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -81,7 +81,9 @@ export function AppHeader() {
   if (!isMounted) {
     return (
       <div className="sticky top-0 z-50 w-full bg-background">
-        <div className="h-[40px] bg-muted/50"></div>
+        <div className={cn("bg-accent text-accent-foreground text-sm py-2 overflow-hidden", !(announcementEnabled && announcementText) && "hidden")}>
+           <div className="container flex items-center justify-center h-[28px]"></div>
+        </div>
         <header className="relative w-full border-b bg-background">
           <div className="container flex h-16 items-center">
             <div className="flex items-center gap-2">
@@ -110,7 +112,10 @@ export function AppHeader() {
           </div>
         )}
         <header className="relative w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container flex h-16 items-center justify-between">
+          <div className={cn(
+            "container flex h-16 items-center justify-between",
+            locale === 'ar' && "flex-row-reverse"
+            )}>
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2">
                 {logoUrl ? (
@@ -167,7 +172,7 @@ export function AppHeader() {
                               </Avatar>
                           </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-56" align="end" forceMount>
+                          <DropdownMenuContent className="w-56" align={locale === 'ar' ? 'start' : 'end'} forceMount>
                           <DropdownMenuLabel className="font-normal">
                               <div className="flex flex-col space-y-1">
                               <p className="text-sm font-medium leading-none">{user?.name}</p>
@@ -240,8 +245,11 @@ export function AppHeader() {
                 ? "translate-x-0"
                 : locale === 'ar' ? "translate-x-full" : "-translate-x-full"
         )}>
-            <div className="flex items-center justify-between mb-8">
-                <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+            <div className={cn(
+                "flex items-center justify-between mb-8",
+                locale === 'ar' && "flex-row-reverse"
+            )}>
+                <Link href="/" className={cn("flex items-center gap-2", locale === 'ar' && "flex-row-reverse")} onClick={() => setMobileMenuOpen(false)}>
                     {logoUrl ? (
                         <Image src={logoUrl} alt="Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
                     ) : (
@@ -262,7 +270,8 @@ export function AppHeader() {
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
                       "text-lg font-medium transition-colors hover:text-primary",
-                      pathname === link.href ? "text-primary" : "text-muted-foreground"
+                      pathname === link.href ? "text-primary" : "text-muted-foreground",
+                      locale === 'ar' && "text-right"
                     )}
                   >
                     {link.label}
