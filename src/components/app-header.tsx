@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, UserCog } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -112,82 +112,95 @@ export function AppHeader() {
                 ))}
               </nav>
             </div>
+
             <div className="flex items-center gap-2">
-              <CurrencySwitcher />
-              <LanguageSwitcher />
-              <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
-                    {totalItems}
-                  </span>
-                )}
-                <span className="sr-only">Open Cart</span>
-              </Button>
-              {isAuthenticated ? (
-                <>
-                  {!isAdmin && (
-                    <div className="hidden sm:flex items-center gap-2 p-2 pr-3 bg-secondary rounded-md border">
-                      <Wallet className="h-5 w-5 text-primary"/>
-                      <span className="font-semibold text-sm whitespace-nowrap">{formatPrice(user?.walletBalance ?? 0)}</span>
-                    </div>
-                  )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={user?.avatar} alt={user?.name} />
-                          <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align="end" forceMount>
-                      <DropdownMenuLabel className="font-normal">
-                        <div className="flex flex-col space-y-1">
-                          <p className="text-sm font-medium leading-none">{user?.name}</p>
-                          <p className="text-xs leading-none text-muted-foreground">
-                            {user?.email}
-                          </p>
-                        </div>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {!isAdmin && (
-                        <>
-                          <DropdownMenuItem disabled>
-                            <Wallet className="mr-2 h-4 w-4" />
-                            <span>{formatPrice(user?.walletBalance ?? 0)}</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                        </>
-                      )}
-                      <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
-                          <LayoutDashboard className="mr-2 h-4 w-4" />
-                          <span>{t('auth.dashboard')}</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleLogout}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>{t('auth.logout')}</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              ) : (
-                  <div className="hidden md:flex items-center gap-2">
-                      <Button asChild variant="ghost" size="sm">
-                          <Link href="/login">{t('auth.login')}</Link>
-                      </Button>
-                      <Button asChild size="sm">
-                          <Link href="/register">{t('auth.register')}</Link>
-                      </Button>
-                  </div>
-              )}
-               <div className="flex items-center md:hidden">
-                <Button onClick={() => setMobileMenuOpen(true)} variant="ghost" size="icon">
-                    <Menu className="h-6 w-6" />
-                    <span className="sr-only">Open Menu</span>
+                {/* Desktop-only actions */}
+                <div className="hidden md:flex items-center gap-2">
+                    <CurrencySwitcher />
+                    <LanguageSwitcher />
+                </div>
+                
+                {/* Cart is always visible */}
+                <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
+                    <ShoppingCart className="h-5 w-5" />
+                    {totalItems > 0 && (
+                    <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
+                        {totalItems}
+                    </span>
+                    )}
+                    <span className="sr-only">Open Cart</span>
                 </Button>
-               </div>
+                
+                {/* Desktop-only auth controls */}
+                <div className="hidden md:flex items-center gap-2">
+                    {isAuthenticated ? (
+                        <>
+                        {!isAdmin && (
+                            <div className="flex items-center gap-2 p-2 pr-3 bg-secondary rounded-md border">
+                            <Wallet className="h-5 w-5 text-primary"/>
+                            <span className="font-semibold text-sm whitespace-nowrap">{formatPrice(user?.walletBalance ?? 0)}</span>
+                            </div>
+                        )}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                                <Avatar className="h-8 w-8">
+                                <AvatarImage src={user?.avatar} alt={user?.name} />
+                                <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                            </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56" align="end" forceMount>
+                            <DropdownMenuLabel className="font-normal">
+                                <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium leading-none">{user?.name}</p>
+                                <p className="text-xs leading-none text-muted-foreground">
+                                    {user?.email}
+                                </p>
+                                </div>
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {!isAdmin && (
+                                <>
+                                <DropdownMenuItem disabled>
+                                    <Wallet className="mr-2 h-4 w-4" />
+                                    <span>{formatPrice(user?.walletBalance ?? 0)}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                </>
+                            )}
+                            <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
+                                <LayoutDashboard className="mr-2 h-4 w-4" />
+                                <span>{t('auth.dashboard')}</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleLogout}>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>{t('auth.logout')}</span>
+                            </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        </>
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <Button asChild variant="ghost" size="sm">
+                                <Link href="/login">{t('auth.login')}</Link>
+                            </Button>
+                            <Button asChild size="sm">
+                                <Link href="/register">{t('auth.register')}</Link>
+                            </Button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Mobile-only menu trigger */}
+                <div className="flex items-center md:hidden">
+                    <Button onClick={() => setMobileMenuOpen(true)} variant="ghost" size="icon">
+                        <Menu className="h-6 w-6" />
+                        <span className="sr-only">Open Menu</span>
+                    </Button>
+                </div>
             </div>
+
           </div>
         </header>
       </div>
@@ -231,16 +244,33 @@ export function AppHeader() {
                   </Link>
                 ))}
             </nav>
-            {!isAuthenticated && (
-                <div className="mt-8 pt-6 border-t space-y-3">
-                     <Button asChild className="w-full">
-                        <Link href="/login" onClick={() => setMobileMenuOpen(false)}>{t('auth.login')}</Link>
-                    </Button>
-                    <Button asChild variant="secondary" className="w-full">
-                        <Link href="/register" onClick={() => setMobileMenuOpen(false)}>{t('auth.register')}</Link>
-                    </Button>
-                </div>
-            )}
+             <div className="mt-8 pt-6 border-t space-y-4">
+                 <div className="flex justify-around">
+                    <CurrencySwitcher />
+                    <LanguageSwitcher />
+                 </div>
+                 {isAuthenticated ? (
+                    <div className="space-y-3">
+                       <Button asChild className="w-full" variant="secondary" onClick={() => setMobileMenuOpen(false)}>
+                           <Link href={isAdmin ? '/admin' : '/dashboard/orders'}>
+                             <LayoutDashboard className="mr-2"/> {t('auth.dashboard')}
+                           </Link>
+                       </Button>
+                       <Button asChild className="w-full" variant="destructive" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>
+                           <button><LogOut className="mr-2"/> {t('auth.logout')}</button>
+                       </Button>
+                    </div>
+                 ) : (
+                    <div className="space-y-3">
+                        <Button asChild className="w-full">
+                            <Link href="/login" onClick={() => setMobileMenuOpen(false)}>{t('auth.login')}</Link>
+                        </Button>
+                        <Button asChild variant="secondary" className="w-full">
+                            <Link href="/register" onClick={() => setMobileMenuOpen(false)}>{t('auth.register')}</Link>
+                        </Button>
+                    </div>
+                )}
+            </div>
         </div>
       </div>
 
