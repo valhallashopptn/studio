@@ -5,7 +5,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { ProductCard } from '@/components/product-card';
 import { CategoryCard } from '@/components/category-card';
-import { Recommendations } from '@/components/recommendations';
 import { products, categories as initialCategories } from '@/lib/data';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +17,7 @@ import Image from 'next/image';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { Reviews } from '@/components/reviews';
 import { useTranslation } from '@/hooks/use-translation';
+import { StatsSection } from '@/components/stats-section';
 
 const categoriesForFilter = ['All', ...initialCategories.map(c => c.name)];
 
@@ -155,12 +155,10 @@ export default function Home() {
                 )}
             </div>
             </section>
-
-            <section id="recommendations" className="mb-16">
-            <Recommendations />
-            </section>
         </div>
         
+        <StatsSection />
+
         <Reviews />
 
       </main>
