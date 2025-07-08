@@ -136,8 +136,8 @@ export default function ProductDetailPage() {
                     </div>
                     <span className="text-muted-foreground text-sm">
                         {productReviews.length > 0
-                            ? `${averageRating.toFixed(1)} (${productReviews.length} reviews)`
-                            : 'No reviews yet'
+                            ? `${averageRating.toFixed(1)} (${t('productPage.reviews', { count: productReviews.length })})`
+                            : t('productPage.noReviews')
                         }
                     </span>
                 </div>
@@ -150,16 +150,16 @@ export default function ProductDetailPage() {
                     <div className="flex items-center gap-3">
                         <Truck className="h-6 w-6 text-primary" />
                         <div>
-                            <p className="font-semibold">Delivery Method</p>
-                            <p className="text-sm text-muted-foreground capitalize">{category?.deliveryMethod === 'instant' ? 'Instant Delivery' : 'Manual Processing'}</p>
+                            <p className="font-semibold">{t('productPage.deliveryMethod')}</p>
+                            <p className="text-sm text-muted-foreground capitalize">{category?.deliveryMethod === 'instant' ? t('productPage.instantDelivery') : t('productPage.manualProcessing')}</p>
                         </div>
                     </div>
                     {category?.deliveryMethod === 'instant' && (
                         <div className="flex items-center gap-3">
                             <PackageCheck className="h-6 w-6 text-primary" />
                             <div>
-                                <p className="font-semibold">In Stock</p>
-                                <p className="text-sm text-muted-foreground">{stockCount} available</p>
+                                <p className="font-semibold">{t('productPage.inStock')}</p>
+                                <p className="text-sm text-muted-foreground">{stockCount} {t('productPage.available')}</p>
                             </div>
                         </div>
                     )}
@@ -197,7 +197,7 @@ export default function ProductDetailPage() {
                     value="reviews" 
                     className="flex-shrink-0 rounded-none border-b-2 border-transparent bg-transparent p-4 font-semibold text-muted-foreground shadow-none transition-colors hover:text-primary data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none"
                 >
-                    Reviews ({productReviews.length})
+                    {t('productPage.reviewsTab', { count: productReviews.length })}
                 </TabsTrigger>
               </TabsList>
 
@@ -237,7 +237,7 @@ export default function ProductDetailPage() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-muted-foreground text-center">No reviews for this product yet.</p>
+                      <p className="text-muted-foreground text-center">{t('productPage.noReviewsForProduct')}</p>
                     )}
                   </CardContent>
                 </Card>

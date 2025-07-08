@@ -84,7 +84,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
               <p className="text-lg font-semibold">{t('cart.empty')}</p>
               <SheetClose asChild>
                 <Button asChild variant="link" className="mt-2">
-                    <Link href="/products">Start Shopping</Link>
+                    <Link href="/products">{t('cart.startShopping')}</Link>
                 </Button>
               </SheetClose>
             </div>
@@ -100,7 +100,7 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
                       <span>{formatPrice(subtotal)}</span>
                   </div>
                   <Button onClick={handleCheckout} className="w-full" size="lg">
-                      Proceed to Checkout
+                      {t('cart.proceedToCheckout')}
                   </Button>
               </div>
             </SheetFooter>

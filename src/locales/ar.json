@@ -49,7 +49,9 @@
     "orderPlaced": "تم وضع الطلب بنجاح!",
     "orderId": "رقم طلبك هو",
     "addItemToastTitle": "أُضيف إلى الطلب",
-    "addItemToastDescription": "تمت إضافة {{productName}} إلى طلبك."
+    "addItemToastDescription": "تمت إضافة {{productName}} إلى طلبك.",
+    "proceedToCheckout": "متابعة إلى الدفع",
+    "startShopping": "ابدأ التسوق"
   },
   "home": {
     "heroTitle": "سوقك الرقمي",
@@ -67,7 +69,7 @@
     "title": "جميع المنتجات",
     "subtitle": "استكشف كتالوجنا الكامل من السلع الرقمية وشحن الألعاب."
   },
-   "categoriesPage": {
+  "categoriesPage": {
     "title": "جميع الفئات",
     "subtitle": "تصفح جميع الفئات المتاحة للعثور على ما تبحث عنه بالضبط."
   },
@@ -150,5 +152,89 @@
     "copyright": "© {{year}} توب أب هاب. كل الحقوق محفوظة.",
     "quickLinks": "روابط سريعة",
     "followUs": "تابعنا"
+  },
+  "checkoutPage": {
+    "title": "الدفع",
+    "subtitle": "على وشك الانتهاء! خطوات قليلة لإتمام طلبك.",
+    "customerInfo": "معلومات العميل",
+    "name": "الاسم:",
+    "email": "البريد الإلكتروني:",
+    "requiredInfo": "معلومات مطلوبة",
+    "requiredInfoDesc": "بعض المنتجات في طلبك تتطلب معلومات إضافية للتسليم.",
+    "paymentMethod": "طريقة الدفع",
+    "storeWallet": "محفظة المتجر",
+    "insufficientBalance": "رصيد غير كافٍ",
+    "orderSummary": "ملخص الطلب",
+    "placeOrder": "إتمام الطلب",
+    "processing": "جارٍ المعالجة...",
+    "viewMyOrders": "عرض طلباتي",
+    "uploadProof": "رفع إثبات الدفع"
+  },
+  "dashboardOrders": {
+    "title": "طلباتي",
+    "subtitle": "هنا سجل بجميع مشترياتك.",
+    "orderDetails": "تفاصيل الطلب",
+    "id": "المعرف:",
+    "items": "المنتجات",
+    "payment": "الدفع",
+    "method": "الطريقة:",
+    "total": "المجموع:",
+    "paymentProof": "إثبات الدفع",
+    "close": "إغلاق",
+    "orderHistory": "سجل الطلبات",
+    "orderHistoryDesc": "قائمة بجميع طلباتك السابقة.",
+    "orderId": "رقم الطلب",
+    "date": "التاريخ",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "view": "عرض",
+    "noOrders": "لم تقم بأي طلبات بعد.",
+    "deliveredCodes": "الأكواد المسلمة",
+    "codeCopied": "تم نسخ الكود!",
+    "codeCopiedDesc": "تم نسخ الكود إلى الحافظة الخاصة بك.",
+    "refundDetails": "تفاصيل استرداد المبلغ",
+    "refundedOn": "تم الاسترداد في:",
+    "reason": "السبب:"
+  },
+  "dashboardSidebar": {
+    "myOrders": "طلباتي",
+    "settings": "الإعدادات",
+    "customer": "عميل",
+    "walletBalance": "رصيد المحفظة",
+    "availableToSpend": "متاح للإنفاق"
+  },
+  "dashboardSettings": {
+    "title": "الإعدادات",
+    "subtitle": "إدارة إعدادات حسابك وتفضيلاتك.",
+    "profilePicture": "صورة الملف الشخصي",
+    "profilePictureDesc": "تحديث الصورة الرمزية الخاصة بك.",
+    "uploadNewPicture": "تحميل صورة جديدة",
+    "personalInfo": "المعلومات الشخصية",
+    "personalInfoDesc": "تحديث اسمك وعنوان بريدك الإلكتروني.",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "saveChanges": "حفظ التغييرات",
+    "changePassword": "تغيير كلمة المرور",
+    "changePasswordDesc": "تحديث كلمة مرور حسابك. اختر كلمة قوية!",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+    "updatePassword": "تحديث كلمة المرور",
+    "profileUpdatedToast": "تم تحديث الملف الشخصي",
+    "profileUpdatedToastDesc": "تم حفظ معلومات ملفك الشخصي.",
+    "passwordChangedToast": "تم تغيير كلمة المرور",
+    "passwordChangedToastDesc": "تم تحديث كلمة المرور بنجاح.",
+    "avatarUpdatedToast": "تم تحديث الصورة الرمزية!"
+  },
+  "productPage": {
+    "noReviews": "لا توجد تقييمات بعد",
+    "reviews": "{{count}} تقييمات",
+    "deliveryMethod": "طريقة التسليم",
+    "instantDelivery": "تسليم فوري",
+    "manualProcessing": "معالجة يدوية",
+    "inStock": "متوفر",
+    "available": "متاح",
+    "reviewsTab": "التقييمات ({{count}})",
+    "noReviewsForProduct": "لا توجد تقييمات لهذا المنتج بعد."
   }
 }

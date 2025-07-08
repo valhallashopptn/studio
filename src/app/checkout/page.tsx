@@ -101,7 +101,7 @@ export default function CheckoutPage() {
 
     const walletPaymentMethod: PaymentMethod = {
         id: 'store_wallet',
-        name: 'Store Wallet',
+        name: t('checkoutPage.storeWallet'),
         icon: 'Wallet',
         instructions: 'The order total will be deducted from your available wallet balance.',
         requiresProof: false,
@@ -212,8 +212,8 @@ export default function CheckoutPage() {
             <main className="flex-1 py-16 bg-secondary/30">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
-                        <h1 className="text-4xl font-bold font-headline text-primary">Checkout</h1>
-                        <p className="mt-2 text-lg text-muted-foreground">Almost there! Just a few more steps to complete your order.</p>
+                        <h1 className="text-4xl font-bold font-headline text-primary">{t('checkoutPage.title')}</h1>
+                        <p className="mt-2 text-lg text-muted-foreground">{t('checkoutPage.subtitle')}</p>
                     </div>
 
                     <div className="grid lg:grid-cols-3 gap-8">
@@ -221,19 +221,19 @@ export default function CheckoutPage() {
                             
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><User className="h-5 w-5 text-primary"/> Customer Information</CardTitle>
+                                    <CardTitle className="flex items-center gap-2"><User className="h-5 w-5 text-primary"/>{t('checkoutPage.customerInfo')}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p><strong>Name:</strong> {user?.name}</p>
-                                    <p><strong>Email:</strong> {user?.email}</p>
+                                    <p><strong>{t('checkoutPage.name')}</strong> {user?.name}</p>
+                                    <p><strong>{t('checkoutPage.email')}</strong> {user?.email}</p>
                                 </CardContent>
                             </Card>
 
                             {itemsWithCustomFields.length > 0 && (
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2"><Info className="h-5 w-5 text-primary"/> Required Information</CardTitle>
-                                        <CardDescription>Some items in your order require additional information for delivery.</CardDescription>
+                                        <CardTitle className="flex items-center gap-2"><Info className="h-5 w-5 text-primary"/>{t('checkoutPage.requiredInfo')}</CardTitle>
+                                        <CardDescription>{t('checkoutPage.requiredInfoDesc')}</CardDescription>
                                     </CardHeader>
                                     <CardContent className="space-y-6">
                                         {itemsWithCustomFields.map(item => {
@@ -264,7 +264,7 @@ export default function CheckoutPage() {
                             
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><Lock className="h-5 w-5 text-primary"/> Payment Method</CardTitle>
+                                    <CardTitle className="flex items-center gap-2"><Lock className="h-5 w-5 text-primary"/>{t('checkoutPage.paymentMethod')}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <RadioGroup onValueChange={handlePaymentChange}>
@@ -272,8 +272,8 @@ export default function CheckoutPage() {
                                             <Label htmlFor={walletPaymentMethod.id} className={cn("flex items-start gap-4 p-4 border rounded-lg has-[:checked]:bg-primary/5 has-[:checked]:border-primary transition-all", isWalletDisabled && "opacity-50")}>
                                                 <RadioGroupItem value={walletPaymentMethod.id} id={walletPaymentMethod.id} disabled={isWalletDisabled} />
                                                 <div className="grid gap-1.5 leading-none">
-                                                    <span className="font-semibold flex items-center gap-2"><WalletIcon className="h-5 w-5" /> Store Wallet ({formatPrice(user?.walletBalance ?? 0)})</span>
-                                                    {isWalletDisabled && <span className="text-xs text-destructive">Insufficient balance</span>}
+                                                    <span className="font-semibold flex items-center gap-2"><WalletIcon className="h-5 w-5" /> {t('checkoutPage.storeWallet')} ({formatPrice(user?.walletBalance ?? 0)})</span>
+                                                    {isWalletDisabled && <span className="text-xs text-destructive">{t('checkoutPage.insufficientBalance')}</span>}
                                                 </div>
                                             </Label>
                                             {paymentMethods.map(method => {
@@ -296,7 +296,7 @@ export default function CheckoutPage() {
                                                 <div>
                                                     <Separator className="my-3 bg-border/50" />
                                                     <Label htmlFor="payment-proof" className="font-semibold flex items-center gap-2 mb-2">
-                                                        <Upload className="h-4 w-4" /> Upload Payment Proof
+                                                        <Upload className="h-4 w-4" /> {t('checkoutPage.uploadProof')}
                                                     </Label>
                                                     <Input id="payment-proof" type="file" accept="image/*" onChange={handlePaymentProofChange} className="file:text-primary file:font-semibold h-auto" />
                                                     {paymentProofImage && (
@@ -314,7 +314,7 @@ export default function CheckoutPage() {
                         <div className="lg:col-span-1">
                             <Card className="sticky top-24">
                                 <CardHeader>
-                                    <CardTitle>Order Summary</CardTitle>
+                                    <CardTitle>{t('checkoutPage.orderSummary')}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <ScrollArea className="h-64 pr-3">
@@ -353,7 +353,7 @@ export default function CheckoutPage() {
                                 <CardFooter>
                                     <Button onClick={handleSubmitOrder} className="w-full" size="lg" disabled={isProcessing || !selectedPayment}>
                                         {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        {isProcessing ? 'Processing...' : 'Place Order'}
+                                        {isProcessing ? t('checkoutPage.processing') : t('checkoutPage.placeOrder')}
                                     </Button>
                                 </CardFooter>
                             </Card>
@@ -371,7 +371,7 @@ export default function CheckoutPage() {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                    <AlertDialogFooter>
-                    <AlertDialogAction onClick={handleCloseConfirmation}>View My Orders</AlertDialogAction>
+                    <AlertDialogAction onClick={handleCloseConfirmation}>{t('checkoutPage.viewMyOrders')}</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
@@ -379,4 +379,3 @@ export default function CheckoutPage() {
         </div>
     );
 }
-

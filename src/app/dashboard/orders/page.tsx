@@ -26,6 +26,7 @@ import { useCurrency } from '@/hooks/use-currency';
 import { useCategories } from '@/hooks/use-categories';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/use-translation';
 
 const statusConfig: { [key in OrderStatus]: { variant: 'default' | 'secondary' | 'destructive', icon: React.ElementType, label: string } } = {
   pending: { variant: 'secondary', icon: RefreshCw, label: 'Pending' },
@@ -58,19 +59,20 @@ const CustomFieldsDisplay = ({ item }: { item: CartItem }) => {
 };
 
 const DeliveredItemsDisplay = ({ order, item }: { order: Order, item: CartItem }) => {
+    const { t } = useTranslation();
     const { toast } = useToast();
     const deliveredCodes = order.deliveredItems?.[item.id];
     if (order.status !== 'completed' || !deliveredCodes || deliveredCodes.length === 0) return null;
 
     const copyToClipboard = (code: string) => {
         navigator.clipboard.writeText(code);
-        toast({ title: 'Code Copied!', description: 'The code has been copied to your clipboard.' });
+        toast({ title: t('dashboardOrders.codeCopied'), description: t('dashboardOrders.codeCopiedDesc') });
     };
 
     return (
         <Card className="mt-2 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
             <CardHeader className="p-2">
-                <CardTitle className="text-xs text-green-800 dark:text-green-300 flex items-center gap-2"><KeyRound className="h-4 w-4" /> Delivered Code(s)</CardTitle>
+                <CardTitle className="text-xs text-green-800 dark:text-green-300 flex items-center gap-2"><KeyRound className="h-4 w-4" /> {t('dashboardOrders.deliveredCodes')}</CardTitle>
             </CardHeader>
             <CardContent className="p-2 pt-0">
                 <div className="space-y-1">
@@ -93,6 +95,7 @@ export default function CustomerOrdersPage() {
   const { orders } = useOrders();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const { formatPrice } = useCurrency();
+  const { t } = useTranslation();
 
   const customerOrders = useMemo(() => {
     if (!user) return [];
@@ -102,21 +105,21 @@ export default function CustomerOrdersPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">My Orders</h1>
-        <p className="text-muted-foreground">Here's a history of all your purchases.</p>
+        <h1 className="text-3xl font-bold">{t('dashboardOrders.title')}</h1>
+        <p className="text-muted-foreground">{t('dashboardOrders.subtitle')}</p>
       </div>
 
       <Dialog open={!!viewingOrder} onOpenChange={(isOpen) => !isOpen && setViewingOrder(null)}>
         <DialogContent className="sm:max-w-2xl">
            <DialogHeader>
-                <DialogTitle>Order Details</DialogTitle>
-                <DialogDescription>ID: {viewingOrder?.id}</DialogDescription>
+                <DialogTitle>{t('dashboardOrders.orderDetails')}</DialogTitle>
+                <DialogDescription>{t('dashboardOrders.id')} {viewingOrder?.id}</DialogDescription>
             </DialogHeader>
             {viewingOrder && (
                 <ScrollArea className="max-h-[70vh]">
                     <div className="pr-6 space-y-6">
                         <div>
-                            <h4 className="font-semibold mb-2">Items</h4>
+                            <h4 className="font-semibold mb-2">{t('dashboardOrders.items')}</h4>
                             <div className="space-y-4">
                                 {viewingOrder.items.map(item => (
                                     <div key={item.id} className="flex flex-col gap-2 p-2 border rounded-md">
@@ -140,22 +143,39 @@ export default function CustomerOrdersPage() {
                         <Separator />
                         
                         <div>
-                            <h4 className="font-semibold mb-2">Payment</h4>
+                            <h4 className="font-semibold mb-2">{t('dashboardOrders.payment')}</h4>
                              <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Method:</span>
+                                    <span className="text-muted-foreground">{t('dashboardOrders.method')}</span>
                                     <span>{viewingOrder.paymentMethod.name}</span>
                                 </div>
                                  <div className="flex justify-between font-bold text-base">
-                                    <span>Total:</span>
+                                    <span>{t('dashboardOrders.total')}</span>
                                     <span>{formatPrice(viewingOrder.total)}</span>
                                 </div>
                             </div>
                             {viewingOrder.paymentProofImage && (
                                 <div className="mt-4">
-                                    <h4 className="font-semibold mb-2">Payment Proof</h4>
+                                    <h4 className="font-semibold mb-2">{t('dashboardOrders.paymentProof')}</h4>
                                     <div className="relative aspect-video w-full border rounded-md">
                                         <Image src={viewingOrder.paymentProofImage} alt="Payment Proof" layout="fill" className="object-contain" />
+                                    </div>
+                                </div>
+                            )}
+                            {viewingOrder.status === 'refunded' && viewingOrder.refundedAt && (
+                                <div className="mt-4 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-sm">
+                                    <h4 className="font-semibold text-destructive mb-2">{t('dashboardOrders.refundDetails')}</h4>
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between">
+                                            <span className="text-muted-foreground">{t('dashboardOrders.refundedOn')}</span>
+                                            <span>{format(new Date(viewingOrder.refundedAt), 'PPp')}</span>
+                                        </div>
+                                        {viewingOrder.refundReason && (
+                                            <div className="flex justify-between items-start text-left">
+                                                <span className="text-muted-foreground shrink-0">{t('dashboardOrders.reason')}</span>
+                                                <p className="text-right ml-4">{viewingOrder.refundReason}</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -164,7 +184,7 @@ export default function CustomerOrdersPage() {
                 </ScrollArea>
             )}
              <DialogFooter>
-                <DialogClose asChild><Button type="button" variant="secondary">Close</Button></DialogClose>
+                <DialogClose asChild><Button type="button" variant="secondary">{t('dashboardOrders.close')}</Button></DialogClose>
             </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -172,18 +192,18 @@ export default function CustomerOrdersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Order History</CardTitle>
-          <CardDescription>A list of all your past orders.</CardDescription>
+          <CardTitle>{t('dashboardOrders.orderHistory')}</CardTitle>
+          <CardDescription>{t('dashboardOrders.orderHistoryDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="p-2 md:p-6 md:pt-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('dashboardOrders.orderId')}</TableHead>
+                <TableHead>{t('dashboardOrders.date')}</TableHead>
+                <TableHead>{t('dashboardOrders.total')}</TableHead>
+                <TableHead>{t('dashboardOrders.status')}</TableHead>
+                <TableHead className="text-right">{t('dashboardOrders.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -202,14 +222,14 @@ export default function CustomerOrdersPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" onClick={() => setViewingOrder(order)}>
-                        <Eye className="mr-2 h-4 w-4" /> View
+                        <Eye className="mr-2 h-4 w-4" /> {t('dashboardOrders.view')}
                       </Button>
                     </TableCell>
                   </TableRow>
                 );
               }) : (
                 <TableRow>
-                    <TableCell colSpan={5} className="text-center h-24">You haven't placed any orders yet.</TableCell>
+                    <TableCell colSpan={5} className="text-center h-24">{t('dashboardOrders.noOrders')}</TableCell>
                 </TableRow>
               )}
             </TableBody>

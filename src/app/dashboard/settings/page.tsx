@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useTranslation } from '@/hooks/use-translation';
 
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -32,6 +33,7 @@ const passwordSchema = z.object({
 export default function SettingsPage() {
     const { user, updateUser, changePassword, updateAvatar } = useAuth();
     const { toast } = useToast();
+    const { t } = useTranslation();
 
     const profileForm = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
@@ -53,7 +55,7 @@ export default function SettingsPage() {
     const onProfileSubmit = (values: z.infer<typeof profileSchema>) => {
         if (!user) return;
         updateUser(user.id, values);
-        toast({ title: "Profile Updated", description: "Your profile information has been saved." });
+        toast({ title: t('dashboardSettings.profileUpdatedToast'), description: t('dashboardSettings.profileUpdatedToastDesc') });
     };
 
     const onPasswordSubmit = (values: z.infer<typeof passwordSchema>) => {
@@ -64,7 +66,7 @@ export default function SettingsPage() {
             return;
         }
         changePassword(user.id, values.newPassword);
-        toast({ title: "Password Changed", description: "Your password has been updated successfully." });
+        toast({ title: t('dashboardSettings.passwordChangedToast'), description: t('dashboardSettings.passwordChangedToastDesc') });
         passwordForm.reset();
     };
 
@@ -75,7 +77,7 @@ export default function SettingsPage() {
             reader.onloadend = () => {
                 if (typeof reader.result === 'string') {
                     updateAvatar(user.id, reader.result);
-                    toast({ title: 'Avatar Updated!' });
+                    toast({ title: t('dashboardSettings.avatarUpdatedToast') });
                 }
             };
             reader.readAsDataURL(file);
@@ -85,14 +87,14 @@ export default function SettingsPage() {
     return (
         <div className="space-y-8">
             <div>
-                <h1 className="text-3xl font-bold">Settings</h1>
-                <p className="text-muted-foreground">Manage your account settings and preferences.</p>
+                <h1 className="text-3xl font-bold">{t('dashboardSettings.title')}</h1>
+                <p className="text-muted-foreground">{t('dashboardSettings.subtitle')}</p>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Profile Picture</CardTitle>
-                    <CardDescription>Update your avatar.</CardDescription>
+                    <CardTitle>{t('dashboardSettings.profilePicture')}</CardTitle>
+                    <CardDescription>{t('dashboardSettings.profilePictureDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex items-center gap-6">
@@ -101,7 +103,7 @@ export default function SettingsPage() {
                             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div className="grid w-full max-w-sm items-center gap-1.5">
-                            <Label htmlFor="picture">Upload new picture</Label>
+                            <Label htmlFor="picture">{t('dashboardSettings.uploadNewPicture')}</Label>
                             <Input id="picture" type="file" accept="image/*" onChange={handleAvatarChange} className="file:text-primary file:font-semibold" />
                         </div>
                     </div>
@@ -110,21 +112,21 @@ export default function SettingsPage() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Personal Information</CardTitle>
-                    <CardDescription>Update your name and email address.</CardDescription>
+                    <CardTitle>{t('dashboardSettings.personalInfo')}</CardTitle>
+                    <CardDescription>{t('dashboardSettings.personalInfoDesc')}</CardDescription>
                 </CardHeader>
                 <Form {...profileForm}>
                     <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
                         <CardContent className="space-y-4">
                             <FormField control={profileForm.control} name="name" render={({ field }) => (
-                                <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('dashboardSettings.name')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                             <FormField control={profileForm.control} name="email" render={({ field }) => (
-                                <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('dashboardSettings.email')}</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                         </CardContent>
                         <CardFooter className="border-t px-6 py-4">
-                            <Button type="submit">Save Changes</Button>
+                            <Button type="submit">{t('dashboardSettings.saveChanges')}</Button>
                         </CardFooter>
                     </form>
                 </Form>
@@ -132,24 +134,24 @@ export default function SettingsPage() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Change Password</CardTitle>
-                    <CardDescription>Update your account's password. Choose a strong one!</CardDescription>
+                    <CardTitle>{t('dashboardSettings.changePassword')}</CardTitle>
+                    <CardDescription>{t('dashboardSettings.changePasswordDesc')}</CardDescription>
                 </CardHeader>
                  <Form {...passwordForm}>
                     <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}>
                         <CardContent className="space-y-4">
                             <FormField control={passwordForm.control} name="currentPassword" render={({ field }) => (
-                                <FormItem><FormLabel>Current Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('dashboardSettings.currentPassword')}</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                             <FormField control={passwordForm.control} name="newPassword" render={({ field }) => (
-                                <FormItem><FormLabel>New Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('dashboardSettings.newPassword')}</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                             <FormField control={passwordForm.control} name="confirmPassword" render={({ field }) => (
-                                <FormItem><FormLabel>Confirm New Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('dashboardSettings.confirmNewPassword')}</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                         </CardContent>
                         <CardFooter className="border-t px-6 py-4">
-                            <Button type="submit">Update Password</Button>
+                            <Button type="submit">{t('dashboardSettings.updatePassword')}</Button>
                         </CardFooter>
                     </form>
                 </Form>

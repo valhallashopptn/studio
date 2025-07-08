@@ -9,16 +9,18 @@ import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useCurrency } from '@/hooks/use-currency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-const navLinks = [
-  { href: '/dashboard/orders', label: 'My Orders', icon: ClipboardList },
-  { href: '/dashboard/settings', label: 'Settings', icon: UserCog },
-];
+import { useTranslation } from '@/hooks/use-translation';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
   const { formatPrice } = useCurrency();
+  const { t } = useTranslation();
+
+  const navLinks = [
+    { href: '/dashboard/orders', label: t('dashboardSidebar.myOrders'), icon: ClipboardList },
+    { href: '/dashboard/settings', label: t('dashboardSidebar.settings'), icon: UserCog },
+  ];
 
   return (
     <aside className="hidden w-64 flex-col border-r bg-background p-4 md:flex">
@@ -29,18 +31,18 @@ export function DashboardSidebar() {
         </Avatar>
         <div>
             <h2 className="text-lg font-bold">{user?.name}</h2>
-            <p className="text-sm text-muted-foreground">Customer</p>
+            <p className="text-sm text-muted-foreground">{t('dashboardSidebar.customer')}</p>
         </div>
       </div>
 
       <Card className="mb-8">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-2">
-            <CardTitle className="text-sm font-medium">Wallet Balance</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboardSidebar.walletBalance')}</CardTitle>
             <Wallet className="h-5 w-5 text-primary" />
         </CardHeader>
         <CardContent className="p-3 pt-0">
             <div className="text-2xl font-bold text-primary">{formatPrice(user?.walletBalance ?? 0)}</div>
-            <p className="text-xs text-muted-foreground">Available to spend</p>
+            <p className="text-xs text-muted-foreground">{t('dashboardSidebar.availableToSpend')}</p>
         </CardContent>
       </Card>
 
