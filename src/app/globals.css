@@ -61,6 +61,52 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
   }
+
+  /* Evergreen Theme */
+  :root[data-theme="evergreen"] {
+    --background: 40 30% 95%;
+    --foreground: 40 10% 20%;
+    --card: 40 30% 100%;
+    --card-foreground: 40 10% 20%;
+    --popover: 40 30% 95%;
+    --popover-foreground: 40 10% 20%;
+    --primary: 120 40% 30%; /* Forest Green */
+    --primary-foreground: 120 20% 95%;
+    --secondary: 40 25% 90%;
+    --secondary-foreground: 40 10% 20%;
+    --muted: 40 25% 90%;
+    --muted-foreground: 40 10% 45%;
+    --accent: 25 60% 50%; /* Warm Brown/Orange */
+    --accent-foreground: 25 20% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 40 20% 85%;
+    --input: 40 20% 85%;
+    --ring: 120 40% 30%;
+  }
+
+  /* Cotton Candy Theme */
+  :root[data-theme="cotton-candy"] {
+    --background: 0 0% 98%;
+    --foreground: 240 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 15%;
+    --popover: 0 0% 98%;
+    --popover-foreground: 240 10% 15%;
+    --primary: 340 80% 70%; /* Soft Pink */
+    --primary-foreground: 340 50% 10%;
+    --secondary: 340 50% 94%;
+    --secondary-foreground: 240 10% 15%;
+    --muted: 340 50% 94%;
+    --muted-foreground: 240 5% 45%;
+    --accent: 190 80% 70%; /* Light Blue */
+    --accent-foreground: 190 50% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 340 30% 90%;
+    --input: 340 30% 90%;
+    --ring: 340 80% 70%;
+  }
  
   /* Violet Fusion (Default Dark) */
   .dark, .dark[data-theme="violet-fusion"] {
@@ -134,6 +180,75 @@
     --border: 20 8% 22%;
     --input: 20 8% 22%;
     --ring: 35 91% 55%;
+  }
+
+  /* Oceanic Deep Theme */
+  .dark[data-theme="oceanic-deep"] {
+    --background: 220 40% 5%;
+    --foreground: 210 40% 98%;
+    --card: 220 30% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 220 40% 5%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 80% 60%; /* Bright Blue */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 175 70% 50%; /* Teal */
+    --accent-foreground: 222 47.4% 11.2%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 28% 13%;
+    --input: 215 28% 13%;
+    --ring: 210 80% 60%;
+  }
+
+  /* Crimson Night Theme */
+  .dark[data-theme="crimson-night"] {
+    --background: 0 10% 10%;
+    --foreground: 0 10% 90%;
+    --card: 0 10% 13%;
+    --card-foreground: 0 10% 90%;
+    --popover: 0 10% 10%;
+    --popover-foreground: 0 10% 90%;
+    --primary: 0 70% 55%; /* Crimson Red */
+    --primary-foreground: 0 10% 98%;
+    --secondary: 0 5% 20%;
+    --secondary-foreground: 0 10% 90%;
+    --muted: 0 5% 20%;
+    --muted-foreground: 0 10% 65%;
+    --accent: 45 100% 50%; /* Gold */
+    --accent-foreground: 45 50% 10%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 10% 98%;
+    --border: 0 5% 25%;
+    --input: 0 5% 25%;
+    --ring: 0 70% 55%;
+  }
+
+  /* Monochrome Noir Theme */
+  .dark[data-theme="monochrome-noir"] {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 80%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 80%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 80%;
+    --primary: 0 0% 90%; /* Light Gray */
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 80%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 50%;
+    --accent: 0 0% 100%; /* White */
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 90%;
   }
 }
  

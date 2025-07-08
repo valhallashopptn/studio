@@ -22,6 +22,11 @@ const themes: { name: ThemeName; label: string; primary: string; accent: string;
   { name: 'solar-flare', label: 'Solar Flare', primary: 'bg-[#f97316]', accent: 'bg-[#facc15]', bg: 'bg-[#1c1917]', font: 'font-sans' },
   { name: 'classic-light', label: 'Classic Light', primary: 'bg-[#1d4ed8]', accent: 'bg-[#22c55e]', bg: 'bg-white', font: 'font-sans' },
   { name: 'winter-wonderland', label: 'Winter Wonderland', primary: 'bg-[#0a749e]', accent: 'bg-[#ef4444]', bg: 'bg-[#f0f9ff]', font: 'font-sans' },
+  { name: 'oceanic-deep', label: 'Oceanic Deep', primary: 'bg-[#66a3ff]', accent: 'bg-[#29d1b6]', bg: 'bg-[#080c14]', font: 'font-sans' },
+  { name: 'crimson-night', label: 'Crimson Night', primary: 'bg-[#e23636]', accent: 'bg-[#ffc300]', bg: 'bg-[#1a1717]', font: 'font-sans' },
+  { name: 'evergreen', label: 'Evergreen', primary: 'bg-[#2d762d]', accent: 'bg-[#d98234]', bg: 'bg-[#f6f3f0]', font: 'font-sans' },
+  { name: 'cotton-candy', label: 'Cotton Candy', primary: 'bg-[#f680b4]', accent: 'bg-[#80d9f6]', bg: 'bg-[#fafafa]', font: 'font-sans' },
+  { name: 'monochrome-noir', label: 'Monochrome Noir', primary: 'bg-[#cccccc]', accent: 'bg-[#ffffff]', bg: 'bg-[#0a0a0a]', font: 'font-mono' },
 ];
 
 const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -127,7 +132,7 @@ export default function AdminAppearancePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {themes.map((t) => (
               <div key={t.name}>
                 <button
