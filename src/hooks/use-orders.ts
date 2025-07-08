@@ -5,7 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Order, OrderStatus } from '@/lib/types';
 import { useStock } from '@/hooks/use-stock';
-import { useCategories } from '@/hooks/use-categories';
+import { useCategoriesStore } from '@/hooks/use-categories';
 import { useAuth } from './use-auth';
 
 type OrdersState = {
@@ -49,7 +49,7 @@ export const useOrders = create(
                     // Process completion logic
                     if (status === 'completed') {
                         const { deliverStockForOrder } = useStock.getState();
-                        const { categories } = useCategories.getState();
+                        const { categories } = useCategoriesStore.getState();
                         const categoryMap = new Map(categories.map(c => [c.name, c]));
                         const deliveredItems: Order['deliveredItems'] = { ...orderToUpdate.deliveredItems };
                         
