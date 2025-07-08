@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 export function LiveChatSupport() {
     const { user, isAuthenticated } = useAuth();
     const { toast } = useToast();
+    const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +28,8 @@ export function LiveChatSupport() {
     const [sessionId, setSessionId] = useState<string | null>(null);
     const scrollViewportRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    const isDashboardPage = pathname.startsWith('/admin') || pathname.startsWith('/dashboard');
 
     const effectiveUser = {
         id: isAuthenticated ? user!.id : (typeof window !== 'undefined' ? localStorage.getItem('guestId') || `guest_${Date.now()}`: ''),
@@ -193,6 +197,10 @@ export function LiveChatSupport() {
     const AdminAvatar = () => (
         <Avatar className="h-8 w-8"><AvatarFallback><Bot/></AvatarFallback></Avatar>
     )
+
+    if (isDashboardPage) {
+        return null;
+    }
 
     return (
         <>
