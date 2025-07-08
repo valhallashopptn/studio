@@ -86,9 +86,9 @@ export function AppHeader() {
             </div>
           </div>
         )}
-        <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container flex h-16 items-center justify-between">
-            <div className="flex items-center gap-6">
+        <header className="relative w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container flex h-16 items-center">
+            <div className="flex flex-1 items-center gap-6">
               <Link href="/" className="flex items-center gap-2">
                 {logoUrl ? (
                   <Image src={logoUrl} alt="Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
@@ -113,103 +113,97 @@ export function AppHeader() {
               </nav>
             </div>
 
-            <div className="flex items-center gap-2">
-                {/* --- Desktop Actions --- */}
-                <div className="hidden md:flex items-center gap-2">
-                    <CurrencySwitcher />
-                    <LanguageSwitcher />
-                    <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
-                        <ShoppingCart className="h-5 w-5" />
-                        {totalItems > 0 && (
-                        <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
-                            {totalItems}
-                        </span>
-                        )}
-                        <span className="sr-only">Open Cart</span>
-                    </Button>
-                    
-                    {isAuthenticated ? (
-                        <>
-                        {!isAdmin && (
-                            <div className="flex items-center gap-2 p-2 pr-3 bg-secondary rounded-md border">
-                            <Wallet className="h-5 w-5 text-primary"/>
-                            <span className="font-semibold text-sm whitespace-nowrap">{formatPrice(user?.walletBalance ?? 0)}</span>
-                            </div>
-                        )}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                                <Avatar className="h-8 w-8">
-                                <AvatarImage src={user?.avatar} alt={user?.name} />
-                                <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                            </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="end" forceMount>
-                            <DropdownMenuLabel className="font-normal">
-                                <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">{user?.name}</p>
-                                <p className="text-xs leading-none text-muted-foreground">
-                                    {user?.email}
-                                </p>
-                                </div>
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            {!isAdmin && (
-                                <>
-                                <DropdownMenuItem disabled>
-                                    <Wallet className="mr-2 h-4 w-4" />
-                                    <span>{formatPrice(user?.walletBalance ?? 0)}</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                </>
-                            )}
-                            <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
-                                <LayoutDashboard className="mr-2 h-4 w-4" />
-                                <span>{t('auth.dashboard')}</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleLogout}>
-                                <LogOut className="mr-2 h-4 w-4" />
-                                <span>{t('auth.logout')}</span>
-                            </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        </>
-                    ) : (
-                        <div className="flex items-center gap-2">
-                            <Button asChild variant="ghost" size="sm">
-                                <Link href="/login">{t('auth.login')}</Link>
-                            </Button>
-                            <Button asChild size="sm">
-                                <Link href="/register">{t('auth.register')}</Link>
-                            </Button>
+            <div className="flex items-center gap-2 md:hidden">
+              <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
+                    {totalItems}
+                  </span>
+                )}
+                <span className="sr-only">Open Cart</span>
+              </Button>
+              <Button onClick={() => setMobileMenuOpen(true)} variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Open Menu</span>
+              </Button>
+            </div>
+            
+            <div className="hidden md:flex absolute top-1/2 right-6 -translate-y-1/2 items-center gap-2">
+                <CurrencySwitcher />
+                <LanguageSwitcher />
+                <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
+                    <ShoppingCart className="h-5 w-5" />
+                    {totalItems > 0 && (
+                    <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
+                        {totalItems}
+                    </span>
+                    )}
+                    <span className="sr-only">Open Cart</span>
+                </Button>
+                
+                {isAuthenticated ? (
+                    <>
+                    {!isAdmin && (
+                        <div className="flex items-center gap-2 p-2 pr-3 bg-secondary rounded-md border">
+                        <Wallet className="h-5 w-5 text-primary"/>
+                        <span className="font-semibold text-sm whitespace-nowrap">{formatPrice(user?.walletBalance ?? 0)}</span>
                         </div>
                     )}
-                </div>
-
-                {/* --- Mobile Actions --- */}
-                <div className="flex items-center md:hidden">
-                    <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
-                        <ShoppingCart className="h-5 w-5" />
-                        {totalItems > 0 && (
-                        <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
-                            {totalItems}
-                        </span>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                            <Avatar className="h-8 w-8">
+                            <AvatarImage src={user?.avatar} alt={user?.name} />
+                            <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{user?.name}</p>
+                            <p className="text-xs leading-none text-muted-foreground">
+                                {user?.email}
+                            </p>
+                            </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {!isAdmin && (
+                            <>
+                            <DropdownMenuItem disabled>
+                                <Wallet className="mr-2 h-4 w-4" />
+                                <span>{formatPrice(user?.walletBalance ?? 0)}</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            </>
                         )}
-                        <span className="sr-only">Open Cart</span>
-                    </Button>
-                    <Button onClick={() => setMobileMenuOpen(true)} variant="ghost" size="icon">
-                        <Menu className="h-6 w-6" />
-                        <span className="sr-only">Open Menu</span>
-                    </Button>
-                </div>
+                        <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
+                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            <span>{t('auth.dashboard')}</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogout}>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>{t('auth.logout')}</span>
+                        </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </>
+                ) : (
+                    <div className="flex items-center gap-2">
+                        <Button asChild variant="ghost" size="sm">
+                            <Link href="/login">{t('auth.login')}</Link>
+                        </Button>
+                        <Button asChild size="sm">
+                            <Link href="/register">{t('auth.register')}</Link>
+                        </Button>
+                    </div>
+                )}
             </div>
-
           </div>
         </header>
       </div>
       
-      {/* Mobile Menu Panel */}
       <div className={cn("fixed inset-0 z-50 md:hidden", !isMobileMenuOpen && "pointer-events-none")}>
         <div 
             className={cn("absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity", isMobileMenuOpen ? "opacity-100" : "opacity-0")}
