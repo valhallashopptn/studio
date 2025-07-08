@@ -103,7 +103,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold mb-8 text-center font-headline">{t('home.ourCategories')}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                 {initialCategories.map((category, index) => (
-                  <div key={category.id} className={animationClass} style={{animationDelay: `${200 + index * 100}ms`}}>
+                  <div key={category.id} className={`${animationClass} aspect-video`} style={{animationDelay: `${200 + index * 100}ms`}}>
                     <CategoryCard 
                       category={category}
                       onClick={() => handleCategoryClick(category.name)}
