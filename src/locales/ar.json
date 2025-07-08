@@ -255,6 +255,11 @@
     "headerRank": "#",
     "headerHunter": "الصياد",
     "headerClass": "الرتبة",
-    "headerSpent": "إجمالي الإنفاق"
+    "headerSpent": "إجمالي الإنفاق",
+    "viewAll": "عرض الكل",
+    "fullTitle": "قائمة أفضل الصيادين",
+    "fullSubtitle": "شاهد من يتربع على عرش عالم الصيادين الرقميين.",
+    "fullCardTitle": "الترتيب الكامل",
+    "fullCardDescription": "القائمة الكاملة لجميع الصيادين، مرتبة حسب إجمالي إنفاقهم."
   }
 }

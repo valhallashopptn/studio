@@ -255,6 +255,11 @@
     "headerRank": "#",
     "headerHunter": "Hunter",
     "headerClass": "Rank",
-    "headerSpent": "Total Spent"
+    "headerSpent": "Total Spent",
+    "viewAll": "View All",
+    "fullTitle": "Hunters Leaderboard",
+    "fullSubtitle": "See who reigns supreme in the realm of digital hunters.",
+    "fullCardTitle": "Full Rankings",
+    "fullCardDescription": "The complete list of all hunters, ranked by their total spending."
   }
 }

@@ -1,0 +1,105 @@
+
+"use client";
+
+import { useState, useEffect, useMemo } from 'react';
+import { AppHeader } from '@/components/app-header';
+import { AppFooter } from '@/components/app-footer';
+import { useCurrency } from "@/hooks/use-currency";
+import { useTranslation } from "@/hooks/use-translation";
+import { users } from "@/lib/data";
+import { getRank } from "@/lib/ranks";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Crown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export default function LeaderboardPage() {
+    const { formatPrice } = useCurrency();
+    const { t } = useTranslation();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const allUsersSorted = useMemo(() => {
+        return users
+            .filter(u => !u.isAdmin)
+            .sort((a, b) => b.totalSpent - a.totalSpent);
+    }, []);
+
+    const animationClass = (delay: number) => isMounted ? `opacity-0 animate-fade-in-up [animation-fill-mode:forwards] [animation-delay:${delay}ms]` : 'opacity-0';
+
+    return (
+        <div className="flex flex-col min-h-screen">
+            <AppHeader />
+            <main className="flex-1">
+                <section className="bg-primary/10 py-16 text-center overflow-hidden">
+                    <div className={`container mx-auto px-4 ${animationClass(0)}`}>
+                        <h1 className="text-4xl font-bold font-headline text-primary flex items-center justify-center gap-3">
+                            <Crown className="h-8 w-8 text-amber-400" />
+                            {t('leaderboard.fullTitle')}
+                        </h1>
+                        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                            {t('leaderboard.fullSubtitle')}
+                        </p>
+                    </div>
+                </section>
+                
+                <section className="py-16">
+                    <div className="container mx-auto px-4">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>{t('leaderboard.fullCardTitle')}</CardTitle>
+                                <CardDescription>{t('leaderboard.fullCardDescription')}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="w-[20px] px-2">{t('leaderboard.headerRank')}</TableHead>
+                                            <TableHead>{t('leaderboard.headerHunter')}</TableHead>
+                                            <TableHead>{t('leaderboard.headerClass')}</TableHead>
+                                            <TableHead className="text-right">{t('leaderboard.headerSpent')}</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {allUsersSorted.map((user, index) => {
+                                            const rank = getRank(user.totalSpent);
+                                            return (
+                                                <TableRow key={user.id}>
+                                                    <TableCell className="font-bold px-2">{index + 1}</TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center gap-3">
+                                                            <Avatar className="h-8 w-8">
+                                                                <AvatarImage src={user.avatar} />
+                                                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                                            </Avatar>
+                                                            <span className="font-medium">{user.name}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className={cn("flex items-center gap-1.5 text-xs font-semibold", rank.color)}>
+                                                            <rank.icon className="h-4 w-4" />
+                                                            <span>{rank.name}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right font-mono text-sm">
+                                                        {isMounted ? formatPrice(user.totalSpent) : <Skeleton className="h-5 w-20 ml-auto" />}
+                                                    </TableCell>
+                                                </TableRow>
+                                            )
+                                        })}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </section>
+            </main>
+            <AppFooter />
+        </div>
+    );
+}

@@ -8,10 +8,12 @@ import { useMemo, useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Crown } from "lucide-react";
+import { Crown, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/use-translation";
 import { Skeleton } from "./ui/skeleton";
+import { Button } from "./ui/button";
+import Link from "next/link";
 
 export function Leaderboard() {
     const { formatPrice } = useCurrency();
@@ -31,11 +33,17 @@ export function Leaderboard() {
 
     return (
         <Card className="w-full h-full">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2 font-headline">
                     <Crown className="h-6 w-6 text-amber-400" />
                     {t('leaderboard.title')}
                 </CardTitle>
+                <Button asChild variant="outline" size="sm">
+                    <Link href="/leaderboard">
+                        {t('leaderboard.viewAll')}
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
             </CardHeader>
             <CardContent className="pt-0">
                 <Table>
