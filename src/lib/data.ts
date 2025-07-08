@@ -1,9 +1,18 @@
+
 import type { Product, PaymentMethod, Review, Category, StockItem } from '@/lib/types';
 import { Landmark, Wallet } from 'lucide-react';
 
 export let categories: Category[] = [
-  { id: 'cat_1', name: 'Game', image: 'https://placehold.co/300x200.png', deliveryMethod: 'instant' },
-  { id: 'cat_2', name: 'Digital', image: 'https://placehold.co/300x200.png', deliveryMethod: 'manual' },
+  { id: 'cat_1', name: 'Game', image: 'https://placehold.co/300x200.png', deliveryMethod: 'instant', customFields: [] },
+  { 
+    id: 'cat_2', 
+    name: 'Digital', 
+    image: 'https://placehold.co/300x200.png', 
+    deliveryMethod: 'manual', 
+    customFields: [
+      { id: 'field_1', name: 'account_email', label: 'Account Email', type: 'email', placeholder: 'Enter the account email' }
+    ] 
+  },
 ];
 
 export let products: Product[] = [

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { create } from 'zustand';
@@ -9,6 +10,7 @@ type CartState = {
   addItem: (product: Product) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
+  updateCustomFieldValue: (productId: string, fieldName: string, value: string) => void;
   clearCart: () => void;
 };
 
@@ -25,7 +27,7 @@ export const useCart = create(
             );
             return { items: updatedItems };
           } else {
-            const newItem: CartItem = { ...product, quantity: 1 };
+            const newItem: CartItem = { ...product, quantity: 1, customFieldValues: {} };
             return { items: [...state.items, newItem] };
           }
         }),
@@ -44,6 +46,20 @@ export const useCart = create(
             ),
           };
         }),
+      updateCustomFieldValue: (productId, fieldName, value) => 
+        set((state) => ({
+            items: state.items.map((item) =>
+                item.id === productId 
+                ? {
+                    ...item,
+                    customFieldValues: {
+                        ...item.customFieldValues,
+                        [fieldName]: value,
+                    }
+                  }
+                : item
+            ),
+        })),
       clearCart: () => set({ items: [] }),
     }),
     {

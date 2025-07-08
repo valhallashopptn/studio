@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,8 +28,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useCart } from '@/hooks/use-cart';
-import { paymentMethods } from '@/lib/data';
-import type { PaymentMethod } from '@/lib/types';
+import { paymentMethods, categories as initialCategories } from '@/lib/data';
+import type { PaymentMethod, CartItem, CustomField } from '@/lib/types';
 import { Minus, Plus, Trash2, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/hooks/use-translation';
@@ -70,13 +70,39 @@ const PaymentInstructions = ({ method }: { method: PaymentMethod | null }) => {
     return null;
 };
 
+const CustomFieldsDisplay = ({ item }: { item: CartItem }) => {
+    if (!item.customFieldValues || Object.keys(item.customFieldValues).length === 0) {
+        return null;
+    }
+
+    const category = initialCategories.find(c => c.name === item.category);
+    if (!category || !category.customFields) return null;
+
+    return (
+        <div className="text-xs space-y-1 mt-2">
+            {category.customFields.map(field => {
+                const value = item.customFieldValues?.[field.name];
+                if (!value) return null;
+                return (
+                    <div key={field.id} className="flex justify-between">
+                        <span className="text-muted-foreground">{field.label}:</span>
+                        <span className="font-semibold truncate ml-2">{value}</span>
+                    </div>
+                )
+            })}
+        </div>
+    )
+}
+
 export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
-  const { items, removeItem, updateQuantity, clearCart } = useCart();
+  const { items, removeItem, updateQuantity, clearCart, updateCustomFieldValue } = useCart();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
   const [orderId, setOrderId] = useState('');
   const { toast } = useToast();
   const { t } = useTranslation();
+
+  const categoryMap = useMemo(() => new Map(initialCategories.map(c => [c.name, c])), []);
 
   const total = useMemo(() =>
     items.reduce((acc, item) => acc + item.price * item.quantity, 0),
@@ -92,6 +118,26 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
       });
       return;
     }
+
+    // Check if all required custom fields are filled
+    for (const item of items) {
+        const category = categoryMap.get(item.category);
+        const customFields = category?.deliveryMethod === 'manual' ? category.customFields : [];
+        if (customFields && customFields.length > 0) {
+            for (const field of customFields) {
+                if (!item.customFieldValues?.[field.name]) {
+                    toast({
+                        variant: "destructive",
+                        title: "Missing Information",
+                        description: `Please fill out the '${field.label}' for ${item.name}.`,
+                    });
+                    return;
+                }
+            }
+        }
+    }
+
+
     if (!selectedPayment) {
        toast({
         variant: "destructive",
@@ -123,26 +169,48 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
             {items.length > 0 ? (
               <ScrollArea className="h-full pr-4">
                 <div className="space-y-4">
-                  {items.map((item) => (
-                    <div key={item.id} className="flex items-start gap-4">
-                       <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md object-cover" />
-                      <div className="flex-1">
-                        <p className="font-semibold">{item.name}</p>
-                        <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.id, item.quantity - 1)}><Minus className="h-3 w-3" /></Button>
-                          <Input type="number" value={item.quantity} readOnly className="h-6 w-12 text-center" />
-                          <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.id, item.quantity + 1)}><Plus className="h-3 w-3" /></Button>
+                  {items.map((item) => {
+                    const category = categoryMap.get(item.category);
+                    const customFields = category?.deliveryMethod === 'manual' ? category.customFields : [];
+                    
+                    return (
+                        <div key={item.id} className="flex items-start gap-4">
+                           <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md object-cover" />
+                          <div className="flex-1">
+                            <p className="font-semibold">{item.name}</p>
+                            <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.id, item.quantity - 1)}><Minus className="h-3 w-3" /></Button>
+                              <Input type="number" value={item.quantity} readOnly className="h-6 w-12 text-center" />
+                              <Button variant="outline" size="icon" className="h-6 w-6" onClick={() => updateQuantity(item.id, item.quantity + 1)}><Plus className="h-3 w-3" /></Button>
+                            </div>
+                            {customFields && customFields.length > 0 && (
+                                <div className="mt-4 space-y-3">
+                                    {customFields.map(field => (
+                                        <div key={field.id} className="space-y-1">
+                                            <Label htmlFor={`${item.id}-${field.name}`}>{field.label}</Label>
+                                            <Input
+                                                id={`${item.id}-${field.name}`}
+                                                type={field.type}
+                                                placeholder={field.placeholder}
+                                                value={item.customFieldValues?.[field.name] || ''}
+                                                onChange={(e) => updateCustomFieldValue(item.id, field.name, e.target.value)}
+                                                className="h-8 text-sm"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </ScrollArea>
             ) : (
@@ -198,6 +266,17 @@ export function CartSheet({ isOpen, onOpenChange }: CartSheetProps) {
               Please follow the payment instructions below to complete your purchase.
             </AlertDialogDescription>
           </AlertDialogHeader>
+
+          <div className="my-4 space-y-4 max-h-60 overflow-y-auto">
+             <h4 className="font-semibold">Order Summary</h4>
+             {items.map(item => (
+                <div key={item.id} className="p-2 border rounded-md">
+                    <p className="font-semibold">{item.name} <span className="text-muted-foreground font-normal">x {item.quantity}</span></p>
+                    <CustomFieldsDisplay item={item} />
+                </div>
+             ))}
+          </div>
+
           {selectedPayment && (
             <div className="my-4 p-4 bg-secondary/50 rounded-lg border">
                 <h4 className="font-semibold mb-2 flex items-center gap-2">

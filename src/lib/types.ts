@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -10,6 +11,15 @@ export interface Product {
 
 export interface CartItem extends Product {
   quantity: number;
+  customFieldValues?: Record<string, string>;
+}
+
+export interface CustomField {
+  id: string;
+  label: string;
+  name: string;
+  type: 'text' | 'email' | 'number';
+  placeholder?: string;
 }
 
 export interface Category {
@@ -17,6 +27,7 @@ export interface Category {
   name: string;
   image: string;
   deliveryMethod: 'manual' | 'instant';
+  customFields: CustomField[];
 }
 
 export interface StockItem {
