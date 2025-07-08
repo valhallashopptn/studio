@@ -24,8 +24,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { useOrders } from '@/hooks/use-orders';
 import { usePaymentSettings } from '@/hooks/use-payment-settings';
 import { useCategories } from '@/hooks/use-categories';
-import type { PaymentMethod, CartItem, Order, Category } from '@/lib/types';
-import { Landmark, Wallet as WalletIcon, CreditCard, Upload, Loader2, User, Info, Lock } from 'lucide-react';
+import { useCoupons } from '@/hooks/use-coupons';
+import type { PaymentMethod, CartItem, Order, Category, Coupon } from '@/lib/types';
+import { Landmark, Wallet as WalletIcon, CreditCard, Upload, Loader2, User, Info, Lock, TicketPercent } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/hooks/use-translation';
 import { useCurrency } from '@/hooks/use-currency';
@@ -57,6 +58,8 @@ export default function CheckoutPage() {
     const { categories } = useCategories();
     const { addOrder } = useOrders();
     const { user, isAuthenticated, updateWalletBalance } = useAuth();
+    const { validateCoupon, applyCoupon } = useCoupons();
+
     const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
     const [paymentProofImage, setPaymentProofImage] = useState<string | null>(null);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
@@ -66,6 +69,11 @@ export default function CheckoutPage() {
     const { t } = useTranslation();
     const { formatPrice } = useCurrency();
     const [isVerified, setIsVerified] = useState(false);
+    
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+    const [discountAmount, setDiscountAmount] = useState(0);
+
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -99,8 +107,8 @@ export default function CheckoutPage() {
     );
 
     const taxRate = selectedPayment?.taxRate || 0;
-    const taxAmount = subtotal * (taxRate / 100);
-    const total = subtotal + taxAmount;
+    const taxAmount = (subtotal - discountAmount) * (taxRate / 100);
+    const total = subtotal - discountAmount + taxAmount;
 
     const walletPaymentMethod: PaymentMethod = {
         id: 'store_wallet',
@@ -112,6 +120,26 @@ export default function CheckoutPage() {
     };
 
     const isWalletDisabled = !isAuthenticated || (user?.walletBalance ?? 0) < total;
+
+    const handleApplyCoupon = () => {
+        const { isValid, coupon, error } = validateCoupon(couponCode);
+        if (isValid && coupon) {
+            let discount = 0;
+            if (coupon.discountType === 'fixed') {
+                discount = coupon.value;
+            } else { // percentage
+                discount = subtotal * (coupon.value / 100);
+            }
+            setDiscountAmount(discount);
+            setAppliedCoupon(coupon);
+            toast({ title: t('checkoutPage.couponApplied') });
+        } else {
+            toast({ variant: "destructive", title: t('checkoutPage.invalidCoupon'), description: error });
+            setDiscountAmount(0);
+            setAppliedCoupon(null);
+            setCouponCode('');
+        }
+    };
 
     const handlePaymentProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -177,8 +205,15 @@ export default function CheckoutPage() {
                 paymentMethod: selectedPayment,
                 paymentProofImage,
                 status: 'pending',
+                appliedCouponCode: appliedCoupon?.code,
+                discountAmount: discountAmount,
             };
             addOrder(newOrder);
+
+            if (appliedCoupon) {
+                applyCoupon(appliedCoupon.code);
+            }
+
             setConfirmOpen(true);
             setIsProcessing(false);
         }, 1000);
@@ -189,6 +224,9 @@ export default function CheckoutPage() {
         clearCart();
         setSelectedPayment(null);
         setPaymentProofImage(null);
+        setAppliedCoupon(null);
+        setDiscountAmount(0);
+        setCouponCode('');
         router.push('/dashboard/orders');
     };
     
@@ -320,7 +358,7 @@ export default function CheckoutPage() {
                                     <CardTitle>{t('checkoutPage.orderSummary')}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <ScrollArea className="h-64 pr-3">
+                                    <ScrollArea className="h-48 pr-3">
                                         <div className="space-y-4">
                                             {items.map(item => (
                                                 <div key={item.id} className="flex justify-between items-center">
@@ -338,11 +376,34 @@ export default function CheckoutPage() {
                                         </div>
                                     </ScrollArea>
                                     <Separator/>
+                                    {!appliedCoupon && (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="coupon-code">{t('checkoutPage.couponCode')}</Label>
+                                            <div className="flex space-x-2">
+                                                <Input
+                                                    id="coupon-code"
+                                                    placeholder={t('checkoutPage.couponPlaceholder')}
+                                                    value={couponCode}
+                                                    onChange={(e) => setCouponCode(e.target.value)}
+                                                />
+                                                <Button type="button" onClick={handleApplyCoupon} disabled={!couponCode}>
+                                                    {t('checkoutPage.apply')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <Separator/>
                                     <div className="space-y-2 text-sm">
                                         <div className="flex justify-between">
                                             <span className="text-muted-foreground">{t('cart.subtotal')}</span>
                                             <span>{formatPrice(subtotal)}</span>
                                         </div>
+                                        {appliedCoupon && (
+                                            <div className="flex justify-between text-green-600 dark:text-green-400">
+                                                <span className="text-muted-foreground flex items-center gap-1"><TicketPercent className="h-4 w-4" />{t('checkoutPage.discount')} ({appliedCoupon.code})</span>
+                                                <span>- {formatPrice(discountAmount)}</span>
+                                            </div>
+                                        )}
                                          <div className="flex justify-between">
                                             <span className="text-muted-foreground">{t('cart.tax')} ({taxRate}%)</span>
                                             <span>{formatPrice(taxAmount)}</span>
@@ -355,7 +416,7 @@ export default function CheckoutPage() {
                                     </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button onClick={handleSubmitOrder} className="w-full" size="lg" disabled={isProcessing || !selectedPayment}>
+                                    <Button onClick={handleSubmitOrder} className="w-full" size="lg" disabled={isProcessing || !selectedPayment || total < 0}>
                                         {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                         {isProcessing ? t('checkoutPage.processing') : t('checkoutPage.placeOrder')}
                                     </Button>

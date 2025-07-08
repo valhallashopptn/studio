@@ -7,7 +7,8 @@
     "categories": "الفئات",
     "about": "من نحن",
     "contact": "اتصل بنا",
-    "reviews": "التقييمات"
+    "reviews": "التقييمات",
+    "coupons": "الكوبونات"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -173,7 +174,13 @@
     "placeOrder": "إتمام الطلب",
     "processing": "جارٍ المعالجة...",
     "viewMyOrders": "عرض طلباتي",
-    "uploadProof": "رفع إثبات الدفع"
+    "uploadProof": "رفع إثبات الدفع",
+    "couponCode": "كود الخصم",
+    "apply": "تطبيق",
+    "couponPlaceholder": "أدخل كود الخصم",
+    "discount": "الخصم",
+    "couponApplied": "تم تطبيق الكوبون بنجاح!",
+    "invalidCoupon": "كود الخصم غير صالح أو منتهي الصلاحية."
   },
   "dashboardOrders": {
     "title": "طلباتي",

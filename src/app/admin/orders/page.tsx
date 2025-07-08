@@ -130,6 +130,8 @@ export default function AdminOrdersPage() {
     setRefundingOrder(null);
     setRefundReason('');
   };
+  
+  const subtotal = viewingOrder ? viewingOrder.items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0) : 0;
 
   return (
     <div className="space-y-8">
@@ -213,10 +215,20 @@ export default function AdminOrdersPage() {
                             <h4 className="font-semibold mb-2">Payment</h4>
                              <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Subtotal:</span>
+                                    <span>{formatPrice(subtotal)}</span>
+                                </div>
+                                {viewingOrder.discountAmount && viewingOrder.discountAmount > 0 && (
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Discount ({viewingOrder.appliedCouponCode}):</span>
+                                        <span className="text-green-600 dark:text-green-400">- {formatPrice(viewingOrder.discountAmount)}</span>
+                                    </div>
+                                )}
+                                <div className="flex justify-between">
                                     <span className="text-muted-foreground">Method:</span>
                                     <span>{viewingOrder.paymentMethod.name}</span>
                                 </div>
-                                 <div className="flex justify-between font-bold text-base">
+                                 <div className="flex justify-between font-bold text-base border-t pt-2 mt-2">
                                     <span>Total:</span>
                                     <span>{formatPrice(viewingOrder.total)}</span>
                                 </div>

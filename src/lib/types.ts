@@ -85,6 +85,16 @@ export interface Review {
 
 export type OrderStatus = 'pending' | 'completed' | 'refunded';
 
+export interface Coupon {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  value: number; // The percentage (e.g., 10 for 10%) or fixed amount
+  expiresAt?: string; // ISO date string
+  usageLimit: number; // Max number of times the coupon can be used
+  timesUsed: number;
+}
+
 export interface Order {
   id: string;
   customer: User;
@@ -97,6 +107,8 @@ export interface Order {
   deliveredItems?: { [cartItemId: string]: string[] };
   refundReason?: string;
   refundedAt?: string;
+  appliedCouponCode?: string;
+  discountAmount?: number;
 }
 
 export interface ChatMessage {

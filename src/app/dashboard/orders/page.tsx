@@ -102,6 +102,8 @@ export default function CustomerOrdersPage() {
     return orders.filter(order => order.customer.id === user.id);
   }, [orders, user]);
 
+  const subtotal = viewingOrder ? viewingOrder.items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0) : 0;
+
   return (
     <div className="space-y-8">
       <div>
@@ -146,10 +148,20 @@ export default function CustomerOrdersPage() {
                             <h4 className="font-semibold mb-2">{t('dashboardOrders.payment')}</h4>
                              <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
+                                    <span className="text-muted-foreground">{t('cart.subtotal')}</span>
+                                    <span>{formatPrice(subtotal)}</span>
+                                </div>
+                                {viewingOrder.discountAmount && viewingOrder.discountAmount > 0 ? (
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">{t('checkoutPage.discount')} ({viewingOrder.appliedCouponCode})</span>
+                                        <span className="text-green-600 dark:text-green-400">- {formatPrice(viewingOrder.discountAmount)}</span>
+                                    </div>
+                                ) : null}
+                                <div className="flex justify-between">
                                     <span className="text-muted-foreground">{t('dashboardOrders.method')}</span>
                                     <span>{viewingOrder.paymentMethod.name}</span>
                                 </div>
-                                 <div className="flex justify-between font-bold text-base">
+                                 <div className="flex justify-between font-bold text-base border-t pt-2 mt-2">
                                     <span>{t('dashboardOrders.total')}</span>
                                     <span>{formatPrice(viewingOrder.total)}</span>
                                 </div>

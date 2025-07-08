@@ -7,7 +7,8 @@
     "categories": "Categories",
     "about": "About Us",
     "contact": "Contact Us",
-    "reviews": "Reviews"
+    "reviews": "Reviews",
+    "coupons": "Coupons"
   },
   "auth": {
     "login": "Login",
@@ -173,7 +174,13 @@
     "placeOrder": "Place Order",
     "processing": "Processing...",
     "viewMyOrders": "View My Orders",
-    "uploadProof": "Upload Payment Proof"
+    "uploadProof": "Upload Payment Proof",
+    "couponCode": "Coupon Code",
+    "apply": "Apply",
+    "couponPlaceholder": "Enter coupon code",
+    "discount": "Discount",
+    "couponApplied": "Coupon applied successfully!",
+    "invalidCoupon": "Invalid or expired coupon."
   },
   "dashboardOrders": {
     "title": "My Orders",
