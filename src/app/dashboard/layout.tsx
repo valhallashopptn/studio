@@ -48,7 +48,7 @@ export default function DashboardLayout({
         <AppHeader />
         <div className="flex flex-1">
             <DashboardSidebar />
-            <main className="flex-1 p-8 bg-secondary/50 pb-24 md:pb-8">
+            <main className="flex-1 p-4 md:p-8 bg-secondary/50 pb-24 md:pb-8">
                 {children}
             </main>
             <MobileNav links={dashboardNavLinks} />
