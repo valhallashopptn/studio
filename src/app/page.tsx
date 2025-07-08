@@ -88,13 +88,13 @@ export default function Home() {
                  )}
                 <div className="absolute inset-0 bg-background/60 backdrop-blur-sm"></div>
             </div>
-            <div className="relative z-10 container mx-auto px-4 text-center">
+            <div className="relative z-10 w-full max-w-screen-2xl mx-auto px-4 text-center">
                 <h1 className={`text-4xl md:text-6xl font-bold font-headline mb-4 ${animationClass}`}>{t('home.heroTitle')}</h1>
                 <p className={`text-lg md:text-xl text-foreground/90 max-w-3xl mx-auto mb-8 ${animationClass} [animation-delay:200ms]`}>
                     {t('home.heroSubtitle')}
                 </p>
-                <Button size="lg" onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })} className={`${animationClass} [animation-delay:400ms]`}>
-                    {t('home.browseProducts')}
+                <Button asChild size="lg" className={`${animationClass} [animation-delay:400ms]`}>
+                    <Link href="/products">{t('home.browseProducts')}</Link>
                 </Button>
             </div>
         </section>
