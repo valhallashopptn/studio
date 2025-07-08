@@ -262,7 +262,7 @@ export default function AdminOrdersPage() {
           <CardTitle>Order History</CardTitle>
           <CardDescription>A list of all orders placed in your store.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2 md:p-6 md:pt-0">
           <Table>
             <TableHeader>
               <TableRow>

@@ -279,7 +279,7 @@ export default function AdminProductsPage() {
           <CardTitle>Product List</CardTitle>
           <CardDescription>A list of all products in your store.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2 md:p-6 md:pt-0">
           <Table>
             <TableHeader>
               <TableRow>

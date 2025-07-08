@@ -338,7 +338,7 @@ export default function AdminCategoriesPage() {
           <CardTitle>Category List</CardTitle>
           <CardDescription>A list of all product categories in your store.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2 md:p-6 md:pt-0">
           <Table>
             <TableHeader>
               <TableRow>

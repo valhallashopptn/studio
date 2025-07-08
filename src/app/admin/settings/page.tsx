@@ -226,7 +226,7 @@ export default function AdminSettingsPage() {
           <CardTitle>Configured Payment Methods</CardTitle>
           <CardDescription>A list of payment methods available at checkout.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2 md:p-6 md:pt-0">
           <Table>
             <TableHeader>
               <TableRow>
