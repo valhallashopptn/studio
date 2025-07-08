@@ -9,6 +9,7 @@ import { useSiteSettings } from '@/hooks/use-site-settings';
 import { useContentSettings } from '@/hooks/use-content-settings';
 import { Flame, Facebook, Twitter, Instagram, Send } from 'lucide-react';
 import { Separator } from './ui/separator';
+import { Skeleton } from './ui/skeleton';
 
 const footerNavLinks = [
     { href: '/', labelKey: 'nav.home' },
@@ -33,6 +34,7 @@ const TiktokIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export function AppFooter() {
+  const [isMounted, setIsMounted] = useState(false);
   const [year, setYear] = useState<number | null>(null);
   const { t } = useTranslation();
   const { siteTitle, logoUrl } = useSiteSettings();
@@ -43,8 +45,25 @@ export function AppFooter() {
   } = useContentSettings();
 
   useEffect(() => {
+    setIsMounted(true);
     setYear(new Date().getFullYear());
   }, []);
+
+  if (!isMounted) {
+    return (
+       <footer className="bg-background text-foreground border-t">
+        <div className="container mx-auto px-4 py-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Skeleton className="h-24" />
+              <Skeleton className="h-24" />
+              <Skeleton className="h-24" />
+            </div>
+            <Separator className="my-8 bg-border/50" />
+            <Skeleton className="h-5 w-1/2 mx-auto" />
+        </div>
+      </footer>
+    )
+  }
 
   return (
     <footer className="bg-background text-foreground border-t">
