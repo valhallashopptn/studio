@@ -42,7 +42,7 @@ export function AppFooter() {
   }, []);
 
   return (
-    <footer className="bg-secondary text-secondary-foreground border-t">
+    <footer className="bg-background text-foreground border-t">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
@@ -59,7 +59,7 @@ export function AppFooter() {
           </div>
 
           <div>
-              <h3 className="font-semibold mb-4 text-card-foreground">{t('footer.quickLinks')}</h3>
+              <h3 className="font-semibold mb-4 text-foreground">{t('footer.quickLinks')}</h3>
               <nav className="flex flex-col gap-2 text-sm">
                 {footerNavLinks.map(link => (
                     <Link key={link.href} href={link.href} className="text-muted-foreground hover:text-primary transition-colors w-fit">
@@ -70,7 +70,7 @@ export function AppFooter() {
           </div>
           
           <div>
-            <h3 className="font-semibold mb-4 text-card-foreground">{t('footer.followUs')}</h3>
+            <h3 className="font-semibold mb-4 text-foreground">{t('footer.followUs')}</h3>
             <div className="flex gap-4">
                 <a href="#" aria-label="Facebook" className="text-muted-foreground hover:text-primary transition-colors"><Facebook className="h-6 w-6" /></a>
                 <a href="#" aria-label="Instagram" className="text-muted-foreground hover:text-primary transition-colors"><Instagram className="h-6 w-6" /></a>
