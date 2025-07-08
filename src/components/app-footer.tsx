@@ -10,12 +10,12 @@ import { useContentSettings } from '@/hooks/use-content-settings';
 import { Flame, Facebook, Twitter, Instagram } from 'lucide-react';
 import { Separator } from './ui/separator';
 
-const navLinks = [
+const footerNavLinks = [
     { href: '/', labelKey: 'nav.home' },
+    { href: '/reviews', labelKey: 'nav.reviews' },
+    { href: '/contact', labelKey: 'nav.contact' },
     { href: '/products', labelKey: 'nav.products' },
     { href: '/about', labelKey: 'nav.about' },
-    { href: '/contact', labelKey: 'nav.contact' },
-    { href: '/reviews', labelKey: 'nav.reviews' },
 ];
 
 export function AppFooter() {
@@ -31,7 +31,7 @@ export function AppFooter() {
   return (
     <footer className="bg-secondary text-secondary-foreground border-t">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Branding */}
           <div className="col-span-1 md:col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2">
@@ -43,20 +43,6 @@ export function AppFooter() {
                 <h2 className="text-xl font-bold font-headline">{siteTitle}</h2>
             </Link>
             <p className="text-sm text-muted-foreground pr-8">{aboutSubtitle}</p>
-          </div>
-
-          {/* Quick Links */}
-          <div className="col-span-1">
-            <h3 className="font-semibold mb-4 text-card-foreground">{t('footer.quickLinks')}</h3>
-            <ul className="space-y-2">
-              {navLinks.map(link => (
-                  <li key={link.href}>
-                      <Link href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                          {t(link.labelKey)}
-                      </Link>
-                  </li>
-              ))}
-            </ul>
           </div>
 
           {/* Social */}
@@ -72,8 +58,15 @@ export function AppFooter() {
         
         <Separator className="my-8 bg-border/50" />
         
-        <div className="text-center text-sm text-muted-foreground">
-          <p>{t('footer.copyright', { year: year || new Date().getFullYear() })}</p>
+        <div className="flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
+          <p className="mb-4 md:mb-0">{t('footer.copyright', { year: year || new Date().getFullYear() })}</p>
+          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+            {footerNavLinks.map(link => (
+                <Link key={link.href} href={link.href} className="hover:text-primary transition-colors">
+                    {t(link.labelKey)}
+                </Link>
+            ))}
+          </nav>
         </div>
       </div>
     </footer>
