@@ -2,6 +2,7 @@
 "use client"
 
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   Card,
 } from '@/components/ui/card';
@@ -9,14 +10,13 @@ import type { Category } from '@/lib/types';
 
 interface CategoryCardProps {
   category: Category;
-  onClick: () => void;
 }
 
-export function CategoryCard({ category, onClick }: CategoryCardProps) {
+export function CategoryCard({ category }: CategoryCardProps) {
   return (
-    <div className="group h-full w-full [perspective:1000px] cursor-pointer" onClick={onClick}>
+    <Link href={`/products?category=${encodeURIComponent(category.name)}`} className="group h-full w-full [perspective:1000px]">
       <Card 
-        className="relative h-full w-full rounded-lg shadow-md transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]"
+        className="relative h-full w-full rounded-lg shadow-md transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] cursor-pointer"
       >
         {/* Front Face: Image with overlayed title */}
         <div className="absolute h-full w-full [backface-visibility:hidden]">
@@ -53,6 +53,6 @@ export function CategoryCard({ category, onClick }: CategoryCardProps) {
            </div>
         </div>
       </Card>
-    </div>
+    </Link>
   );
 }

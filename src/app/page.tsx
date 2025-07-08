@@ -45,11 +45,6 @@ export default function Home() {
     });
   };
 
-  const handleCategoryClick = (categoryName: string) => {
-    setSelectedCategory(categoryName);
-    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
       const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -111,7 +106,6 @@ export default function Home() {
                   <div key={category.id} className={`${animationClass} aspect-video`} style={{animationDelay: `${200 + index * 100}ms`}}>
                     <CategoryCard 
                       category={category}
-                      onClick={() => handleCategoryClick(category.name)}
                     />
                   </div>
                 ))}

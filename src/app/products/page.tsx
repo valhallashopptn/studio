@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AppHeader } from '@/components/app-header';
 import { ProductCard } from '@/components/product-card';
 import { products } from '@/lib/data';
@@ -14,12 +15,17 @@ import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { AppFooter } from '@/components/app-footer';
 import { useTranslation } from '@/hooks/use-translation';
+import { Loader2 } from 'lucide-react';
 
-export default function ProductsPage() {
+function ProductsPageContents() {
   const addItemToCart = useCart((state) => state.addItem);
   const { toast } = useToast();
   const { categories } = useCategories();
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const searchParams = useSearchParams();
+  const categoryFromUrl = searchParams.get('category');
+  
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isMounted, setIsMounted] = useState(false);
   const { t } = useTranslation();
@@ -28,7 +34,12 @@ export default function ProductsPage() {
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    if (categoryFromUrl && categoriesForFilter.includes(categoryFromUrl)) {
+      setSelectedCategory(categoryFromUrl);
+    } else {
+      setSelectedCategory('All');
+    }
+  }, [categoryFromUrl, categoriesForFilter]);
 
   const handleAddToCart = (product: Product) => {
     addItemToCart(product);
@@ -107,4 +118,17 @@ export default function ProductsPage() {
       <AppFooter />
     </div>
   );
+}
+
+
+export default function ProductsPage() {
+    return (
+        <Suspense fallback={
+          <div className="flex h-screen w-full items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        }>
+            <ProductsPageContents />
+        </Suspense>
+    )
 }
