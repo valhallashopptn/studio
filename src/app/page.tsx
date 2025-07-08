@@ -20,6 +20,7 @@ import { useSiteSettings } from '@/hooks/use-site-settings';
 import { Reviews } from '@/components/reviews';
 import { useTranslation } from '@/hooks/use-translation';
 import { StatsSection } from '@/components/stats-section';
+import { Leaderboard } from '@/components/leaderboard';
 
 export default function Home() {
   const addItemToCart = useCart((state) => state.addItem);
@@ -189,6 +190,14 @@ export default function Home() {
         </div>
         
         <StatsSection />
+
+        <section id="leaderboard" className="w-full py-16">
+            <div className="container mx-auto px-4">
+                <div className="max-w-4xl mx-auto">
+                    <Leaderboard />
+                </div>
+            </div>
+        </section>
 
         <Reviews />
 
