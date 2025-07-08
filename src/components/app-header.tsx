@@ -172,7 +172,7 @@ export function AppHeader() {
                   </DropdownMenu>
                 </>
               ) : (
-                  <div className="hidden sm:flex items-center gap-2">
+                  <div className="hidden md:flex items-center gap-2">
                       <Button asChild variant="ghost" size="sm">
                           <Link href="/login">{t('auth.login')}</Link>
                       </Button>
