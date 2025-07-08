@@ -36,6 +36,8 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useState, useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -56,6 +58,11 @@ export default function SettingsPage() {
     const { toast } = useToast();
     const { t } = useTranslation();
     const { formatPrice } = useCurrency();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const rank = user ? getRank(user.totalSpent) : null;
     const nextRank = user ? getNextRank(user.totalSpent) : null;
@@ -159,7 +166,7 @@ export default function SettingsPage() {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right font-mono">
-                                                    {formatPrice(r.threshold)}
+                                                    {isMounted ? formatPrice(r.threshold) : <Skeleton className="h-5 w-20 ml-auto" />}
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -174,19 +181,33 @@ export default function SettingsPage() {
                             <rank.icon className={cn("h-12 w-12", rank.color)} />
                             <div>
                                 <h3 className="text-2xl font-bold">{rank.name}</h3>
-                                <p className="text-muted-foreground">Total Spent: {formatPrice(user?.totalSpent ?? 0)}</p>
+                                {isMounted ? (
+                                    <p className="text-muted-foreground">Total Spent: {formatPrice(user?.totalSpent ?? 0)}</p>
+                                ) : (
+                                    <Skeleton className="h-5 w-32 mt-1" />
+                                )}
                             </div>
                         </div>
                         {nextRank ? (
                             <div className="space-y-2">
                                 <div className="flex justify-between text-sm text-muted-foreground">
                                     <span>Progress to {nextRank.name}</span>
-                                    <span>{formatPrice(user?.totalSpent ?? 0)} / {formatPrice(nextRank.threshold)}</span>
+                                    {isMounted ? (
+                                        <span>{formatPrice(user?.totalSpent ?? 0)} / {formatPrice(nextRank.threshold)}</span>
+                                    ) : (
+                                        <Skeleton className="h-5 w-32" />
+                                    )}
                                 </div>
                                 <Progress value={progressPercentage} className="w-full" />
-                                <p className="text-sm text-center text-muted-foreground pt-1">
-                                    Spend <span className="font-bold text-primary">{formatPrice(amountToNextRank)}</span> more to reach the next rank.
-                                </p>
+                                <div className="text-sm text-center text-muted-foreground pt-1 h-5">
+                                    {isMounted ? (
+                                        <p>
+                                            Spend <span className="font-bold text-primary">{formatPrice(amountToNextRank)}</span> more to reach the next rank.
+                                        </p>
+                                    ) : (
+                                        <Skeleton className="h-5 w-48 mx-auto" />
+                                    )}
+                                </div>
                             </div>
                         ) : (
                             <div className="text-center font-semibold text-primary p-2 bg-secondary rounded-md">You have reached the rank of Monarch! There is no one stronger.</div>
