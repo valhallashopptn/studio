@@ -4,17 +4,23 @@
 import { users } from "@/lib/data";
 import { getRank } from "@/lib/ranks";
 import { useCurrency } from "@/hooks/use-currency";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/use-translation";
+import { Skeleton } from "./ui/skeleton";
 
 export function Leaderboard() {
     const { formatPrice } = useCurrency();
     const { t } = useTranslation();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const topUsers = useMemo(() => {
         return users
@@ -62,7 +68,9 @@ export function Leaderboard() {
                                             <span>{rank.name}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-right font-mono text-sm">{formatPrice(user.totalSpent)}</TableCell>
+                                    <TableCell className="text-right font-mono text-sm">
+                                        {isMounted ? formatPrice(user.totalSpent) : <Skeleton className="h-5 w-20 ml-auto" />}
+                                    </TableCell>
                                 </TableRow>
                             )
                         })}
