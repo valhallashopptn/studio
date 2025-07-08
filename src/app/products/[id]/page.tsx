@@ -7,14 +7,14 @@ import Image from 'next/image';
 
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
-import { Recommendations } from '@/components/recommendations';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { ShoppingCart, Star, Minus, Plus, Truck, PackageCheck } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ShoppingCart, Star, Minus, Plus, Truck, PackageCheck, Info } from 'lucide-react';
 
 import { products } from '@/lib/data';
 import type { Product } from '@/lib/types';
@@ -182,8 +182,23 @@ export default function ProductDetailPage() {
           </div>
 
           <Separator className="my-16" />
-
-          <Recommendations />
+          
+          <div className="w-full max-w-3xl mx-auto">
+            <div className="flex items-center gap-3 mb-8">
+                <Info className="w-8 h-8 text-accent"/>
+                <h2 className="text-2xl font-bold font-headline">Product Details & Information</h2>
+            </div>
+            <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
+                {product.details.map((detail, index) => (
+                    <AccordionItem key={index} value={`item-${index}`}>
+                        <AccordionTrigger className="text-lg">{detail.title}</AccordionTrigger>
+                        <AccordionContent className="text-base text-muted-foreground whitespace-pre-wrap">
+                            {detail.content}
+                        </AccordionContent>
+                    </AccordionItem>
+                ))}
+            </Accordion>
+          </div>
 
         </div>
       </main>

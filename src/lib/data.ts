@@ -33,6 +33,11 @@ export let products: Product[] = [
     image: 'https://placehold.co/600x400.png',
     aiHint: 'mobile game',
     category: 'Game',
+    details: [
+        { title: 'How It Works', content: 'You will be asked to provide your Mobile Legends User ID and Zone ID during checkout. The diamonds will be credited directly to your account.' },
+        { title: 'Delivery Time', content: 'Typically delivered within 5-15 minutes after payment confirmation.' },
+        { title: 'Important Notes', content: 'Please double-check your User ID and Zone ID. We are not responsible for top-ups to incorrect accounts.' }
+    ]
   },
   {
     id: 'prod_002',
@@ -42,6 +47,11 @@ export let products: Product[] = [
     image: 'https://placehold.co/600x400.png',
     aiHint: 'pc gaming',
     category: 'Game',
+    details: [
+        { title: 'Redemption Instructions', content: '1. Log in to your Steam account.\n2. Go to "Redeem a Steam Wallet Code".\n3. Enter the code provided after purchase.\n4. The funds will be added to your account instantly.' },
+        { title: 'Region', content: 'This is a global code and can be redeemed on any Steam account.' },
+        { title: 'Terms & Conditions', content: 'Steam Wallet funds are non-refundable and cannot be withdrawn.' }
+    ]
   },
   {
     id: 'prod_003',
@@ -51,6 +61,11 @@ export let products: Product[] = [
     image: 'https://placehold.co/600x400.png',
     aiHint: 'streaming service',
     category: 'Digital',
+    details: [
+        { title: 'Activation Process', content: 'During checkout, provide the email address of the Netflix account you wish to upgrade. We will process the subscription for that account.' },
+        { title: 'What You Get', content: '1 Month of Netflix Premium plan, including 4K streaming and up to 4 simultaneous screens.' },
+        { title: 'Please Note', content: 'This is a manual service. Activation may take up to 24 hours after payment is confirmed.' }
+    ]
   },
   {
     id: 'prod_004',
@@ -60,6 +75,11 @@ export let products: Product[] = [
     image: 'https://placehold.co/600x400.png',
     aiHint: 'music streaming',
     category: 'Digital',
+    details: [
+        { title: 'Activation Process', content: 'You will receive a unique link via email to activate your 1-month Premium subscription. This will be sent to the email address used for purchase.' },
+        { title: 'Eligibility', content: 'This offer is valid for both new and existing Spotify users who are not currently on a Premium plan.' },
+        { title: 'Delivery Time', content: 'Activation links are typically sent within 1-2 hours of purchase.' }
+    ]
   },
   {
     id: 'prod_005',
@@ -69,6 +89,11 @@ export let products: Product[] = [
     image: 'https://placehold.co/600x400.png',
     aiHint: 'mobile game',
     category: 'Game',
+    details: [
+        { title: 'Required Information', content: 'During checkout, you will need to provide your Genshin Impact UID and Server (e.g., America, Europe, Asia).' },
+        { title: 'Delivery Method', content: 'Genesis Crystals are topped up directly to your game account by our team.' },
+        { title: 'Security', content: 'We never ask for your password. Your UID and Server are sufficient for the top-up.' }
+    ]
   },
   {
     id: 'prod_006',
@@ -78,6 +103,11 @@ export let products: Product[] = [
     image: 'https://placehold.co/600x400.png',
     aiHint: 'console gaming',
     category: 'Game',
+    details: [
+        { title: 'Redemption Instructions', content: '1. Go to the PlayStation Store on your console.\n2. Select "Redeem Codes" from the menu.\n3. Enter the 12-digit code and the funds will be added to your wallet.' },
+        { title: 'Account Region', content: 'This code is valid for US region PlayStation accounts only.' },
+        { title: 'Instant Delivery', content: 'Your code will be displayed on the order confirmation page and sent to your email instantly after purchase.' }
+    ]
   },
   {
     id: 'prod_007',
@@ -87,6 +117,11 @@ export let products: Product[] = [
     image: 'https://placehold.co/600x400.png',
     aiHint: 'gift card',
     category: 'Digital',
+    details: [
+        { title: 'How to Redeem', content: 'Go to your Amazon account, click "Gift Cards," and then "Redeem a Gift Card." Enter the code provided.' },
+        { title: 'Where to Use', content: 'Valid for purchases on Amazon.com (US Store).' },
+        { title: 'Delivery', content: 'The gift card code will be delivered to your purchase email address within one hour.' }
+    ]
   },
   {
     id: 'prod_008',
@@ -96,6 +131,11 @@ export let products: Product[] = [
     image: 'https://placehold.co/600x400.png',
     aiHint: 'pc gaming',
     category: 'Game',
+    details: [
+        { title: 'Delivery Process', content: 'This is an instant delivery product. You will receive a digital code after completing your purchase.' },
+        { title: 'How to Use', content: '1. Open the Valorant game client.\n2. Go to the in-game store and click "Purchase VP".\n3. Select the "Prepaid Cards & Codes" option.\n4. Enter your code to redeem the points.' },
+        { title: 'Account Region', content: 'Please ensure your Valorant account region matches the region specified for the card.' }
+    ]
   },
 ];
 

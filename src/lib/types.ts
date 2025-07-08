@@ -8,6 +8,7 @@ export interface Product {
   image: string;
   category: string;
   aiHint: string;
+  details: { title: string; content: string }[];
 }
 
 export interface CartItem extends Product {
