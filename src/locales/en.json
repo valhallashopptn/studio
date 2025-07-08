@@ -240,6 +240,7 @@
     "inStock": "In Stock",
     "available": "available",
     "reviewsTab": "Reviews ({{count}})",
-    "noReviewsForProduct": "No reviews for this product yet."
+    "noReviewsForProduct": "No reviews for this product yet.",
+    "buyNow": "Buy Now"
   }
 }

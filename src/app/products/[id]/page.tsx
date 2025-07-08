@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from 'react';
-import { useParams, notFound } from 'next/navigation';
+import { useParams, notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import { AppHeader } from '@/components/app-header';
@@ -14,7 +14,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ShoppingCart, Star, Minus, Plus, Truck, PackageCheck } from 'lucide-react';
+import { ShoppingCart, Star, Minus, Plus, Truck, PackageCheck, Zap } from 'lucide-react';
 
 import { products } from '@/lib/data';
 import type { Product } from '@/lib/types';
@@ -28,6 +28,7 @@ import { useStock } from '@/hooks/use-stock';
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const { id } = params;
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,6 +78,12 @@ export default function ProductDetailPage() {
       title: t('cart.addItemToastTitle'),
       description: `${quantity} x ${product.name} has been added to your order.`,
     });
+  };
+
+  const handleBuyNow = () => {
+    if (!product) return;
+    addItemToCart(product, quantity);
+    router.push('/checkout');
   };
 
   if (isLoading) {
@@ -172,10 +179,16 @@ export default function ProductDetailPage() {
                     <Input type="number" value={quantity} readOnly className="h-12 w-16 text-center text-lg font-bold" />
                     <Button variant="outline" size="icon" className="h-12 w-12" onClick={() => setQuantity(q => q + 1)}><Plus className="h-4 w-4" /></Button>
                   </div>
-                  <Button size="lg" className="flex-1 h-12" onClick={handleAddToCart}>
-                    <ShoppingCart className="mr-2 h-5 w-5" />
-                    {t('productCard.addToOrder')}
-                  </Button>
+                  <div className="flex items-center gap-2 flex-1">
+                    <Button size="lg" className="flex-1 h-12" onClick={handleAddToCart}>
+                      <ShoppingCart className="mr-2 h-5 w-5" />
+                      {t('productCard.addToOrder')}
+                    </Button>
+                    <Button variant="secondary" size="lg" className="flex-1 h-12" onClick={handleBuyNow}>
+                      <Zap className="mr-2 h-5 w-5" />
+                      {t('productPage.buyNow')}
+                    </Button>
+                  </div>
               </div>
 
             </div>

@@ -240,6 +240,7 @@
     "inStock": "متوفر",
     "available": "متاح",
     "reviewsTab": "التقييمات ({{count}})",
-    "noReviewsForProduct": "لا توجد تقييمات لهذا المنتج بعد."
+    "noReviewsForProduct": "لا توجد تقييمات لهذا المنتج بعد.",
+    "buyNow": "اشترِ الآن"
   }
 }
