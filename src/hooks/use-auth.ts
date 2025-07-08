@@ -18,6 +18,7 @@ type AuthState = {
 const users: User[] = [
     { id: '1', name: 'Admin User', email: 'admin@topuphub.com', password: 'admin', isAdmin: true },
     { id: '2', name: 'Test User', email: 'user@topuphub.com', password: 'user', isAdmin: false },
+    { id: '3', name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password123', isAdmin: false },
 ];
 
 export const useAuth = create(
