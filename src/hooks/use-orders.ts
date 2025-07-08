@@ -11,7 +11,7 @@ import { useAuth } from './use-auth';
 type OrdersState = {
     orders: Order[];
     addOrder: (order: Omit<Order, 'createdAt'>) => void;
-    updateOrderStatus: (orderId: string, status: OrderStatus) => void;
+    updateOrderStatus: (orderId: string, status: OrderStatus, reason?: string) => void;
 };
 
 export const useOrders = create(
@@ -25,7 +25,7 @@ export const useOrders = create(
                 };
                 set((state) => ({ orders: [newOrder, ...state.orders] }));
             },
-            updateOrderStatus: (orderId, status) => {
+            updateOrderStatus: (orderId, status, reason) => {
                 set((state) => {
                     const orderIndex = state.orders.findIndex((o) => o.id === orderId);
                     if (orderIndex === -1) return state;
@@ -37,10 +37,12 @@ export const useOrders = create(
                     if (orderToUpdate.status === status) return state;
 
                     // Process refund logic
-                    if (status === 'refunded') {
+                    if (status === 'refunded' && orderToUpdate.status !== 'refunded') {
                         if (orderToUpdate.paymentMethod.id === 'store_wallet') {
                             useAuth.getState().updateWalletBalance(orderToUpdate.customer.id, orderToUpdate.total);
                         }
+                        orderToUpdate.refundReason = reason;
+                        orderToUpdate.refundedAt = new Date().toISOString();
                         // Note: stock is not returned on refund in this implementation
                     }
 

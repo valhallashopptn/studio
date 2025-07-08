@@ -80,4 +80,6 @@ export interface Order {
   status: OrderStatus;
   createdAt: string;
   deliveredItems?: { [productId: string]: string[] };
+  refundReason?: string;
+  refundedAt?: string;
 }

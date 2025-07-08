@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { useOrders } from '@/hooks/use-orders';
 import type { Order, OrderStatus, CartItem, Product } from '@/lib/types';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -29,12 +29,25 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { useCurrency } from '@/hooks/use-currency';
 import { categories as initialCategories, products as initialProducts } from '@/lib/data';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const statusConfig: { [key in OrderStatus]: { variant: 'default' | 'secondary' | 'destructive', icon: React.ElementType, label: string } } = {
   pending: { variant: 'secondary', icon: RefreshCw, label: 'Pending' },
@@ -100,7 +113,21 @@ const DeliveredItemsDisplay = ({ order, item }: { order: Order, item: CartItem }
 export default function AdminOrdersPage() {
   const { orders, updateOrderStatus } = useOrders();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+  const [refundingOrder, setRefundingOrder] = useState<Order | null>(null);
+  const [refundReason, setRefundReason] = useState('');
   const { formatPrice } = useCurrency();
+  const { toast } = useToast();
+
+  const handleRefundSubmit = () => {
+    if (!refundingOrder) return;
+    updateOrderStatus(refundingOrder.id, 'refunded', refundReason);
+    toast({
+        title: 'Order Refunded',
+        description: `Order ${refundingOrder.id} has been successfully refunded.`,
+    });
+    setRefundingOrder(null);
+    setRefundReason('');
+  };
 
   return (
     <div className="space-y-8">
@@ -108,6 +135,30 @@ export default function AdminOrdersPage() {
         <h1 className="text-3xl font-bold">Orders</h1>
         <p className="text-muted-foreground">View and manage customer orders.</p>
       </div>
+
+       <AlertDialog open={!!refundingOrder} onOpenChange={(isOpen) => !isOpen && setRefundingOrder(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to refund this order?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This will mark the order as refunded and process wallet refunds where applicable. This action cannot be undone.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-2 space-y-2">
+                <Label htmlFor="refund-reason">Reason for Refund (Optional)</Label>
+                <Textarea 
+                    id="refund-reason"
+                    placeholder="e.g., Customer request, out of stock, etc."
+                    value={refundReason}
+                    onChange={(e) => setRefundReason(e.target.value)}
+                />
+            </div>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setRefundingOrder(null)}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleRefundSubmit} className={cn(buttonVariants({ variant: "destructive" }))}>Confirm Refund</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={!!viewingOrder} onOpenChange={(isOpen) => !isOpen && setViewingOrder(null)}>
         <DialogContent className="sm:max-w-2xl">
@@ -176,6 +227,23 @@ export default function AdminOrdersPage() {
                                     </div>
                                 </div>
                             )}
+                            {viewingOrder.status === 'refunded' && viewingOrder.refundedAt && (
+                                <div className="mt-4 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-sm">
+                                    <h4 className="font-semibold text-destructive mb-2">Refund Details</h4>
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between">
+                                            <span className="text-muted-foreground">Refunded On:</span>
+                                            <span>{format(new Date(viewingOrder.refundedAt), 'PPp')}</span>
+                                        </div>
+                                        {viewingOrder.refundReason && (
+                                            <div className="flex justify-between items-start text-left">
+                                                <span className="text-muted-foreground shrink-0">Reason:</span>
+                                                <p className="text-right ml-4">{viewingOrder.refundReason}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </ScrollArea>
@@ -238,12 +306,24 @@ export default function AdminOrdersPage() {
                             </DropdownMenuSubTrigger>
                             <DropdownMenuPortal>
                                 <DropdownMenuSubContent>
-                                    {Object.entries(statusConfig).map(([statusKey, config]) => (
-                                        <DropdownMenuItem key={statusKey} onClick={() => updateOrderStatus(order.id, statusKey as OrderStatus)}>
-                                            <config.icon className="mr-2 h-4 w-4" />
-                                            {config.label}
-                                        </DropdownMenuItem>
-                                    ))}
+                                    <DropdownMenuItem onClick={() => updateOrderStatus(order.id, 'pending')}>
+                                        <RefreshCw className="mr-2 h-4 w-4" />
+                                        Pending
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => updateOrderStatus(order.id, 'completed')}>
+                                        <CheckCircle className="mr-2 h-4 w-4" />
+                                        Completed
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem 
+                                        className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                        onClick={() => {
+                                            setRefundReason('');
+                                            setRefundingOrder(order);
+                                        }}
+                                    >
+                                        <XCircle className="mr-2 h-4 w-4" />
+                                        Refunded
+                                    </DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuPortal>
                           </DropdownMenuSub>
