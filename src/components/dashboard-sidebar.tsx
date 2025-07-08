@@ -21,8 +21,8 @@ export function DashboardSidebar() {
 
 
   const navLinks = [
+    { href: '/dashboard/settings', label: t('dashboardSidebar.profile'), icon: UserCog },
     { href: '/dashboard/orders', label: t('dashboardSidebar.myOrders'), icon: ClipboardList },
-    { href: '/dashboard/settings', label: t('dashboardSidebar.settings'), icon: UserCog },
   ];
 
   return (

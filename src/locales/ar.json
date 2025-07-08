@@ -210,13 +210,13 @@
   },
   "dashboardSidebar": {
     "myOrders": "طلباتي",
-    "settings": "الإعدادات",
+    "profile": "الملف الشخصي",
     "customer": "عميل",
     "walletBalance": "رصيد المحفظة",
     "availableToSpend": "متاح للإنفاق"
   },
   "dashboardSettings": {
-    "title": "الإعدادات",
+    "title": "الملف الشخصي",
     "subtitle": "إدارة إعدادات حسابك وتفضيلاتك.",
     "profilePicture": "صورة الملف الشخصي",
     "profilePictureDesc": "تحديث الصورة الرمزية الخاصة بك.",

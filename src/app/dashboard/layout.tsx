@@ -10,8 +10,8 @@ import { AppHeader } from '@/components/app-header';
 import { MobileNav, type NavLink } from '@/components/mobile-nav';
 
 const dashboardNavLinks: NavLink[] = [
+  { href: '/dashboard/settings', label: 'Profile', icon: UserCog },
   { href: '/dashboard/orders', label: 'My Orders', icon: ClipboardList },
-  { href: '/dashboard/settings', label: 'Settings', icon: UserCog },
 ];
 
 
@@ -20,7 +20,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, user, isAdmin } = useAuth();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -32,17 +32,17 @@ export default function DashboardLayout({
     // Wait until the component has mounted to check auth state.
     // By this time, Zustand's store will be rehydrated from localStorage.
     if (isMounted) {
-      if (!isAuthenticated) {
+      if (!isAuthenticated || !user) {
         router.push('/login');
       } else if(isAdmin) {
         router.push('/admin');
       }
     }
-  }, [isMounted, isAuthenticated, isAdmin, router]);
+  }, [isMounted, isAuthenticated, user, isAdmin, router]);
 
   // While not mounted, or if the user is not a regular customer, show a loader.
   // This prevents a flash of content before the logic in useEffect can redirect.
-  if (!isMounted || !isAuthenticated || isAdmin) {
+  if (!isMounted || !isAuthenticated || !user || isAdmin) {
     return (
         <div className="flex h-screen w-full items-center justify-center bg-background">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />

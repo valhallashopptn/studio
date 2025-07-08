@@ -210,13 +210,13 @@
   },
   "dashboardSidebar": {
     "myOrders": "My Orders",
-    "settings": "Settings",
+    "profile": "Profile",
     "customer": "Customer",
     "walletBalance": "Wallet Balance",
     "availableToSpend": "Available to spend"
   },
   "dashboardSettings": {
-    "title": "Settings",
+    "title": "Profile",
     "subtitle": "Manage your account settings and preferences.",
     "profilePicture": "Profile Picture",
     "profilePictureDesc": "Update your avatar.",
