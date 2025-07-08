@@ -60,6 +60,11 @@ export default function AdminAppearancePage() {
     discordUrl, setDiscordUrl,
     tiktokUrl, setTiktokUrl,
     telegramUrl, setTelegramUrl,
+    facebookIconUrl, setFacebookIconUrl,
+    instagramIconUrl, setInstagramIconUrl,
+    discordIconUrl, setDiscordIconUrl,
+    tiktokIconUrl, setTiktokIconUrl,
+    telegramIconUrl, setTelegramIconUrl,
   } = useContentSettings();
 
 
@@ -68,7 +73,6 @@ export default function AdminAppearancePage() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        // The result will be a Data URL string
         if (typeof reader.result === 'string') {
           setHeroImageUrl(reader.result);
         }
@@ -84,6 +88,22 @@ export default function AdminAppearancePage() {
       reader.onloadend = () => {
         if (typeof reader.result === 'string') {
           setLogoUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSocialIconChange = (
+    setter: (url: string) => void,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          setter(reader.result);
         }
       };
       reader.readAsDataURL(file);
@@ -348,43 +368,78 @@ export default function AdminAppearancePage() {
 
       <Card>
         <CardHeader>
-            <CardTitle>Social Media Links</CardTitle>
-            <CardDescription>Manage the links that appear in your site's footer. Leave a field blank to hide the icon.</CardDescription>
+            <CardTitle>Social Media Links &amp; Icons</CardTitle>
+            <CardDescription>Manage the links and icons that appear in your site's footer. Leave a URL blank to hide an icon.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-                <Facebook className="h-5 w-5 text-muted-foreground" />
-                <div className="flex-grow">
-                    <Label htmlFor="facebook-url" className="sr-only">Facebook URL</Label>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4 p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                    {facebookIconUrl ? <Image src={facebookIconUrl} alt="Facebook" width={24} height={24} unoptimized/> : <Facebook className="h-6 w-6 text-muted-foreground" />}
+                    <h4 className="font-semibold">Facebook</h4>
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="facebook-url" className="text-xs">URL</Label>
                     <Input id="facebook-url" value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} placeholder="https://facebook.com/yourpage" />
                 </div>
+                <div className="space-y-1">
+                    <Label htmlFor="facebook-icon-upload" className="text-xs">Custom Icon</Label>
+                    <Input id="facebook-icon-upload" type="file" accept="image/*" onChange={(e) => handleSocialIconChange(setFacebookIconUrl, e)} className="file:text-primary file:font-semibold" />
+                </div>
             </div>
-            <div className="flex items-center gap-4">
-                <Instagram className="h-5 w-5 text-muted-foreground" />
-                <div className="flex-grow">
-                    <Label htmlFor="instagram-url" className="sr-only">Instagram URL</Label>
+            <div className="space-y-4 p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                    {instagramIconUrl ? <Image src={instagramIconUrl} alt="Instagram" width={24} height={24} unoptimized/> : <Instagram className="h-6 w-6 text-muted-foreground" />}
+                    <h4 className="font-semibold">Instagram</h4>
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="instagram-url" className="text-xs">URL</Label>
                     <Input id="instagram-url" value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://instagram.com/yourprofile" />
                 </div>
+                <div className="space-y-1">
+                    <Label htmlFor="instagram-icon-upload" className="text-xs">Custom Icon</Label>
+                    <Input id="instagram-icon-upload" type="file" accept="image/*" onChange={(e) => handleSocialIconChange(setInstagramIconUrl, e)} className="file:text-primary file:font-semibold" />
+                </div>
             </div>
-            <div className="flex items-center gap-4">
-                <DiscordIcon className="h-5 w-5 text-muted-foreground fill-current" />
-                <div className="flex-grow">
-                    <Label htmlFor="discord-url" className="sr-only">Discord URL</Label>
+            <div className="space-y-4 p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                    {discordIconUrl ? <Image src={discordIconUrl} alt="Discord" width={24} height={24} unoptimized/> : <DiscordIcon className="h-6 w-6 text-muted-foreground fill-current" />}
+                    <h4 className="font-semibold">Discord</h4>
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="discord-url" className="text-xs">URL</Label>
                     <Input id="discord-url" value={discordUrl} onChange={(e) => setDiscordUrl(e.target.value)} placeholder="https://discord.gg/yourserver" />
                 </div>
-            </div>
-            <div className="flex items-center gap-4">
-                <TiktokIcon className="h-5 w-5 text-muted-foreground fill-current" />
-                <div className="flex-grow">
-                    <Label htmlFor="tiktok-url" className="sr-only">TikTok URL</Label>
-                    <Input id="tiktok-url" value={tiktokUrl} onChange={(e) => setTiktokUrl(e.target.value)} placeholder="https://tiktok.com/@yourusername" />
+                <div className="space-y-1">
+                    <Label htmlFor="discord-icon-upload" className="text-xs">Custom Icon</Label>
+                    <Input id="discord-icon-upload" type="file" accept="image/*" onChange={(e) => handleSocialIconChange(setDiscordIconUrl, e)} className="file:text-primary file:font-semibold" />
                 </div>
             </div>
-            <div className="flex items-center gap-4">
-                <Send className="h-5 w-5 text-muted-foreground" />
-                <div className="flex-grow">
-                    <Label htmlFor="telegram-url" className="sr-only">Telegram URL</Label>
+            <div className="space-y-4 p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                    {tiktokIconUrl ? <Image src={tiktokIconUrl} alt="TikTok" width={24} height={24} unoptimized/> : <TiktokIcon className="h-6 w-6 text-muted-foreground fill-current" />}
+                    <h4 className="font-semibold">TikTok</h4>
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="tiktok-url" className="text-xs">URL</Label>
+                    <Input id="tiktok-url" value={tiktokUrl} onChange={(e) => setTiktokUrl(e.target.value)} placeholder="https://tiktok.com/@yourusername" />
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="tiktok-icon-upload" className="text-xs">Custom Icon</Label>
+                    <Input id="tiktok-icon-upload" type="file" accept="image/*" onChange={(e) => handleSocialIconChange(setTiktokIconUrl, e)} className="file:text-primary file:font-semibold" />
+                </div>
+            </div>
+            <div className="space-y-4 p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                    {telegramIconUrl ? <Image src={telegramIconUrl} alt="Telegram" width={24} height={24} unoptimized/> : <Send className="h-6 w-6 text-muted-foreground" />}
+                    <h4 className="font-semibold">Telegram</h4>
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="telegram-url" className="text-xs">URL</Label>
                     <Input id="telegram-url" value={telegramUrl} onChange={(e) => setTelegramUrl(e.target.value)} placeholder="https://t.me/yourchannel" />
+                </div>
+                <div className="space-y-1">
+                    <Label htmlFor="telegram-icon-upload" className="text-xs">Custom Icon</Label>
+                    <Input id="telegram-icon-upload" type="file" accept="image/*" onChange={(e) => handleSocialIconChange(setTelegramIconUrl, e)} className="file:text-primary file:font-semibold" />
                 </div>
             </div>
         </CardContent>

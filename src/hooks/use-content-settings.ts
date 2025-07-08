@@ -1,3 +1,4 @@
+
 'use client';
 
 import { create } from 'zustand';
@@ -53,6 +54,18 @@ type ContentSettingsState = {
   setTiktokUrl: (url: string) => void;
   telegramUrl: string;
   setTelegramUrl: (url: string) => void;
+
+  // Social Media Icons
+  facebookIconUrl: string;
+  setFacebookIconUrl: (url: string) => void;
+  instagramIconUrl: string;
+  setInstagramIconUrl: (url: string) => void;
+  discordIconUrl: string;
+  setDiscordIconUrl: (url: string) => void;
+  tiktokIconUrl: string;
+  setTiktokIconUrl: (url: string) => void;
+  telegramIconUrl: string;
+  setTelegramIconUrl: (url: string) => void;
 };
 
 const defaultAboutSubtitle = "We are dedicated to providing a seamless and secure platform for all your digital top-up needs.";
@@ -128,6 +141,18 @@ export const useContentSettings = create(
       setTiktokUrl: (url) => set({ tiktokUrl: url }),
       telegramUrl: defaultTelegramUrl,
       setTelegramUrl: (url) => set({ telegramUrl: url }),
+
+      // Social Media Icons
+      facebookIconUrl: '',
+      setFacebookIconUrl: (url) => set({ facebookIconUrl: url }),
+      instagramIconUrl: '',
+      setInstagramIconUrl: (url) => set({ instagramIconUrl: url }),
+      discordIconUrl: '',
+      setDiscordIconUrl: (url) => set({ discordIconUrl: url }),
+      tiktokIconUrl: '',
+      setTiktokIconUrl: (url) => set({ tiktokIconUrl: url }),
+      telegramIconUrl: '',
+      setTelegramIconUrl: (url) => set({ telegramIconUrl: url }),
     }),
     {
       name: 'topup-hub-content-settings',

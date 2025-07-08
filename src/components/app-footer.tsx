@@ -37,11 +37,8 @@ export function AppFooter() {
   const { siteTitle, logoUrl } = useSiteSettings();
   const { 
     aboutSubtitle,
-    facebookUrl,
-    instagramUrl,
-    discordUrl,
-    tiktokUrl,
-    telegramUrl
+    facebookUrl, instagramUrl, discordUrl, tiktokUrl, telegramUrl,
+    facebookIconUrl, instagramIconUrl, discordIconUrl, tiktokIconUrl, telegramIconUrl
   } = useContentSettings();
 
   useEffect(() => {
@@ -79,11 +76,31 @@ export function AppFooter() {
           <div>
             <h3 className="font-semibold mb-4 text-foreground">{t('footer.followUs')}</h3>
             <div className="flex gap-4">
-                {facebookUrl && <a href={facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-muted-foreground hover:text-primary transition-colors"><Facebook className="h-6 w-6" /></a>}
-                {instagramUrl && <a href={instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-muted-foreground hover:text-primary transition-colors"><Instagram className="h-6 w-6" /></a>}
-                {discordUrl && <a href={discordUrl} target="_blank" rel="noopener noreferrer" aria-label="Discord" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-6 w-6 fill-current" /></a>}
-                {tiktokUrl && <a href={tiktokUrl} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-muted-foreground hover:text-primary transition-colors"><TiktokIcon className="h-6 w-6 fill-current" /></a>}
-                {telegramUrl && <a href={telegramUrl} target="_blank" rel="noopener noreferrer" aria-label="Telegram" className="text-muted-foreground hover:text-primary transition-colors"><Send className="h-6 w-6" /></a>}
+                {facebookUrl && (
+                    <a href={facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-muted-foreground hover:text-primary transition-colors">
+                        {facebookIconUrl ? <Image src={facebookIconUrl} alt="Facebook Icon" width={24} height={24} className="h-6 w-6" unoptimized /> : <Facebook className="h-6 w-6" />}
+                    </a>
+                )}
+                {instagramUrl && (
+                    <a href={instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-muted-foreground hover:text-primary transition-colors">
+                        {instagramIconUrl ? <Image src={instagramIconUrl} alt="Instagram Icon" width={24} height={24} className="h-6 w-6" unoptimized /> : <Instagram className="h-6 w-6" />}
+                    </a>
+                )}
+                {discordUrl && (
+                    <a href={discordUrl} target="_blank" rel="noopener noreferrer" aria-label="Discord" className="text-muted-foreground hover:text-primary transition-colors">
+                        {discordIconUrl ? <Image src={discordIconUrl} alt="Discord Icon" width={24} height={24} className="h-6 w-6" unoptimized /> : <DiscordIcon className="h-6 w-6 fill-current" />}
+                    </a>
+                )}
+                {tiktokUrl && (
+                    <a href={tiktokUrl} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-muted-foreground hover:text-primary transition-colors">
+                        {tiktokIconUrl ? <Image src={tiktokIconUrl} alt="TikTok Icon" width={24} height={24} className="h-6 w-6" unoptimized /> : <TiktokIcon className="h-6 w-6 fill-current" />}
+                    </a>
+                )}
+                {telegramUrl && (
+                    <a href={telegramUrl} target="_blank" rel="noopener noreferrer" aria-label="Telegram" className="text-muted-foreground hover:text-primary transition-colors">
+                        {telegramIconUrl ? <Image src={telegramIconUrl} alt="Telegram Icon" width={24} height={24} className="h-6 w-6" unoptimized /> : <Send className="h-6 w-6" />}
+                    </a>
+                )}
             </div>
           </div>
         </div>
