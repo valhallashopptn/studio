@@ -112,10 +112,7 @@ export function AppHeader() {
           </div>
         )}
         <header className="relative w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className={cn(
-            "container flex h-16 items-center justify-between",
-            locale === 'ar' && "flex-row-reverse"
-            )}>
+          <div className="container flex h-16 items-center justify-between">
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2">
                 {logoUrl ? (
@@ -245,11 +242,8 @@ export function AppHeader() {
                 ? "translate-x-0"
                 : locale === 'ar' ? "translate-x-full" : "-translate-x-full"
         )}>
-            <div className={cn(
-                "flex items-center justify-between mb-8",
-                locale === 'ar' && "flex-row-reverse"
-            )}>
-                <Link href="/" className={cn("flex items-center gap-2", locale === 'ar' && "flex-row-reverse")} onClick={() => setMobileMenuOpen(false)}>
+            <div className="flex items-center justify-between mb-8">
+                <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
                     {logoUrl ? (
                         <Image src={logoUrl} alt="Logo" width={32} height={32} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
                     ) : (
