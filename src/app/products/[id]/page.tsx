@@ -13,7 +13,6 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ShoppingCart, Star, Minus, Plus, Truck, PackageCheck, Info } from 'lucide-react';
 
 import { products } from '@/lib/data';
@@ -188,16 +187,14 @@ export default function ProductDetailPage() {
                 <Info className="w-8 h-8 text-accent"/>
                 <h2 className="text-2xl font-bold font-headline">Product Details & Information</h2>
             </div>
-            <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
+            <div className="space-y-8">
                 {product.details.map((detail, index) => (
-                    <AccordionItem key={index} value={`item-${index}`}>
-                        <AccordionTrigger className="text-lg">{detail.title}</AccordionTrigger>
-                        <AccordionContent className="text-base text-muted-foreground whitespace-pre-wrap">
-                            {detail.content}
-                        </AccordionContent>
-                    </AccordionItem>
+                    <div key={index}>
+                        <h3 className="text-xl font-semibold mb-2">{detail.title}</h3>
+                        <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{detail.content}</p>
+                    </div>
                 ))}
-            </Accordion>
+            </div>
           </div>
 
         </div>
