@@ -52,11 +52,11 @@ export default function DashboardLayout({
 
   // If mounted and this is an authenticated, non-admin user, show the content.
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex h-screen flex-col">
         <AppHeader />
-        <div className="flex flex-1">
+        <div className="flex flex-1 overflow-hidden">
             <DashboardSidebar />
-            <main className="flex-1 p-2 md:p-8 bg-secondary/50 pb-24 md:pb-8">
+            <main className="flex-1 overflow-auto p-2 md:p-8 bg-secondary/50 pb-24 md:pb-8">
                 {children}
             </main>
         </div>
