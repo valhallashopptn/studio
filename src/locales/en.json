@@ -276,5 +276,9 @@
     "fullSubtitle": "See who's at the top of the hunter ranks.",
     "fullCardTitle": "Full Rankings",
     "fullCardDescription": "The complete list of all hunters, ranked by their total XP."
+  },
+  "mobileHeader": {
+    "wallet": "Wallet",
+    "coins": "Coins"
   }
 }

@@ -341,15 +341,35 @@ export function AppHeader() {
                     <LanguageSwitcher />
                  </div>
                  {isAuthenticated ? (
-                    <div className="space-y-3">
-                       <Button asChild className="w-full" variant="secondary" onClick={() => setMobileMenuOpen(false)}>
-                           <Link href={isAdmin ? '/admin' : '/dashboard/orders'}>
-                             <LayoutDashboard className={cn(locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.dashboard')}
-                           </Link>
-                       </Button>
-                       <Button asChild className="w-full" variant="destructive" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>
-                           <button><LogOut className={cn(locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.logout')}</button>
-                       </Button>
+                    <div className="space-y-4">
+                        {!isAdmin && (
+                            <div className="space-y-3 pt-4 border-t">
+                                <div className="flex items-center justify-between gap-2 p-3 bg-secondary rounded-md border">
+                                    <div className="flex items-center gap-2">
+                                        <Wallet className="h-5 w-5 text-primary"/>
+                                        <span className="font-semibold text-sm">{t('mobileHeader.wallet')}</span>
+                                    </div>
+                                    <span className="font-semibold text-sm whitespace-nowrap">{formatPrice(user?.walletBalance ?? 0)}</span>
+                                </div>
+                                <div className="flex items-center justify-between gap-2 p-3 bg-secondary rounded-md border">
+                                    <div className="flex items-center gap-2">
+                                        <Coins className="h-5 w-5 text-amber-500"/>
+                                        <span className="font-semibold text-sm">{t('mobileHeader.coins')}</span>
+                                    </div>
+                                    <span className="font-semibold text-sm whitespace-nowrap">{formatCoins(user?.valhallaCoins ?? 0)}</span>
+                                </div>
+                            </div>
+                        )}
+                        <div className="space-y-3 pt-4 border-t">
+                            <Button asChild className="w-full" variant="secondary" onClick={() => setMobileMenuOpen(false)}>
+                               <Link href={isAdmin ? '/admin' : '/dashboard/orders'}>
+                                 <LayoutDashboard className={cn(locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.dashboard')}
+                               </Link>
+                           </Button>
+                           <Button asChild className="w-full" variant="destructive" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>
+                               <button><LogOut className={cn(locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.logout')}</button>
+                           </Button>
+                        </div>
                     </div>
                  ) : (
                     <div className="space-y-3">
