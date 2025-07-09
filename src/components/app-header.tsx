@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins, UserCog } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins, Crown } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -347,13 +347,13 @@ export function AppHeader() {
                                 </DropdownMenuItem>
                             ) : (
                                 <>
+                                    <DropdownMenuItem onClick={() => router.push('/leaderboard')}>
+                                        <Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                                        <span>{t('leaderboard.fullTitle')}</span>
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => router.push('/dashboard')}>
                                         <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                                         <span>{t('auth.dashboard')}</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
-                                        <UserCog className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                                        <span>{t('dashboardSidebar.profile')}</span>
                                     </DropdownMenuItem>
                                 </>
                             )}
@@ -397,10 +397,10 @@ export function AppHeader() {
       
       <div 
         className={cn("fixed inset-0 z-[60] md:hidden", !isMobileMenuOpen && "pointer-events-none")}
-        onClick={() => setMobileMenuOpen(false)}
       >
         <div 
             className={cn("absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity", isMobileMenuOpen ? "opacity-100" : "opacity-0")}
+            onClick={() => setMobileMenuOpen(false)}
         />
         <div 
             className={cn(
