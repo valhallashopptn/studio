@@ -271,7 +271,7 @@
     "activeStatus": "Active",
     "cancelledStatus": "Cancelled",
     "expiredStatus": "Expired",
-    "renewsOnLabel": "Renews on",
+    "renewsOnLabel": "Expires on",
     "expiresOnLabel": "Expires on",
     "cancelSubButton": "Cancel Subscription",
     "resubscribePrompt": "Your subscription has ended. Resubscribe to regain your perks.",

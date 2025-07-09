@@ -271,7 +271,7 @@
     "activeStatus": "فعال",
     "cancelledStatus": "ملغى",
     "expiredStatus": "منتهي الصلاحية",
-    "renewsOnLabel": "يتجدد في",
+    "renewsOnLabel": "ينتهي في",
     "expiresOnLabel": "ينتهي في",
     "cancelSubButton": "إلغاء الاشتراك",
     "resubscribePrompt": "لقد انتهى اشتراكك. أعد الاشتراك لاستعادة مزاياك.",
