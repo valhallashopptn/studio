@@ -59,7 +59,7 @@ export default function CheckoutPage() {
     const { paymentMethods } = usePaymentSettings();
     const { categories } = useCategories();
     const { addOrder, updateOrderStatus } = useOrders();
-    const { user, isAuthenticated, updateWalletBalance, updateValhallaCoins, updateTotalSpent } = useAuth();
+    const { user, isAuthenticated, updateWalletBalance, updateTotalSpent } = useAuth();
     const { validateCoupon, applyCoupon } = useCoupons();
 
     const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
@@ -407,9 +407,9 @@ export default function CheckoutPage() {
                         </div>
                         <div className="lg:col-span-1">
                             {isPremiumInCart && (
-                                <Alert variant="destructive" className="mb-8">
-                                    <AlertCircle className="h-4 w-4" />
-                                    <AlertTitle>{t('checkoutPage.premiumNonRefundableTitle')}</AlertTitle>
+                                <Alert variant="destructive" className="mb-8 border-2 bg-destructive/5">
+                                    <AlertCircle className="h-5 w-5" />
+                                    <AlertTitle className="text-lg font-semibold">{t('checkoutPage.premiumNonRefundableTitle')}</AlertTitle>
                                     <AlertDescription>{t('checkoutPage.premiumNonRefundableDesc')}</AlertDescription>
                                 </Alert>
                             )}

@@ -138,9 +138,9 @@ export default function PremiumPage() {
             </CardFooter>
           </Card>
           
-          <Alert variant="destructive" className="max-w-4xl mx-auto mt-8">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>{t('checkoutPage.premiumNonRefundableTitle')}</AlertTitle>
+          <Alert variant="destructive" className="max-w-4xl mx-auto mt-8 border-2 bg-destructive/5">
+            <AlertCircle className="h-5 w-5" />
+            <AlertTitle className="text-lg font-semibold">{t('checkoutPage.premiumNonRefundableTitle')}</AlertTitle>
             <AlertDescription>
               {t('premiumPage.nonRefundableWarning')}
             </AlertDescription>
