@@ -11,6 +11,7 @@ export interface Rank {
     threshold: number; // This is now in XP
     icon: LucideIcon;
     color: string; // Tailwind color class
+    isAnimated?: boolean;
 }
 
 export const ranks: Rank[] = [
@@ -22,8 +23,8 @@ export const ranks: Rank[] = [
     { name: 'A-Rank', threshold: 600 * USD_TO_XP_RATE, icon: Gem, color: 'text-rose-500' },
     { name: 'S-Rank', threshold: 1200 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
     { name: 'SS-Rank', threshold: 2500 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
-    { name: 'Legend', threshold: 5000 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-500' },
-    { name: 'LORD', threshold: 10000 * USD_TO_XP_RATE, icon: Hexagon, color: 'uppercase text-fuchsia-500' },
+    { name: 'Legend', threshold: 5000 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-400' },
+    { name: 'LORD', threshold: 10000 * USD_TO_XP_RATE, icon: Hexagon, color: 'text-fuchsia-500', isAnimated: true },
 ];
 
 export const getRank = (totalSpent: number): Rank => {

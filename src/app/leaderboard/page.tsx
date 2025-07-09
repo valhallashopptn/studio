@@ -79,9 +79,15 @@ export default function LeaderboardPage() {
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <div className={cn("flex items-center gap-1.5 font-semibold", rank.color)}>
-                                                            <rank.icon className="h-4 w-4" />
-                                                            <span>{rank.name}</span>
+                                                        <div className="flex items-center gap-1.5 font-semibold">
+                                                            <rank.icon className={cn("h-4 w-4", rank.color)} />
+                                                            {rank.isAnimated ? (
+                                                                <span className="uppercase bg-gradient-to-r from-orange-400 via-rose-400 to-violet-500 bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto]">
+                                                                    {rank.name}
+                                                                </span>
+                                                            ) : (
+                                                                <span className={rank.color}>{rank.name}</span>
+                                                            )}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="text-right font-mono text-sm">
