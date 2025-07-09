@@ -81,37 +81,46 @@ export const useAuth = create(
          set(state => ({ user: state.user ? { ...state.user, avatar } : null }));
       },
       updateWalletBalance: (userId, amount) => {
-        set(state => {
-          if (state.user && state.user.id === userId) {
-            const newBalance = state.user.walletBalance + amount;
-            const { updateUser } = useUserDatabase.getState();
-            updateUser(userId, { walletBalance: newBalance });
-            return { user: { ...state.user, walletBalance: newBalance } };
+        const { findUserById, updateUser } = useUserDatabase.getState();
+        const userToUpdate = findUserById(userId);
+      
+        if (userToUpdate) {
+          const newBalance = userToUpdate.walletBalance + amount;
+          updateUser(userId, { walletBalance: newBalance });
+      
+          const { user } = get();
+          if (user && user.id === userId) {
+            set({ user: { ...user, walletBalance: newBalance } });
           }
-          return state;
-        });
+        }
       },
       updateValhallaCoins: (userId, amount) => {
-        set(state => {
-          if (state.user && state.user.id === userId) {
-            const newBalance = state.user.valhallaCoins + amount;
-            const { updateUser } = useUserDatabase.getState();
-            updateUser(userId, { valhallaCoins: newBalance });
-            return { user: { ...state.user, valhallaCoins: newBalance } };
+        const { findUserById, updateUser } = useUserDatabase.getState();
+        const userToUpdate = findUserById(userId);
+        
+        if (userToUpdate) {
+          const newBalance = userToUpdate.valhallaCoins + amount;
+          updateUser(userId, { valhallaCoins: newBalance });
+      
+          const { user } = get();
+          if (user && user.id === userId) {
+            set({ user: { ...user, valhallaCoins: newBalance } });
           }
-          return state;
-        });
+        }
       },
       updateTotalSpent: (userId, amount) => {
-        set(state => {
-          if (state.user && state.user.id === userId) {
-            const newTotal = state.user.totalSpent + amount;
-            const { updateUser } = useUserDatabase.getState();
-            updateUser(userId, { totalSpent: newTotal });
-            return { user: { ...state.user, totalSpent: newTotal } };
+        const { findUserById, updateUser } = useUserDatabase.getState();
+        const userToUpdate = findUserById(userId);
+      
+        if (userToUpdate) {
+          const newTotal = userToUpdate.totalSpent + amount;
+          updateUser(userId, { totalSpent: newTotal });
+      
+          const { user } = get();
+          if (user && user.id === userId) {
+            set({ user: { ...user, totalSpent: newTotal } });
           }
-          return state;
-        });
+        }
       },
     }),
     {
