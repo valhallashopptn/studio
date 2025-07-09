@@ -238,6 +238,7 @@
     "passwordChangedToastDesc": "Your password has been updated successfully.",
     "avatarUpdatedToast": "Avatar Updated!",
     "allRanksDescription": "Rank up by making purchases. Higher ranks unlock greater prestige as a hunter!",
+    "rankResetNote": "Note: Ranks are reset every 6 months to keep the competition fresh.",
     "nextRankProgressText": "Earn {{xp}} more to rank up.",
     "maxRankText": "You have reached the rank of Lord! You are a true Monarch of the system."
   },

@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/table';
 import { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -161,7 +162,7 @@ export default function SettingsPage() {
                                         {allRanks.map((r) => (
                                             <TableRow key={r.name}>
                                                 <TableCell>
-                                                    <div className="flex items-center gap-2 font-semibold">
+                                                    <div className="flex items-center gap-2 font-semibold text-base">
                                                       <r.icon className={cn("h-5 w-5", r.color)} />
                                                       {r.isAnimated ? (
                                                           <span className="uppercase bg-gradient-to-r from-orange-400 via-rose-400 to-violet-500 bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto]">
@@ -179,6 +180,12 @@ export default function SettingsPage() {
                                         ))}
                                     </TableBody>
                                 </Table>
+                                <Alert variant="default" className="mt-4">
+                                    <Info className="h-4 w-4" />
+                                    <AlertDescription>
+                                        {t('dashboardSettings.rankResetNote')}
+                                    </AlertDescription>
+                                </Alert>
                             </DialogContent>
                         </Dialog>
                         <CardDescription>Track your journey through the ranks. Higher ranks may unlock future benefits!</CardDescription>
