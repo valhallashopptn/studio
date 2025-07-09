@@ -135,11 +135,11 @@ export const useAuth = create(
     }),
     {
       name: 'topup-hub-auth',
-      partialize: (state) => ({ 
-        user: state.user, 
-        isAuthenticated: state.isAuthenticated, 
-        isAdmin: state.isAdmin 
-      }),
+      // This merge function will ignore persisted state and use the initial state from the code.
+      // This is a temporary measure to force a reset of the auth state.
+      merge: (persistedState, currentState) => {
+        return currentState;
+      },
     }
   )
 );
