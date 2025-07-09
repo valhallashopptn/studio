@@ -1,7 +1,7 @@
 
 'use client';
 
-import { users } from "@/lib/data";
+import { useUserDatabase } from "@/hooks/use-user-database";
 import { getRank, formatXp, USD_TO_XP_RATE } from "@/lib/ranks";
 import { useMemo, useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -18,6 +18,7 @@ import { Badge } from "./ui/badge";
 export function Leaderboard() {
     const { t } = useTranslation();
     const [isMounted, setIsMounted] = useState(false);
+    const { users } = useUserDatabase();
 
     useEffect(() => {
         setIsMounted(true);
@@ -28,7 +29,7 @@ export function Leaderboard() {
             .filter(u => !u.isAdmin)
             .sort((a, b) => b.totalSpent - a.totalSpent)
             .slice(0, 5);
-    }, []);
+    }, [users]);
 
     return (
         <Card className="w-full h-full">

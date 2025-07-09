@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { useTranslation } from "@/hooks/use-translation";
-import { users } from "@/lib/data";
+import { useUserDatabase } from "@/hooks/use-user-database";
 import { getRank, formatXp, USD_TO_XP_RATE } from "@/lib/ranks";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 export default function LeaderboardPage() {
     const { t } = useTranslation();
     const [isMounted, setIsMounted] = useState(false);
+    const { users } = useUserDatabase();
 
     useEffect(() => {
         setIsMounted(true);
@@ -27,7 +28,7 @@ export default function LeaderboardPage() {
         return users
             .filter(u => !u.isAdmin)
             .sort((a, b) => b.totalSpent - a.totalSpent);
-    }, []);
+    }, [users]);
 
     const animationClass = (delay: number) => isMounted ? `opacity-0 animate-fade-in-up [animation-fill-mode:forwards] [animation-delay:${delay}ms]` : 'opacity-0';
 

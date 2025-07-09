@@ -8,6 +8,7 @@ import { useStock } from '@/hooks/use-stock';
 import { useCategoriesStore } from '@/hooks/use-categories';
 import { useAuth } from './use-auth';
 import { USD_TO_VALHALLA_COIN_RATE } from '@/lib/ranks';
+import { useUserDatabase } from './use-user-database';
 
 type OrdersState = {
     orders: Order[];
@@ -59,7 +60,7 @@ export const useOrders = create(
                         
                         // Deduct XP and Coins earned from this purchase if it was completed
                         if(previousStatus === 'completed') {
-                            const { findUserById } = useAuth.getState();
+                            const { findUserById } = useUserDatabase.getState();
                             const user = findUserById(orderToUpdate.customer.id);
                             const xpMultiplier = user?.isPremium ? 1.5 : 1.0;
                             
@@ -75,7 +76,8 @@ export const useOrders = create(
 
                     // Process completion logic - only if moving from a non-completed state
                     if (status === 'completed' && previousStatus !== 'completed') {
-                        const { updateTotalSpent, updateValhallaCoins, findUserById } = useAuth.getState();
+                        const { updateTotalSpent, updateValhallaCoins } = useAuth.getState();
+                        const { findUserById } = useUserDatabase.getState();
                         
                         // We need the user's LATEST status to check for premium boost.
                         const user = findUserById(orderToUpdate.customer.id);
