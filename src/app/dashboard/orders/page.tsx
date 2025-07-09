@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { useOrders } from '@/hooks/use-orders';
 import { useAuth } from '@/hooks/use-auth';
@@ -20,6 +20,16 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { useCurrency } from '@/hooks/use-currency';
@@ -96,7 +106,7 @@ const DeliveredItemsDisplay = ({ order, item }: { order: Order, item: CartItem }
 
 export default function CustomerOrdersPage() {
   const { user } = useAuth();
-  const { orders } = useOrders();
+  const { orders, markOrderAsReviewPrompted } = useOrders();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const { formatPrice } = useCurrency();
   const { t } = useTranslation();
@@ -104,6 +114,8 @@ export default function CustomerOrdersPage() {
   const { hasReviewed } = useReviews();
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
   const [productsForReview, setProductsForReview] = useState<Product[]>([]);
+  const [isReviewPromptOpen, setIsReviewPromptOpen] = useState(false);
+  const [ordersToReview, setOrdersToReview] = useState<Order[]>([]);
 
 
   const customerOrders = useMemo(() => {
@@ -111,14 +123,36 @@ export default function CustomerOrdersPage() {
     return orders.filter(order => order.customer.id === user.id);
   }, [orders, user]);
 
+  useEffect(() => {
+    if (!user) return;
+    const unpromptedCompletedOrders = customerOrders.filter(
+        order => order.status === 'completed' && !order.reviewPrompted
+    );
+    
+    if (unpromptedCompletedOrders.length > 0) {
+        setOrdersToReview(unpromptedCompletedOrders);
+        setIsReviewPromptOpen(true);
+    }
+  }, [customerOrders, user]);
+
   const subtotal = viewingOrder ? viewingOrder.items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0) : 0;
   const taxAmount = viewingOrder ? (subtotal - (viewingOrder.discountAmount ?? 0) - (viewingOrder.valhallaCoinsValue ?? 0)) * ((viewingOrder.paymentMethod.taxRate ?? 0) / 100) : 0;
   
-  const handleReviewClick = () => {
-    if (!viewingOrder || !user) return;
+  const handleReviewPromptClose = () => {
+    const orderIds = ordersToReview.map(o => o.id);
+    if (orderIds.length > 0) {
+        markOrderAsReviewPrompted(orderIds);
+    }
+    setIsReviewPromptOpen(false);
+    setOrdersToReview([]);
+  };
+
+  const handleReviewPromptAction = () => {
+    if (!user) return;
 
     const unreviewedProductNames = new Set(
-      viewingOrder.items
+      ordersToReview
+        .flatMap(order => order.items)
         .filter(item => !hasReviewed(item.name, user.name))
         .map(item => item.name)
     );
@@ -128,16 +162,15 @@ export default function CustomerOrdersPage() {
         title: t('dashboardOrders.noItemsToReviewTitle'),
         description: t('dashboardOrders.noItemsToReviewDesc'),
       });
+      handleReviewPromptClose();
       return;
     }
     
     const productsToPass = products.filter(p => unreviewedProductNames.has(p.name));
-    
     setProductsForReview(productsToPass);
-    setViewingOrder(null);
     setIsReviewDialogOpen(true);
+    handleReviewPromptClose();
   };
-
 
   return (
     <div className="space-y-8">
@@ -145,6 +178,23 @@ export default function CustomerOrdersPage() {
         <h1 className="text-3xl font-bold">{t('dashboardOrders.title')}</h1>
         <p className="text-muted-foreground">{t('dashboardOrders.subtitle')}</p>
       </div>
+
+       <AlertDialog open={isReviewPromptOpen} onOpenChange={setIsReviewPromptOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('dashboardOrders.reviewPromptTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('dashboardOrders.reviewPromptDescription')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleReviewPromptClose}>
+                {t('dashboardOrders.reviewPromptMaybeLater')}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleReviewPromptAction}>
+                {t('dashboardOrders.reviewPromptLeaveReview')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={!!viewingOrder} onOpenChange={(isOpen) => !isOpen && setViewingOrder(null)}>
         <DialogContent className="sm:max-w-2xl">
@@ -240,15 +290,7 @@ export default function CustomerOrdersPage() {
                     </div>
                 </ScrollArea>
             )}
-            <DialogFooter className="sm:justify-between items-center">
-                <div>
-                    {viewingOrder?.status === 'completed' && (
-                        <Button variant="outline" onClick={handleReviewClick}>
-                            <MessageSquarePlus className="mr-2 h-4 w-4" />
-                            {t('dashboardOrders.leaveReview')}
-                        </Button>
-                    )}
-                </div>
+            <DialogFooter className="sm:justify-end items-center">
                 <DialogClose asChild><Button type="button" variant="secondary">{t('dashboardOrders.close')}</Button></DialogClose>
             </DialogFooter>
         </DialogContent>

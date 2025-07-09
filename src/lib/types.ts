@@ -115,6 +115,7 @@ export interface Order {
   discountAmount?: number;
   valhallaCoinsApplied?: number;
   valhallaCoinsValue?: number;
+  reviewPrompted?: boolean;
 }
 
 export interface ChatMessage {

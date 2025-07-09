@@ -13,6 +13,7 @@ type OrdersState = {
     orders: Order[];
     addOrder: (order: Omit<Order, 'createdAt'>) => void;
     updateOrderStatus: (orderId: string, status: OrderStatus, reason?: string) => void;
+    markOrderAsReviewPrompted: (orderIds: string[]) => void;
 };
 
 export const useOrders = create(
@@ -23,6 +24,7 @@ export const useOrders = create(
                 const newOrder: Order = {
                     ...newOrderData,
                     createdAt: new Date().toISOString(),
+                    reviewPrompted: false,
                 };
                 
                 // Deduct any used Valhalla Coins immediately on order creation
@@ -105,6 +107,16 @@ export const useOrders = create(
                     return { orders };
                 });
             },
+            markOrderAsReviewPrompted: (orderIds: string[]) => {
+                const orderIdSet = new Set(orderIds);
+                set((state) => ({
+                    orders: state.orders.map(order => 
+                        orderIdSet.has(order.id)
+                        ? { ...order, reviewPrompted: true }
+                        : order
+                    )
+                }));
+            }
         }),
         {
             name: 'topup-hub-orders',

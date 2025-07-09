@@ -219,7 +219,11 @@
     "reason": "Reason:",
     "leaveReview": "Leave a Review",
     "noItemsToReviewTitle": "No items to review",
-    "noItemsToReviewDesc": "You have already reviewed all items in this order."
+    "noItemsToReviewDesc": "You have already reviewed all items in this order.",
+    "reviewPromptTitle": "How was your order?",
+    "reviewPromptDescription": "You have recently completed one or more orders. Would you like to leave a review for the products you purchased?",
+    "reviewPromptLeaveReview": "Leave a Review",
+    "reviewPromptMaybeLater": "Maybe Later"
   },
   "dashboardSidebar": {
     "myOrders": "My Orders",

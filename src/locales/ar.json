@@ -219,7 +219,11 @@
     "reason": "السبب:",
     "leaveReview": "اترك تقييمًا",
     "noItemsToReviewTitle": "لا توجد عناصر للمراجعة",
-    "noItemsToReviewDesc": "لقد قمت بالفعل بمراجعة جميع العناصر في هذا الطلب."
+    "noItemsToReviewDesc": "لقد قمت بالفعل بمراجعة جميع العناصر في هذا الطلب.",
+    "reviewPromptTitle": "كيف كان طلبك؟",
+    "reviewPromptDescription": "لقد أكملت مؤخرًا طلبًا واحدًا أو أكثر. هل ترغب في ترك مراجعة للمنتجات التي اشتريتها؟",
+    "reviewPromptLeaveReview": "اترك تقييمًا",
+    "reviewPromptMaybeLater": "ربما لاحقًا"
   },
   "dashboardSidebar": {
     "myOrders": "طلباتي",
