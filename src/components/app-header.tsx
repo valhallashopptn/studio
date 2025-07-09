@@ -251,7 +251,7 @@ export function AppHeader() {
                             )}
                           
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/orders')}>
+                            <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/settings')}>
                                 <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                                 <span>{t('auth.dashboard')}</span>
                             </DropdownMenuItem>
@@ -362,7 +362,7 @@ export function AppHeader() {
                         )}
                         <div className="space-y-3 pt-4 border-t">
                             <Button asChild className="w-full" variant="secondary" onClick={() => setMobileMenuOpen(false)}>
-                               <Link href={isAdmin ? '/admin' : '/dashboard/orders'}>
+                               <Link href={isAdmin ? '/admin' : '/dashboard/settings'}>
                                  <LayoutDashboard className={cn(locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.dashboard')}
                                </Link>
                            </Button>
