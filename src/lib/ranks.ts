@@ -14,7 +14,7 @@ export interface Rank {
 }
 
 export const ranks: Rank[] = [
-    { name: 'F-Rank', threshold: 0 * USD_TO_XP_RATE, icon: ShieldOff, color: 'text-slate-500' },
+    { name: 'F-Rank', threshold: 0 * USD_TO_XP_RATE, icon: ShieldOff, color: 'text-slate-400' },
     { name: 'E-Rank', threshold: 10 * USD_TO_XP_RATE, icon: Shield, color: 'text-green-500' },
     { name: 'D-Rank', threshold: 50 * USD_TO_XP_RATE, icon: ShieldCheck, color: 'text-cyan-500' },
     { name: 'C-Rank', threshold: 150 * USD_TO_XP_RATE, icon: Sword, color: 'text-blue-500' },
@@ -23,7 +23,7 @@ export const ranks: Rank[] = [
     { name: 'S-Rank', threshold: 1200 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
     { name: 'SS-Rank', threshold: 2500 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
     { name: 'Legend', threshold: 5000 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-500' },
-    { name: 'Lord', threshold: 10000 * USD_TO_XP_RATE, icon: Hexagon, color: 'bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 text-transparent bg-clip-text animate-bg-pan [background-size:200%_auto]' },
+    { name: 'LORD', threshold: 10000 * USD_TO_XP_RATE, icon: Hexagon, color: 'uppercase text-fuchsia-500' },
 ];
 
 export const getRank = (totalSpent: number): Rank => {
