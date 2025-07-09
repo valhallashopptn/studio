@@ -194,6 +194,86 @@ export function AppHeader() {
     router.push('/');
   }
   
+  const UserProfileDropdownContent = () => (
+     <DropdownMenuContent className="w-64" align={locale === 'ar' ? 'start' : 'end'} forceMount>
+      <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+          <p className="text-sm font-medium leading-none">{user?.name}</p>
+          <p className="text-xs leading-none text-muted-foreground">
+              {user?.email}
+          </p>
+          </div>
+      </DropdownMenuLabel>
+      
+      {isAuthenticated && !isAdmin && rank && (
+          <>
+          <DropdownMenuSeparator />
+          <div className="px-2 py-2 text-sm">
+              <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-1.5 font-semibold">
+                      <rank.icon className={cn("h-4 w-4", rank.iconColor || rank.color)} />
+                      <span className={rank.color}>{rank.name}</span>
+                  </div>
+                  {nextRank && (
+                      <div className={cn("flex items-center gap-1.5 font-semibold text-xs", nextRank.color)}>
+                          <span>{nextRank.name}</span>
+                          <nextRank.icon className={cn("h-4 w-4", nextRank.iconColor || nextRank.color)} />
+                      </div>
+                  )}
+              </div>
+              {nextRank ? (
+              <div className="space-y-1">
+                  <Progress value={progressPercentage} className="h-1.5" />
+                  <p className="text-xs text-muted-foreground text-center pt-1">
+                      {t('dashboardSettings.nextRankProgressText', { xp: formatXp(amountToNextRank) })}
+                  </p>
+              </div>
+              ) : (
+              <div className="text-xs text-center font-semibold text-primary py-1">{t('dashboardSettings.maxRankText')}</div>
+              )}
+          </div>
+          </>
+      )}
+    
+      <DropdownMenuSeparator />
+      {isAdmin ? (
+          <DropdownMenuItem onClick={() => router.push('/admin')}>
+              <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+              <span>{t('auth.adminDashboard')}</span>
+          </DropdownMenuItem>
+      ) : (
+          <>
+              {leaderboardRank && (
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex items-center gap-2">
+                        <Trophy className="h-4 w-4 text-amber-400" />
+                        <span>{t('auth.yourRank', { rank: leaderboardRank })}</span>
+                    </div>
+                  </DropdownMenuLabel>
+              )}
+              <DropdownMenuItem onClick={() => router.push('/leaderboard')}>
+                  <Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                  <span>{t('leaderboard.fullTitle')}</span>
+              </DropdownMenuItem>
+              {!user?.isPremium && (
+                <DropdownMenuItem onClick={() => router.push('/premium')}>
+                  <Gem className={cn("h-4 w-4 text-primary", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                  <span>{t('nav.goPremium')}</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={() => router.push('/dashboard/orders')}>
+                  <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                  <span>{t('dashboardSidebar.myOrders')}</span>
+              </DropdownMenuItem>
+          </>
+      )}
+      <DropdownMenuItem onClick={handleLogout}>
+          <LogOut className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+          <span>{t('auth.logout')}</span>
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  );
+
   if (!isMounted) {
     return (
       <>
@@ -263,9 +343,9 @@ export function AppHeader() {
                 ))}
               </nav>
             </div>
-
-            <div className="flex items-center gap-2">
-              <div className="hidden md:flex items-center gap-2">
+            
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center gap-2">
                   <CurrencySwitcher />
                   <LanguageSwitcher />
                   <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
@@ -312,83 +392,7 @@ export function AppHeader() {
                               )}
                           </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-64" align={locale === 'ar' ? 'start' : 'end'} forceMount>
-                            <DropdownMenuLabel className="font-normal">
-                                <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">{user?.name}</p>
-                                <p className="text-xs leading-none text-muted-foreground">
-                                    {user?.email}
-                                </p>
-                                </div>
-                            </DropdownMenuLabel>
-                            
-                            {isAuthenticated && !isAdmin && rank && (
-                                <>
-                                <DropdownMenuSeparator />
-                                <div className="px-2 py-2 text-sm">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <div className="flex items-center gap-1.5 font-semibold">
-                                            <rank.icon className={cn("h-4 w-4", rank.iconColor || rank.color)} />
-                                            <span className={rank.color}>{rank.name}</span>
-                                        </div>
-                                        {nextRank && (
-                                            <div className={cn("flex items-center gap-1.5 font-semibold text-xs", nextRank.color)}>
-                                                <span>{nextRank.name}</span>
-                                                <nextRank.icon className={cn("h-4 w-4", nextRank.iconColor || nextRank.color)} />
-                                            </div>
-                                        )}
-                                    </div>
-                                    {nextRank ? (
-                                    <div className="space-y-1">
-                                        <Progress value={progressPercentage} className="h-1.5" />
-                                        <p className="text-xs text-muted-foreground text-center pt-1">
-                                            {t('dashboardSettings.nextRankProgressText', { xp: formatXp(amountToNextRank) })}
-                                        </p>
-                                    </div>
-                                    ) : (
-                                    <div className="text-xs text-center font-semibold text-primary py-1">{t('dashboardSettings.maxRankText')}</div>
-                                    )}
-                                </div>
-                                </>
-                            )}
-                          
-                            <DropdownMenuSeparator />
-                            {isAdmin ? (
-                                <DropdownMenuItem onClick={() => router.push('/admin')}>
-                                    <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                                    <span>{t('auth.adminDashboard')}</span>
-                                </DropdownMenuItem>
-                            ) : (
-                                <>
-                                    {leaderboardRank && (
-                                        <DropdownMenuLabel className="font-normal">
-                                          <div className="flex items-center gap-2">
-                                              <Trophy className="h-4 w-4 text-amber-400" />
-                                              <span>{t('auth.yourRank', { rank: leaderboardRank })}</span>
-                                          </div>
-                                        </DropdownMenuLabel>
-                                    )}
-                                    <DropdownMenuItem onClick={() => router.push('/leaderboard')}>
-                                        <Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                                        <span>{t('leaderboard.fullTitle')}</span>
-                                    </DropdownMenuItem>
-                                    {!user?.isPremium && (
-                                      <DropdownMenuItem onClick={() => router.push('/premium')}>
-                                        <Gem className={cn("h-4 w-4 text-primary", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                                        <span>{t('nav.goPremium')}</span>
-                                      </DropdownMenuItem>
-                                    )}
-                                    <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
-                                        <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                                        <span>{t('auth.dashboard')}</span>
-                                    </DropdownMenuItem>
-                                </>
-                            )}
-                            <DropdownMenuItem onClick={handleLogout}>
-                                <LogOut className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                                <span>{t('auth.logout')}</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
+                          <UserProfileDropdownContent />
                       </DropdownMenu>
                       </>
                   ) : (
@@ -402,7 +406,29 @@ export function AppHeader() {
                       </div>
                   )}
               </div>
-              <div className="flex items-center gap-2 md:hidden">
+
+            {/* Mobile Nav */}
+            <div className="flex items-center gap-2 md:hidden">
+                {isAuthenticated ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={user?.avatar} asChild>
+                              <Image src={user?.avatar || ''} alt={user?.name || ''} width={32} height={32} unoptimized={user?.isPremium && user?.avatar?.endsWith('.gif')} />
+                            </AvatarImage>
+                            <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <UserProfileDropdownContent />
+                  </DropdownMenu>
+                ) : (
+                    <Button asChild variant="ghost" size="sm" className="px-2">
+                        <Link href="/login">{t('auth.login')}</Link>
+                    </Button>
+                )}
+                
                 <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
                   <ShoppingCart className="h-5 w-5" />
                   {totalItems > 0 && (
@@ -412,12 +438,13 @@ export function AppHeader() {
                   )}
                   <span className="sr-only">Open Cart</span>
                 </Button>
+                
                 <Button onClick={() => setMobileMenuOpen(true)} variant="ghost" size="icon">
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Open Menu</span>
                 </Button>
-              </div>
             </div>
+
           </div>
         </header>
       </div>
@@ -474,98 +501,6 @@ export function AppHeader() {
                     <CurrencySwitcher />
                     <LanguageSwitcher />
                  </div>
-                 {isAuthenticated ? (
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3 border-b pb-4">
-                            <Avatar className="h-12 w-12">
-                                <AvatarImage src={user?.avatar} asChild>
-                                    <Image src={user?.avatar || ''} alt={user?.name || ''} width={48} height={48} unoptimized={user?.isPremium && user?.avatar?.endsWith('.gif')} />
-                                </AvatarImage>
-                                <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <p className="font-semibold leading-none">{user?.name}</p>
-                                <p className="text-xs leading-none text-muted-foreground mt-1">
-                                    {user?.email}
-                                </p>
-                            </div>
-                        </div>
-
-                        {!isAdmin && rank && (
-                            <div className="space-y-2">
-                                <div className="flex justify-between items-center text-sm mb-1">
-                                    <div className="flex items-center gap-1.5 font-semibold">
-                                        <rank.icon className={cn("h-4 w-4", rank.iconColor || rank.color)} />
-                                        <span className={rank.color}>{rank.name}</span>
-                                    </div>
-                                    {nextRank && (
-                                        <div className={cn("flex items-center gap-1.5 font-semibold text-xs", nextRank.color)}>
-                                            <span>{nextRank.name}</span>
-                                            <nextRank.icon className={cn("h-4 w-4", nextRank.iconColor || nextRank.color)} />
-                                        </div>
-                                    )}
-                                </div>
-                                {nextRank ? (
-                                    <Progress value={progressPercentage} className="h-1.5" />
-                                ) : (
-                                    <div className="text-xs text-center font-semibold text-primary py-1">{t('dashboardSettings.maxRankText')}</div>
-                                )}
-                            </div>
-                        )}
-
-                        {!isAdmin && (
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between gap-2 p-3 bg-secondary rounded-md border">
-                                    <div className="flex items-center gap-2">
-                                        <Wallet className="h-5 w-5 text-primary"/>
-                                        <span className="font-semibold text-sm">{t('mobileHeader.wallet')}</span>
-                                    </div>
-                                    <span className="font-semibold text-sm whitespace-nowrap">{formatPrice(user?.walletBalance ?? 0)}</span>
-                                </div>
-                                <div className="flex items-center justify-between gap-2 p-3 bg-secondary rounded-md border">
-                                    <div className="flex items-center gap-2">
-                                        <Coins className="h-5 w-5 text-amber-500"/>
-                                        <span className="font-semibold text-sm">{t('mobileHeader.coins')}</span>
-                                    </div>
-                                    <span className="font-semibold text-sm whitespace-nowrap">{formatCoins(user?.valhallaCoins ?? 0)}</span>
-                                </div>
-                            </div>
-                        )}
-                        <div className="space-y-2 pt-4 border-t">
-                            {isAdmin ? (
-                                <Button asChild className="w-full justify-start" variant="ghost" onClick={() => setMobileMenuOpen(false)}>
-                                    <Link href="/admin"><LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.adminDashboard')}</Link>
-                                </Button>
-                            ) : (
-                                <>
-                                    <Button asChild className="w-full justify-start" variant="ghost" onClick={() => setMobileMenuOpen(false)}>
-                                      <Link href="/leaderboard"><Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('leaderboard.fullTitle')}</Link>
-                                    </Button>
-                                    {!user?.isPremium && (
-                                        <Button asChild className="w-full justify-start" variant="ghost" onClick={() => setMobileMenuOpen(false)}>
-                                          <Link href="/premium"><Gem className={cn("h-4 w-4 text-primary", locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('nav.goPremium')}</Link>
-                                        </Button>
-                                    )}
-                                    <Button asChild className="w-full justify-start" variant="ghost" onClick={() => setMobileMenuOpen(false)}>
-                                        <Link href="/dashboard/settings"><LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.dashboard')}</Link>
-                                    </Button>
-                                </>
-                            )}
-                           <Button className="w-full justify-start" variant="ghost" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>
-                               <LogOut className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.logout')}
-                           </Button>
-                        </div>
-                    </div>
-                 ) : (
-                    <div className="space-y-3 pt-4 border-t">
-                        <Button asChild className="w-full">
-                            <Link href="/login" onClick={() => setMobileMenuOpen(false)}>{t('auth.login')}</Link>
-                        </Button>
-                        <Button asChild variant="secondary" className="w-full">
-                            <Link href="/register" onClick={() => setMobileMenuOpen(false)}>{t('auth.register')}</Link>
-                        </Button>
-                    </div>
-                )}
             </div>
         </div>
       </div>
@@ -579,7 +514,7 @@ export function AppHeader() {
             <AlertDialogDescription>{t('dashboardOrders.reviewPromptDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleReviewPromptClose} className="focus-visible:ring-0">
+            <AlertDialogCancel onClick={handleReviewPromptClose}>
                 {t('dashboardOrders.reviewPromptMaybeLater')}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleReviewPromptAction}>
