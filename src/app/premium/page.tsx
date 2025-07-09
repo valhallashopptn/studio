@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 import { useTranslation } from '@/hooks/use-translation';
-import { BadgeCheck, Coins, Gem, GitBranch, Image as ImageIcon, Zap, CheckCircle, Loader2 } from 'lucide-react';
+import { BadgeCheck, Coins, Gem, GitBranch, Image as ImageIcon, Zap, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
 import { useCart } from '@/hooks/use-cart';
 import type { Product } from '@/lib/types';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 const features = [
@@ -136,6 +137,14 @@ export default function PremiumPage() {
                 </div>
             </CardFooter>
           </Card>
+          
+          <Alert variant="destructive" className="max-w-4xl mx-auto mt-8">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>{t('checkoutPage.premiumNonRefundableTitle')}</AlertTitle>
+            <AlertDescription>
+              {t('premiumPage.nonRefundableWarning')}
+            </AlertDescription>
+          </Alert>
 
         </div>
       </main>

@@ -192,7 +192,9 @@
     "coinsExceedTotal": "لا يمكن أن تتجاوز قيمة العملات إجمالي الطلب.",
     "coinsApplied": "تم تطبيق العملات بنجاح!",
     "coinsRedeemed": "العملات المستبدلة",
-    "noCoinsToRedeem": "ليس لديك عملات لاستبدالها."
+    "noCoinsToRedeem": "ليس لديك عملات لاستبدالها.",
+    "premiumNonRefundableTitle": "هام: منتج غير قابل للاسترداد",
+    "premiumNonRefundableDesc": "لا يمكن استرداد اشتراكات فالهالا بريميوم بمجرد شرائها. بإتمام هذه المعاملة، فإنك توافق على هذه السياسة."
   },
   "dashboardOrders": {
     "title": "طلباتي",
@@ -337,6 +339,7 @@
     "featureLockedTitle": "ميزة بريميوم مقفلة",
     "gifAvatarLockedDesc": "تحتاج إلى عضوية بريميوم لاستخدام الصور الرمزية المتحركة بصيغة GIF.",
     "productName": "فالهالا بريميوم",
-    "productDescription": "شهر واحد من فالهالا بريميوم"
+    "productDescription": "شهر واحد من فالهالا بريميوم",
+    "nonRefundableWarning": "يرجى ملاحظة: اشتراكات فالهالا بريميوم غير قابلة للاسترداد بمجرد تفعيلها."
   }
 }

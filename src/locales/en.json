@@ -192,7 +192,9 @@
     "coinsExceedTotal": "The value of coins cannot exceed the order total.",
     "coinsApplied": "Coins applied successfully!",
     "coinsRedeemed": "Coins Redeemed",
-    "noCoinsToRedeem": "You have no coins to redeem."
+    "noCoinsToRedeem": "You have no coins to redeem.",
+    "premiumNonRefundableTitle": "Important: Non-Refundable Item",
+    "premiumNonRefundableDesc": "Valhalla Premium subscriptions cannot be refunded once purchased. By completing this transaction, you agree to this policy."
   },
   "dashboardOrders": {
     "title": "My Orders",
@@ -337,6 +339,7 @@
     "featureLockedTitle": "Premium Feature Locked",
     "gifAvatarLockedDesc": "You need a Premium membership to use animated GIF avatars.",
     "productName": "Valhalla Premium",
-    "productDescription": "1 Month of Valhalla Premium"
+    "productDescription": "1 Month of Valhalla Premium",
+    "nonRefundableWarning": "Please note: Valhalla Premium subscriptions are non-refundable once activated."
   }
 }

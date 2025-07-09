@@ -26,7 +26,7 @@ import { usePaymentSettings } from '@/hooks/use-payment-settings';
 import { useCategories } from '@/hooks/use-categories';
 import { useCoupons } from '@/hooks/use-coupons';
 import type { PaymentMethod, CartItem, Order, Category, Coupon } from '@/lib/types';
-import { Landmark, Wallet as WalletIcon, CreditCard, Upload, Loader2, User, Info, Lock, TicketPercent, Coins, Trash2 } from 'lucide-react';
+import { Landmark, Wallet as WalletIcon, CreditCard, Upload, Loader2, User, Info, Lock, TicketPercent, Coins, Trash2, AlertCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/hooks/use-translation';
 import { useCurrency } from '@/hooks/use-currency';
@@ -36,6 +36,7 @@ import { AppFooter } from '@/components/app-footer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { products } from '@/lib/data'; // Import products to find details
 import { VALHALLA_COIN_USD_VALUE, formatCoins } from '@/lib/ranks';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const icons: { [key: string]: React.ElementType } = {
   Landmark,
@@ -58,7 +59,7 @@ export default function CheckoutPage() {
     const { paymentMethods } = usePaymentSettings();
     const { categories } = useCategories();
     const { addOrder, updateOrderStatus } = useOrders();
-    const { user, isAuthenticated, updateWalletBalance } = useAuth();
+    const { user, isAuthenticated, updateWalletBalance, updateValhallaCoins, updateTotalSpent } = useAuth();
     const { validateCoupon, applyCoupon } = useCoupons();
 
     const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
@@ -81,6 +82,11 @@ export default function CheckoutPage() {
     const [appliedCoinsValue, setAppliedCoinsValue] = useState(0);
 
     const { formatPrice } = useCurrency();
+
+    const isPremiumInCart = useMemo(() =>
+        items.some(item => item.productId === 'premium-membership-product'),
+        [items]
+    );
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -400,6 +406,13 @@ export default function CheckoutPage() {
                             </Card>
                         </div>
                         <div className="lg:col-span-1">
+                            {isPremiumInCart && (
+                                <Alert variant="destructive" className="mb-8">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertTitle>{t('checkoutPage.premiumNonRefundableTitle')}</AlertTitle>
+                                    <AlertDescription>{t('checkoutPage.premiumNonRefundableDesc')}</AlertDescription>
+                                </Alert>
+                            )}
                             <Card className="sticky top-24">
                                 <CardHeader>
                                     <CardTitle>{t('checkoutPage.orderSummary')}</CardTitle>
@@ -535,5 +548,3 @@ export default function CheckoutPage() {
         </div>
     );
 }
-
-    
