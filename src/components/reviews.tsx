@@ -88,7 +88,7 @@ export function Reviews() {
         >
             <CarouselContent>
                 {reviews.map((review) => (
-                <CarouselItem key={review.id} className="md:basis-1/2 lg:basis-1/3">
+                <CarouselItem key={review.id} className="basis-full md:basis-1/2 lg:basis-1/3">
                     <div className="p-2 h-full">
                     <ReviewCard review={review} />
                     </div>
