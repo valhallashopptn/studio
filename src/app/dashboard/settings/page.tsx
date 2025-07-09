@@ -38,7 +38,7 @@ import {
 } from '@/components/ui/table';
 import { useState, useEffect, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useUserDatabase } from '@/hooks/use-user-database';
 
 const profileSchema = z.object({
@@ -142,6 +142,16 @@ export default function SettingsPage() {
                 <h1 className="text-3xl font-bold">{t('dashboardSettings.title')}</h1>
                 <p className="text-muted-foreground">{t('dashboardSettings.subtitle')}</p>
             </div>
+            
+            {user?.isPremium && (
+                <Alert className="border-yellow-500 bg-yellow-500/5 text-yellow-700 dark:text-yellow-400">
+                    <Trophy className="h-4 w-4 !text-yellow-500" />
+                    <AlertTitle className="font-bold">Premium Member</AlertTitle>
+                    <AlertDescription>
+                        You have a 1.5x XP boost and other perks active. Thank you for your support!
+                    </AlertDescription>
+                </Alert>
+            )}
 
             {rank && (
                 <Card>
@@ -261,12 +271,15 @@ export default function SettingsPage() {
                 <CardContent>
                     <div className="flex items-center gap-6">
                         <Avatar className="h-20 w-20">
-                            <AvatarImage src={user?.avatar} />
+                            <AvatarImage src={user?.avatar} asChild>
+                                <Image src={user?.avatar || ''} alt={user?.name || ''} width={80} height={80} unoptimized={user?.isPremium && user?.avatar?.endsWith('.gif')} />
+                            </AvatarImage>
                             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div className="grid w-full max-w-sm items-center gap-1.5">
                             <Label htmlFor="picture">{t('dashboardSettings.uploadNewPicture')}</Label>
                             <Input id="picture" type="file" accept="image/*" onChange={handleAvatarChange} className="file:text-primary file:font-semibold" />
+                             {user?.isPremium && <p className="text-xs text-muted-foreground">Premium perk: Animated GIFs are supported!</p>}
                         </div>
                     </div>
                 </CardContent>

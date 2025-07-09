@@ -296,7 +296,9 @@ export function AppHeader() {
                           <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                               <Avatar className="h-8 w-8">
-                              <AvatarImage src={user?.avatar} alt={user?.name} />
+                              <AvatarImage src={user?.avatar} asChild>
+                                <Image src={user?.avatar || ''} alt={user?.name || ''} width={32} height={32} unoptimized={user?.isPremium && user?.avatar?.endsWith('.gif')} />
+                              </AvatarImage>
                               <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                               </Avatar>
                               {isWinterTheme && (
@@ -370,7 +372,7 @@ export function AppHeader() {
                                         <Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                                         <span>{t('leaderboard.fullTitle')}</span>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                                    <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
                                         <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                                         <span>{t('auth.dashboard')}</span>
                                     </DropdownMenuItem>

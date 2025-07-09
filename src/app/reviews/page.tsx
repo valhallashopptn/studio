@@ -23,6 +23,7 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { useTranslation } from '@/hooks/use-translation';
+import { useUserDatabase } from '@/hooks/use-user-database';
 
 
 export default function ReviewsPage() {
@@ -31,6 +32,7 @@ export default function ReviewsPage() {
     const [isMounted, setIsMounted] = useState(false);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedProof, setSelectedProof] = useState<string | null>(null);
+    const { users } = useUserDatabase();
 
     useEffect(() => {
         setIsMounted(true);
@@ -102,11 +104,16 @@ export default function ReviewsPage() {
                 <section className="py-16 overflow-hidden">
                     <div className="container mx-auto px-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {reviews.map((review, index) => (
+                            {reviews.map((review, index) => {
+                                // A bit of a mock lookup, in a real app this would be a direct relation
+                                const user = users.find(u => u.name === review.name);
+                                return (
                                 <Card key={review.id} className={`flex flex-col ${animationClass(300 + index * 50)}`}>
                                     <CardHeader className="flex flex-row items-center gap-4">
                                         <Avatar className="h-12 w-12">
-                                            <AvatarImage src={review.avatar} alt={review.name} data-ai-hint="person portrait" />
+                                            <AvatarImage src={review.avatar} asChild>
+                                                 <Image src={review.avatar} alt={review.name} width={48} height={48} unoptimized={user?.isPremium && review.avatar?.endsWith('.gif')} data-ai-hint="person portrait" />
+                                            </AvatarImage>
                                             <AvatarFallback>{review.name.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                         <div>
@@ -131,7 +138,8 @@ export default function ReviewsPage() {
                                         </CardFooter>
                                     )}
                                 </Card>
-                            ))}
+                                )
+                            })}
                         </div>
                     </div>
                 </section>

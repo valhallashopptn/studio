@@ -70,6 +70,7 @@ export interface User {
   email: string;
   password?: string;
   isAdmin?: boolean;
+  isPremium?: boolean;
   avatar?: string;
   walletBalance: number;
   totalSpent: number;

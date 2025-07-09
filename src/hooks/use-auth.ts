@@ -19,6 +19,7 @@ type AuthState = {
   updateWalletBalance: (userId: string, amount: number) => void;
   updateTotalSpent: (userId: string, amount: number) => void;
   updateValhallaCoins: (userId: string, amount: number) => void;
+  setPremiumStatus: (userId: string) => void;
 };
 
 
@@ -50,6 +51,7 @@ export const useAuth = create(
             id: `user_${Date.now()}`,
             ...userDetails,
             isAdmin: false,
+            isPremium: false,
             avatar: 'https://placehold.co/100x100.png',
             walletBalance: 0,
             totalSpent: 0,
@@ -120,6 +122,14 @@ export const useAuth = create(
           if (user && user.id === userId) {
             set({ user: { ...user, totalSpent: newTotal } });
           }
+        }
+      },
+      setPremiumStatus: (userId) => {
+        const { updateUser } = useUserDatabase.getState();
+        const success = updateUser(userId, { isPremium: true });
+        if (success) {
+            get().updateValhallaCoins(userId, 500);
+            set(state => ({ user: state.user ? { ...state.user, isPremium: true } : null }));
         }
       },
     }),

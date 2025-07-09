@@ -3,11 +3,12 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Order, OrderStatus } from '@/lib/types';
+import type { Order, OrderStatus, User } from '@/lib/types';
 import { useStock } from '@/hooks/use-stock';
 import { useCategoriesStore } from '@/hooks/use-categories';
 import { useAuth } from './use-auth';
 import { USD_TO_VALHALLA_COIN_RATE } from '@/lib/ranks';
+import { products } from '@/lib/data';
 
 type OrdersState = {
     orders: Order[];
@@ -18,7 +19,7 @@ type OrdersState = {
 
 export const useOrders = create(
     persist<OrdersState>(
-        (set) => ({
+        (set, get) => ({
             orders: [],
             addOrder: (newOrderData) => {
                 const newOrder: Order = {
@@ -59,8 +60,12 @@ export const useOrders = create(
                         
                         // Deduct XP and Coins earned from this purchase if it was completed
                         if(previousStatus === 'completed') {
+                            const { findUserById } = useAuth.getState();
+                            const user = findUserById(orderToUpdate.customer.id);
+                            const xpMultiplier = user?.isPremium ? 1.5 : 1.0;
+                            
                             const cashSpent = (orderToUpdate.total + (orderToUpdate.discountAmount ?? 0)) - (orderToUpdate.valhallaCoinsValue ?? 0);
-                            useAuth.getState().updateTotalSpent(orderToUpdate.customer.id, -cashSpent);
+                            useAuth.getState().updateTotalSpent(orderToUpdate.customer.id, -(cashSpent * xpMultiplier));
                             const coinsEarned = Math.floor(cashSpent * USD_TO_VALHALLA_COIN_RATE);
                             useAuth.getState().updateValhallaCoins(orderToUpdate.customer.id, -coinsEarned);
                         }
@@ -71,14 +76,26 @@ export const useOrders = create(
 
                     // Process completion logic - only if moving from a non-completed state
                     if (status === 'completed' && previousStatus !== 'completed') {
-                        const { updateTotalSpent, updateValhallaCoins } = useAuth.getState();
+                        const { updateTotalSpent, updateValhallaCoins, findUserById, setPremiumStatus } = useAuth.getState();
+                        
+                        // Check for premium membership purchase
+                        const premiumProduct = products.find(p => p.id === 'prod_premium');
+                        if (orderToUpdate.items.some(item => item.productId === premiumProduct?.id)) {
+                            setPremiumStatus(orderToUpdate.customer.id);
+                        }
+
+                        // We need the user's LATEST status to check for premium boost.
+                        // The user might have just become premium from this order.
+                        const user = findUserById(orderToUpdate.customer.id);
+                        const isPremium = user?.isPremium || false;
+                        const xpMultiplier = isPremium ? 1.5 : 1.0;
                         
                         // Amount paid with cash/wallet after all discounts and coin redemptions
                         const cashSpent = (orderToUpdate.total + (orderToUpdate.discountAmount || 0)) - (orderToUpdate.valhallaCoinsValue || 0);
 
                         // Grant XP and Valhalla coins based on cash spent
                         if (cashSpent > 0) {
-                            updateTotalSpent(orderToUpdate.customer.id, cashSpent);
+                            updateTotalSpent(orderToUpdate.customer.id, cashSpent * xpMultiplier);
                             const coinsToAward = Math.floor(cashSpent * USD_TO_VALHALLA_COIN_RATE);
                             updateValhallaCoins(orderToUpdate.customer.id, coinsToAward);
                         }

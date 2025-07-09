@@ -23,9 +23,33 @@ export let categories: Category[] = [
       { id: 'field_1', name: 'account_email', label: 'Account Email', type: 'email', placeholder: 'Enter the account email' }
     ] 
   },
+  {
+    id: 'cat_3',
+    name: 'Membership',
+    image: 'https://placehold.co/300x200.png',
+    backImage: 'https://placehold.co/300x200.png',
+    description: 'Unlock exclusive perks and benefits with a premium membership.',
+    deliveryMethod: 'manual',
+    customFields: []
+  },
 ];
 
 export let products: Product[] = [
+  {
+    id: 'prod_premium',
+    name: 'Premium Membership',
+    description: 'Unlock exclusive perks: a premium badge, animated RGB name, 1.5x XP boost, 500 Valhalla Coins, animated GIF avatars, and a special Discord rank!',
+    variants: [
+        { id: 'prem_1m', name: '1 Month', price: 9.99 },
+    ],
+    image: 'https://placehold.co/600x400.png',
+    aiHint: 'gold crown diamond',
+    category: 'Membership',
+    details: [
+        { title: 'Perks', content: '• Premium badge next to your name\n• Animated RGB username on leaderboards\n• 1.5x XP boost on all purchases\n• 500 Valhalla Coins upon purchase\n• Ability to use animated GIFs for your profile picture\n• Special rank in our Discord server (contact support after purchase)' },
+        { title: 'Activation', content: 'Premium status is activated automatically on your account after your order is completed.' },
+    ]
+  },
   {
     id: 'prod_001',
     name: 'Mobile Legends Diamonds',
@@ -179,13 +203,13 @@ export let stock: StockItem[] = [
 ];
 
 export let users: User[] = [
-    { id: '1', name: 'Admin User', email: 'admin@topuphub.com', password: 'admin', isAdmin: true, avatar: 'https://placehold.co/100x100.png', walletBalance: 1000, totalSpent: 0, valhallaCoins: 0 },
-    { id: 'user_1672532400000', name: 'SlayerGod', email: 'slayer@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 10, totalSpent: 1250, valhallaCoins: 1250 * USD_TO_VALHALLA_COIN_RATE },
-    { id: 'user_1672532400001', name: 'Luna', email: 'luna@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 200, totalSpent: 600, valhallaCoins: 600 * USD_TO_VALHALLA_COIN_RATE },
-    { id: '2', name: 'Test User', email: 'user@topuphub.com', password: 'user', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 50, totalSpent: 250, valhallaCoins: 250 * USD_TO_VALHALLA_COIN_RATE },
-    { id: 'user_1672532400002', name: 'Rogue', email: 'rogue@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 5, totalSpent: 150, valhallaCoins: 150 * USD_TO_VALHALLA_COIN_RATE },
-    { id: '3', name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 25.50, totalSpent: 25.50, valhallaCoins: 25.50 * USD_TO_VALHALLA_COIN_RATE },
-    { id: 'user_1672532400003', name: 'Zephyr', email: 'zephyr@example.com', password: 'password123', isAdmin: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 75, totalSpent: 30, valhallaCoins: 30 * USD_TO_VALHALLA_COIN_RATE },
+    { id: '1', name: 'Admin User', email: 'admin@topuphub.com', password: 'admin', isAdmin: true, isPremium: true, avatar: 'https://placehold.co/100x100.png', walletBalance: 1000, totalSpent: 0, valhallaCoins: 0 },
+    { id: 'user_1672532400000', name: 'SlayerGod', email: 'slayer@example.com', password: 'password123', isAdmin: false, isPremium: true, avatar: 'https://placehold.co/100x100.png', walletBalance: 10, totalSpent: 1250, valhallaCoins: 1250 * USD_TO_VALHALLA_COIN_RATE },
+    { id: 'user_1672532400001', name: 'Luna', email: 'luna@example.com', password: 'password123', isAdmin: false, isPremium: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 200, totalSpent: 600, valhallaCoins: 600 * USD_TO_VALHALLA_COIN_RATE },
+    { id: '2', name: 'Test User', email: 'user@topuphub.com', password: 'user', isAdmin: false, isPremium: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 50, totalSpent: 250, valhallaCoins: 250 * USD_TO_VALHALLA_COIN_RATE },
+    { id: 'user_1672532400002', name: 'Rogue', email: 'rogue@example.com', password: 'password123', isAdmin: false, isPremium: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 5, totalSpent: 150, valhallaCoins: 150 * USD_TO_VALHALLA_COIN_RATE },
+    { id: '3', name: 'Jane Smith', email: 'jane.smith@example.com', password: 'password123', isAdmin: false, isPremium: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 25.50, totalSpent: 25.50, valhallaCoins: 25.50 * USD_TO_VALHALLA_COIN_RATE },
+    { id: 'user_1672532400003', name: 'Zephyr', email: 'zephyr@example.com', password: 'password123', isAdmin: false, isPremium: false, avatar: 'https://placehold.co/100x100.png', walletBalance: 75, totalSpent: 30, valhallaCoins: 30 * USD_TO_VALHALLA_COIN_RATE },
 ];
 
 export const reviews: Review[] = [

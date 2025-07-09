@@ -11,6 +11,7 @@ import { useCurrency } from '@/hooks/use-currency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/use-translation';
 import { getRank, formatCoins } from '@/lib/ranks';
+import Image from 'next/image';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
@@ -29,7 +30,9 @@ export function DashboardSidebar() {
     <aside className="hidden w-64 flex-col border-r bg-background p-4 md:flex">
       <div className="flex items-center gap-4 mb-8">
         <Avatar className="h-12 w-12">
-            <AvatarImage src={user?.avatar} alt={user?.name} />
+            <AvatarImage src={user?.avatar} asChild>
+                <Image src={user?.avatar || ''} alt={user?.name || ''} width={48} height={48} unoptimized={user?.isPremium && user?.avatar?.endsWith('.gif')} />
+            </AvatarImage>
             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
         </Avatar>
         <div>
