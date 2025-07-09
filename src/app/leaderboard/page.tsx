@@ -10,7 +10,7 @@ import { getRank, formatXp, USD_TO_XP_RATE } from "@/lib/ranks";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Crown } from "lucide-react";
+import { Crown, Medal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -57,7 +57,7 @@ export default function LeaderboardPage() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="w-[20px] px-2">{t('leaderboard.headerRank')}</TableHead>
+                                            <TableHead className="w-[40px] px-2 text-center">{t('leaderboard.headerRank')}</TableHead>
                                             <TableHead>{t('leaderboard.headerHunter')}</TableHead>
                                             <TableHead>{t('leaderboard.headerClass')}</TableHead>
                                             <TableHead className="text-right">{t('leaderboard.headerSpent')}</TableHead>
@@ -66,9 +66,20 @@ export default function LeaderboardPage() {
                                     <TableBody>
                                         {allUsersSorted.map((user, index) => {
                                             const rank = getRank(user.totalSpent);
+                                            const rankPosition = index + 1;
                                             return (
                                                 <TableRow key={user.id}>
-                                                    <TableCell className="font-bold px-2">{index + 1}</TableCell>
+                                                    <TableCell className="font-bold px-2 text-center">
+                                                        {rankPosition === 1 ? (
+                                                            <Crown className="h-6 w-6 text-yellow-500 fill-yellow-500 mx-auto" />
+                                                        ) : rankPosition === 2 ? (
+                                                            <Medal className="h-6 w-6 text-slate-400 fill-slate-400 mx-auto" />
+                                                        ) : rankPosition === 3 ? (
+                                                            <Medal className="h-6 w-6 text-amber-700 fill-amber-700 mx-auto" />
+                                                        ) : (
+                                                            <span className="text-lg">{rankPosition}</span>
+                                                        )}
+                                                    </TableCell>
                                                     <TableCell>
                                                         <div className="flex items-center gap-3">
                                                             <Avatar className="h-8 w-8">
