@@ -4,8 +4,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User } from '@/lib/types';
-import { useRouter } from 'next/navigation';
-import { users as initialUsers } from '@/lib/data';
+import { useUserDatabase } from './use-user-database';
 
 type AuthState = {
   user: User | null;
@@ -13,7 +12,7 @@ type AuthState = {
   isAdmin: boolean;
   login: (credentials: Pick<User, 'email' | 'password'>) => boolean;
   logout: () => void;
-  register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent' | 'valhallaCoins'>) => boolean;
+  register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent' | 'valhallaCoins' | 'walletBalance'>) => boolean;
   updateUser: (userId: string, updates: Partial<Pick<User, 'name' | 'email'>>) => boolean;
   changePassword: (userId: string, newPassword: string) => boolean;
   updateAvatar: (userId: string, avatar: string) => void;
@@ -22,17 +21,16 @@ type AuthState = {
   updateValhallaCoins: (userId: string, amount: number) => void;
 };
 
-// Mock users database
-let users: User[] = JSON.parse(JSON.stringify(initialUsers));
 
 export const useAuth = create(
   persist<AuthState>(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       isAdmin: false,
       login: (credentials) => {
-        const foundUser = users.find(u => u.email === credentials.email && u.password === credentials.password);
+        const { findUser } = useUserDatabase.getState();
+        const foundUser = findUser(credentials.email, credentials.password);
         if (foundUser) {
           set({ user: foundUser, isAuthenticated: true, isAdmin: !!foundUser.isAdmin });
           return true;
@@ -43,7 +41,8 @@ export const useAuth = create(
         set({ user: null, isAuthenticated: false, isAdmin: false });
       },
       register: (userDetails) => {
-        const existingUser = users.find(u => u.email === userDetails.email);
+        const { findUserByEmail, addUser } = useUserDatabase.getState();
+        const existingUser = findUserByEmail(userDetails.email);
         if (existingUser) {
           return false; // User already exists
         }
@@ -56,44 +55,37 @@ export const useAuth = create(
             totalSpent: 0,
             valhallaCoins: 0,
         };
-        users.push(newUser);
+        addUser(newUser);
         set({ user: newUser, isAuthenticated: true, isAdmin: false });
         return true;
       },
       updateUser: (userId, updates) => {
-        const userIndex = users.findIndex(u => u.id === userId);
-        if (userIndex > -1) {
-            users[userIndex] = { ...users[userIndex], ...updates };
+        const { updateUser } = useUserDatabase.getState();
+        const success = updateUser(userId, updates);
+        if (success) {
             set(state => ({ user: state.user ? { ...state.user, ...updates } : null }));
-            return true;
         }
-        return false;
+        return success;
       },
       changePassword: (userId, newPassword) => {
-         const userIndex = users.findIndex(u => u.id === userId);
-         if (userIndex > -1) {
-             users[userIndex].password = newPassword;
-             return true;
-         }
-         return false;
+         const { updateUser, findUserById } = useUserDatabase.getState();
+         const currentUser = findUserById(userId);
+         if (!currentUser) return false;
+         
+         const success = updateUser(userId, { password: newPassword });
+         return success;
       },
       updateAvatar: (userId, avatar) => {
-         const userIndex = users.findIndex(u => u.id === userId);
-         if (userIndex > -1) {
-             users[userIndex].avatar = avatar;
-             set(state => ({ user: state.user ? { ...state.user, avatar } : null }));
-         }
+         const { updateUser } = useUserDatabase.getState();
+         updateUser(userId, { avatar });
+         set(state => ({ user: state.user ? { ...state.user, avatar } : null }));
       },
       updateWalletBalance: (userId, amount) => {
         set(state => {
           if (state.user && state.user.id === userId) {
             const newBalance = state.user.walletBalance + amount;
-            
-            const userIndex = users.findIndex(u => u.id === userId);
-            if (userIndex > -1) {
-                users[userIndex].walletBalance = newBalance;
-            }
-
+            const { updateUser } = useUserDatabase.getState();
+            updateUser(userId, { walletBalance: newBalance });
             return { user: { ...state.user, walletBalance: newBalance } };
           }
           return state;
@@ -103,12 +95,8 @@ export const useAuth = create(
         set(state => {
           if (state.user && state.user.id === userId) {
             const newBalance = state.user.valhallaCoins + amount;
-
-            const userIndex = users.findIndex(u => u.id === userId);
-            if (userIndex > -1) {
-                users[userIndex].valhallaCoins = newBalance;
-            }
-
+            const { updateUser } = useUserDatabase.getState();
+            updateUser(userId, { valhallaCoins: newBalance });
             return { user: { ...state.user, valhallaCoins: newBalance } };
           }
           return state;
@@ -118,12 +106,8 @@ export const useAuth = create(
         set(state => {
           if (state.user && state.user.id === userId) {
             const newTotal = state.user.totalSpent + amount;
-
-            const userIndex = users.findIndex(u => u.id === userId);
-            if (userIndex > -1) {
-                users[userIndex].totalSpent = newTotal;
-            }
-
+            const { updateUser } = useUserDatabase.getState();
+            updateUser(userId, { totalSpent: newTotal });
             return { user: { ...state.user, totalSpent: newTotal } };
           }
           return state;
@@ -132,6 +116,11 @@ export const useAuth = create(
     }),
     {
       name: 'topup-hub-auth',
+      partialize: (state) => ({ 
+        user: state.user, 
+        isAuthenticated: state.isAuthenticated, 
+        isAdmin: state.isAdmin 
+      }),
     }
   )
 );

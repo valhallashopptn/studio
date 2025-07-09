@@ -57,7 +57,7 @@ export default function CheckoutPage() {
     const { items, clearCart, updateCustomFieldValue } = useCart();
     const { paymentMethods } = usePaymentSettings();
     const { categories } = useCategories();
-    const { orders, addOrder } = useOrders();
+    const { addOrder } = useOrders();
     const { user, isAuthenticated, updateWalletBalance } = useAuth();
     const { validateCoupon, applyCoupon } = useCoupons();
 
@@ -68,7 +68,7 @@ export default function CheckoutPage() {
     const [orderId, setOrderId] = useState('');
     const { toast } = useToast();
     const { t } = useTranslation();
-    const { formatPrice, currency } = useCurrency();
+    const { currency } = useCurrency();
     const [isVerified, setIsVerified] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
     
@@ -79,6 +79,8 @@ export default function CheckoutPage() {
     const [coinsToApply, setCoinsToApply] = useState('');
     const [appliedCoins, setAppliedCoins] = useState(0);
     const [appliedCoinsValue, setAppliedCoinsValue] = useState(0);
+
+    const { formatPrice } = useCurrency();
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -129,13 +131,8 @@ export default function CheckoutPage() {
 
     const isWalletDisabled = !isAuthenticated || (user?.walletBalance ?? 0) < total;
 
-    const isFirstPurchase = useMemo(() => {
-        if (!user) return false;
-        return !orders.some(order => order.customer.id === user.id);
-    }, [orders, user]);
-
     const handleApplyCoupon = () => {
-        const { isValid, coupon, error } = validateCoupon(couponCode, isFirstPurchase);
+        const { isValid, coupon, error } = validateCoupon(couponCode);
         if (isValid && coupon) {
             let discount = 0;
             if (coupon.discountType === 'fixed') {
@@ -260,9 +257,8 @@ export default function CheckoutPage() {
     };
 
     const handleConfirmationDialogChange = (isOpen: boolean) => {
-        if (!isOpen && orderId) {
+        if (!isOpen && orderComplete) {
             // This logic runs when the dialog is closed after a successful order.
-            router.push('/dashboard/orders');
             clearCart();
             setSelectedPayment(null);
             setPaymentProofImage(null);
@@ -272,6 +268,7 @@ export default function CheckoutPage() {
             setCoinsToApply('');
             setAppliedCoins(0);
             setAppliedCoinsValue(0);
+            router.push('/dashboard/orders');
         }
         setConfirmOpen(isOpen);
     };

@@ -57,7 +57,7 @@ export const useOrders = create(
                         
                         // Deduct XP and Coins earned from this purchase if it was completed
                         if(previousStatus === 'completed') {
-                            const cashSpent = (orderToUpdate.total + (orderToUpdate.discountAmount || 0)) - (orderToUpdate.valhallaCoinsValue || 0);
+                            const cashSpent = (orderToUpdate.total + (orderToUpdate.discountAmount ?? 0)) - (orderToUpdate.valhallaCoinsValue ?? 0);
                             useAuth.getState().updateTotalSpent(orderToUpdate.customer.id, -cashSpent);
                             const coinsEarned = Math.floor(cashSpent * USD_TO_VALHALLA_COIN_RATE);
                             useAuth.getState().updateValhallaCoins(orderToUpdate.customer.id, -coinsEarned);
