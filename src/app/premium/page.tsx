@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
@@ -43,14 +43,24 @@ export default function PremiumPage() {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      if (!isAuthenticated || isAdmin) {
+        router.push('/');
+      }
+    }
+  }, [isMounted, isAuthenticated, isAdmin, router]);
 
   const priceText = `${premiumPriceTND.toFixed(0)} TND / ${t('premiumPage.month')}`;
   const hasEnoughFunds = user ? user.walletBalance >= premiumPriceUSD : false;
 
-  if (!isAuthenticated || isAdmin) {
-    if (typeof window !== 'undefined') {
-        router.push('/');
-    }
+  if (!isMounted || !isAuthenticated || isAdmin) {
     return <div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
   
