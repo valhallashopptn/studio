@@ -322,6 +322,8 @@
     "goToDashboard": "Go to Dashboard",
     "confirmDescWithWallet": "You are about to purchase the Premium Membership for {{price}}. This amount will be deducted from your wallet balance. Do you wish to proceed?",
     "insufficientFundsTitle": "Insufficient Wallet Balance",
-    "insufficientFundsDesc": "You need {{required}} to purchase Premium, but your wallet only has {{balance}}. Please add funds to your wallet to proceed."
+    "insufficientFundsDesc": "You need {{required}} to purchase Premium, but your wallet only has {{balance}}. Please add funds to your wallet to proceed.",
+    "featureLockedTitle": "Premium Feature Locked",
+    "gifAvatarLockedDesc": "You need a Premium membership to use animated GIF avatars."
   }
 }

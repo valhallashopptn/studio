@@ -135,6 +135,16 @@ export default function SettingsPage() {
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file && user) {
+            if (!user.isPremium && file.type === 'image/gif') {
+                toast({
+                    variant: 'destructive',
+                    title: t('premiumPage.featureLockedTitle'),
+                    description: t('premiumPage.gifAvatarLockedDesc'),
+                });
+                e.target.value = '';
+                return;
+            }
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 if (typeof reader.result === 'string') {
