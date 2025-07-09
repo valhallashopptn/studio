@@ -19,7 +19,8 @@ import { getRank, getNextRank, ranks as allRanks, USD_TO_XP_RATE, formatXp } fro
 import { Progress } from '@/components/ui/progress';
 import { useCurrency } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
-import { Info, Trophy, Palette } from 'lucide-react';
+import { Info, Trophy, Palette, Lock, Gem } from 'lucide-react';
+import Link from 'next/link';
 import {
   Dialog,
   DialogContent,
@@ -279,26 +280,50 @@ export default function SettingsPage() {
                 </Card>
             )}
 
-            {user?.isPremium && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" /> Profile Customization</CardTitle>
-                        <CardDescription>As a premium member, you can customize your profile's appearance.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" /> Profile Customization</CardTitle>
+                    <CardDescription>
+                        {user?.isPremium
+                            ? "As a premium member, you can customize your profile's appearance."
+                            : "Unlock profile customization perks by upgrading to Premium."
+                        }
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="relative">
+                        {!user?.isPremium && (
+                            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg -m-6 p-6">
+                                <div className="text-center">
+                                    <Lock className="h-10 w-10 text-muted-foreground mb-3 mx-auto" />
+                                    <h3 className="text-lg font-semibold">This is a Premium Feature</h3>
+                                    <p className="text-sm text-muted-foreground mb-4">Unlock animated names and more.</p>
+                                    <Button asChild>
+                                        <Link href="/premium">
+                                            <Gem className="mr-2 h-4 w-4" />
+                                            Unlock with Premium
+                                        </Link>
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                         <div>
                             <Label className="text-base font-semibold">Username Style</Label>
                             <p className="text-sm text-muted-foreground mb-4">Choose how your name appears across the site.</p>
                             <RadioGroup
-                                defaultValue={user.nameStyle || 'default'}
+                                defaultValue={user?.nameStyle || 'default'}
                                 onValueChange={handleNameStyleChange}
                                 className="grid sm:grid-cols-2 gap-4"
+                                disabled={!user?.isPremium}
                             >
                                 {nameStyles.map(style => (
                                 <Label
                                     key={style.id}
                                     htmlFor={`style-${style.id}`}
-                                    className="flex items-center justify-between rounded-lg border p-4 cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-secondary"
+                                    className={cn(
+                                        "flex items-center justify-between rounded-lg border p-4",
+                                        user?.isPremium ? "cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-secondary" : "cursor-not-allowed"
+                                    )}
                                 >
                                     <span className={cn('font-semibold', style.className)}>{style.label}</span>
                                     <RadioGroupItem value={style.id} id={`style-${style.id}`} />
@@ -306,9 +331,9 @@ export default function SettingsPage() {
                                 ))}
                             </RadioGroup>
                         </div>
-                    </CardContent>
-                </Card>
-            )}
+                    </div>
+                </CardContent>
+            </Card>
 
             <Card>
                 <CardHeader>
@@ -325,8 +350,17 @@ export default function SettingsPage() {
                         </Avatar>
                         <div className="grid w-full max-w-sm items-center gap-1.5">
                             <Label htmlFor="picture">{t('dashboardSettings.uploadNewPicture')}</Label>
-                            <Input id="picture" type="file" accept="image/*" onChange={handleAvatarChange} className="file:text-primary file:font-semibold" />
-                             {user?.isPremium && <p className="text-xs text-muted-foreground">Premium perk: Animated GIFs are supported!</p>}
+                            <Input id="picture" type="file" accept={user?.isPremium ? "image/gif, image/png, image/jpeg" : "image/png, image/jpeg"} onChange={handleAvatarChange} className="file:text-primary file:font-semibold" />
+                             {user?.isPremium ? (
+                                <p className="text-xs text-muted-foreground">Premium perk: Animated GIFs are supported!</p>
+                             ) : (
+                                <p className="text-xs text-muted-foreground">
+                                    <Link href="/premium" className="underline text-primary font-semibold hover:text-primary/80 flex items-center gap-1 w-fit">
+                                        <Lock className="h-3 w-3" />
+                                        Unlock animated GIF avatars with Premium.
+                                    </Link>
+                                </p>
+                             )}
                         </div>
                     </div>
                 </CardContent>
