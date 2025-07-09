@@ -20,11 +20,11 @@ export const ranks: Rank[] = [
     { name: 'D-Rank', threshold: 13 * USD_TO_XP_RATE, icon: ShieldCheck, color: 'text-cyan-500' },
     { name: 'C-Rank', threshold: 17 * USD_TO_XP_RATE, icon: Sword, color: 'text-blue-500' },
     { name: 'B-Rank', threshold: 22 * USD_TO_XP_RATE, icon: Swords, color: 'text-violet-500' },
-    { name: 'A-Rank', threshold: 30 * USD_TO_XP_RATE, icon: Gem, color: 'text-rose-500' },
-    { name: 'S-Rank', threshold: 40 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
-    { name: 'SS-Rank', threshold: 55 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
-    { name: 'Legend', threshold: 75 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-400' },
-    { name: 'LORD', threshold: 100 * USD_TO_XP_RATE, icon: Hexagon, color: 'text-fuchsia-500', isAnimated: true },
+    { name: 'A-Rank', threshold: 29 * USD_TO_XP_RATE, icon: Gem, color: 'text-rose-500' },
+    { name: 'S-Rank', threshold: 38 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
+    { name: 'SS-Rank', threshold: 50 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
+    { name: 'Legend', threshold: 65 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-400' },
+    { name: 'LORD', threshold: 85 * USD_TO_XP_RATE, icon: Hexagon, color: 'bg-gradient-to-r from-orange-400 via-rose-400 to-violet-500 bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto]', isAnimated: true },
 ];
 
 export const getRank = (totalSpent: number): Rank => {
