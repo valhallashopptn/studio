@@ -19,15 +19,15 @@ export interface Rank {
 
 export const ranks: Rank[] = [
     { name: 'F-Rank', threshold: 0 * USD_TO_XP_RATE, icon: ShieldOff, color: 'text-slate-400' },
-    { name: 'E-Rank', threshold: 10 * USD_TO_XP_RATE, icon: Shield, color: 'text-green-500' },
-    { name: 'D-Rank', threshold: 16 * USD_TO_XP_RATE, icon: ShieldCheck, color: 'text-cyan-500' },
-    { name: 'C-Rank', threshold: 25.6 * USD_TO_XP_RATE, icon: Sword, color: 'text-blue-500' },
-    { name: 'B-Rank', threshold: 40.96 * USD_TO_XP_RATE, icon: Swords, color: 'text-violet-500' },
-    { name: 'A-Rank', threshold: 65.536 * USD_TO_XP_RATE, icon: Gem, color: 'text-rose-500' },
-    { name: 'S-Rank', threshold: 104.8576 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
-    { name: 'SS-Rank', threshold: 167.77216 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
-    { name: 'Legend', threshold: 268.435456 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-400' },
-    { name: 'LORD', threshold: 429.4967296 * USD_TO_XP_RATE, icon: Hexagon, color: 'animate-rgb-cycle', iconColor: 'animate-rgb-cycle', isAnimated: true },
+    { name: 'E-Rank', threshold: 60 * USD_TO_XP_RATE, icon: Shield, color: 'text-green-500' },
+    { name: 'D-Rank', threshold: 96 * USD_TO_XP_RATE, icon: ShieldCheck, color: 'text-cyan-500' },
+    { name: 'C-Rank', threshold: 153.6 * USD_TO_XP_RATE, icon: Sword, color: 'text-blue-500' },
+    { name: 'B-Rank', threshold: 245.76 * USD_TO_XP_RATE, icon: Swords, color: 'text-violet-500' },
+    { name: 'A-Rank', threshold: 393.216 * USD_TO_XP_RATE, icon: Gem, color: 'text-rose-500' },
+    { name: 'S-Rank', threshold: 629.1456 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
+    { name: 'SS-Rank', threshold: 1006.63296 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
+    { name: 'Legend', threshold: 1610.612736 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-400' },
+    { name: 'LORD', threshold: 2576.9803776 * USD_TO_XP_RATE, icon: Hexagon, color: 'animate-rgb-cycle', iconColor: 'animate-rgb-cycle', isAnimated: true },
 ];
 
 export const getRank = (totalSpent: number): Rank => {
