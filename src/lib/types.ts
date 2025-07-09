@@ -75,6 +75,7 @@ export interface User {
   walletBalance: number;
   totalSpent: number;
   valhallaCoins: number;
+  nameStyle?: string;
 }
 
 export interface Review {

@@ -75,11 +75,14 @@ export function Leaderboard() {
                                                 <AvatarImage src={user.avatar} />
                                                 <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                            {user.isPremium ? (
-                                                <span className="font-medium bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan">{user.name}</span>
-                                            ) : (
-                                                <span className="font-medium">{user.name}</span>
-                                            )}
+                                            <span className={cn(
+                                                'font-medium',
+                                                user.isPremium && user.nameStyle === 'rgb' && 'bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan',
+                                                user.isPremium && user.nameStyle === 'gold' && 'text-yellow-500',
+                                                user.isPremium && user.nameStyle === 'frost' && 'text-cyan-400',
+                                            )}>
+                                                {user.name}
+                                            </span>
                                             {user.isPremium && (
                                                 <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold">PREMIUM</Badge>
                                             )}

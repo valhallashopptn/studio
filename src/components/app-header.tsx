@@ -200,7 +200,14 @@ export function AppHeader() {
       <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-medium leading-none">{user?.name}</p>
+              <p className={cn(
+                  "text-sm font-medium leading-none",
+                  user?.isPremium && user?.nameStyle === 'rgb' && 'bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan',
+                  user?.isPremium && user?.nameStyle === 'gold' && 'text-yellow-500',
+                  user?.isPremium && user?.nameStyle === 'frost' && 'text-cyan-400',
+              )}>
+                  {user?.name}
+              </p>
               {user?.isPremium && <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold text-[10px] px-1.5 py-0">PREMIUM</Badge>}
             </div>
             <p className="text-xs leading-none text-muted-foreground">

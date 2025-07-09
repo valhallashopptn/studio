@@ -20,6 +20,7 @@ type AuthState = {
   updateTotalSpent: (userId: string, amount: number) => void;
   updateValhallaCoins: (userId: string, amount: number) => void;
   setPremiumStatus: (userId: string) => void;
+  updateNameStyle: (userId: string, style: string) => void;
 };
 
 
@@ -56,6 +57,7 @@ export const useAuth = create(
             walletBalance: 0,
             totalSpent: 0,
             valhallaCoins: 0,
+            nameStyle: 'default',
         };
         addUser(newUser);
         set({ user: newUser, isAuthenticated: true, isAdmin: false });
@@ -132,11 +134,14 @@ export const useAuth = create(
             set(state => ({ user: state.user ? { ...state.user, isPremium: true } : null }));
         }
       },
+      updateNameStyle: (userId, style) => {
+         const { updateUser } = useUserDatabase.getState();
+         updateUser(userId, { nameStyle: style });
+         set(state => ({ user: state.user ? { ...state.user, nameStyle: style } : null }));
+      },
     }),
     {
       name: 'topup-hub-auth',
-      // This merge function will ignore persisted state and use the initial state from the code.
-      // This is a temporary measure to force a reset of the auth state.
       merge: (persistedState, currentState) => {
         return currentState;
       },

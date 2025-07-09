@@ -19,7 +19,7 @@ import { getRank, getNextRank, ranks as allRanks, USD_TO_XP_RATE, formatXp } fro
 import { Progress } from '@/components/ui/progress';
 import { useCurrency } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
-import { Info, Trophy } from 'lucide-react';
+import { Info, Trophy, Palette } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -39,6 +39,7 @@ import {
 import { useState, useEffect, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useUserDatabase } from '@/hooks/use-user-database';
 
 const profileSchema = z.object({
@@ -55,8 +56,15 @@ const passwordSchema = z.object({
     path: ['confirmPassword'],
 });
 
+const nameStyles = [
+  { id: 'default', label: 'Default', className: '' },
+  { id: 'rgb', label: 'RGB Flow', className: 'font-bold bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan' },
+  { id: 'gold', label: 'Golden', className: 'font-bold text-yellow-500' },
+  { id: 'frost', label: 'Frost', className: 'font-bold text-cyan-400' },
+];
+
 export default function SettingsPage() {
-    const { user, updateUser, changePassword, updateAvatar } = useAuth();
+    const { user, updateUser, changePassword, updateAvatar, updateNameStyle } = useAuth();
     const { toast } = useToast();
     const { t } = useTranslation();
     const { formatPrice } = useCurrency();
@@ -86,6 +94,7 @@ export default function SettingsPage() {
     const requiredForNextRank = nextRankThreshold - currentRankThreshold;
     const progressPercentage = requiredForNextRank > 0 ? (progressToNextRank / requiredForNextRank) * 100 : (nextRank ? 0 : 100);
     const amountToNextRank = nextRank ? nextRank.threshold - totalXp : 0;
+    const selectedNameStyle = nameStyles.find(s => s.id === user?.nameStyle)?.className || '';
 
     const profileForm = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
@@ -133,6 +142,13 @@ export default function SettingsPage() {
                 }
             };
             reader.readAsDataURL(file);
+        }
+    };
+    
+    const handleNameStyleChange = (styleId: string) => {
+        if (user) {
+            updateNameStyle(user.id, styleId);
+            toast({ title: 'Username style updated!' });
         }
     };
 
@@ -263,6 +279,37 @@ export default function SettingsPage() {
                 </Card>
             )}
 
+            {user?.isPremium && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" /> Profile Customization</CardTitle>
+                        <CardDescription>As a premium member, you can customize your profile's appearance.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div>
+                            <Label className="text-base font-semibold">Username Style</Label>
+                            <p className="text-sm text-muted-foreground mb-4">Choose how your name appears across the site.</p>
+                            <RadioGroup
+                                defaultValue={user.nameStyle || 'default'}
+                                onValueChange={handleNameStyleChange}
+                                className="grid sm:grid-cols-2 gap-4"
+                            >
+                                {nameStyles.map(style => (
+                                <Label
+                                    key={style.id}
+                                    htmlFor={`style-${style.id}`}
+                                    className="flex items-center justify-between rounded-lg border p-4 cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-secondary"
+                                >
+                                    <span className={cn('font-semibold', style.className)}>{style.label}</span>
+                                    <RadioGroupItem value={style.id} id={`style-${style.id}`} />
+                                </Label>
+                                ))}
+                            </RadioGroup>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
             <Card>
                 <CardHeader>
                     <CardTitle>{t('dashboardSettings.profilePicture')}</CardTitle>
@@ -294,7 +341,16 @@ export default function SettingsPage() {
                     <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
                         <CardContent className="space-y-4">
                             <FormField control={profileForm.control} name="name" render={({ field }) => (
-                                <FormItem><FormLabel>{t('dashboardSettings.name')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem>
+                                    <FormLabel>{t('dashboardSettings.name')}</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    {user?.isPremium && (
+                                        <div className="text-sm text-muted-foreground pt-2">
+                                            Preview: <span className={cn("font-bold", selectedNameStyle)}>{field.value || 'Your Name'}</span>
+                                        </div>
+                                    )}
+                                    <FormMessage />
+                                </FormItem>
                             )}/>
                             <FormField control={profileForm.control} name="email" render={({ field }) => (
                                 <FormItem><FormLabel>{t('dashboardSettings.email')}</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>

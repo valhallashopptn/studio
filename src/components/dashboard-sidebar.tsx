@@ -38,7 +38,14 @@ export function DashboardSidebar() {
         </Avatar>
         <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold">{user?.name}</h2>
+              <h2 className={cn(
+                  "text-lg font-bold",
+                  user?.isPremium && user?.nameStyle === 'rgb' && 'bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan',
+                  user?.isPremium && user?.nameStyle === 'gold' && 'text-yellow-500',
+                  user?.isPremium && user?.nameStyle === 'frost' && 'text-cyan-400',
+              )}>
+                  {user?.name}
+              </h2>
               {user?.isPremium && <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold text-xs">PREMIUM</Badge>}
             </div>
             {rank && (
