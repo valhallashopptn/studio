@@ -26,7 +26,7 @@ import { usePaymentSettings } from '@/hooks/use-payment-settings';
 import { useCategories } from '@/hooks/use-categories';
 import { useCoupons } from '@/hooks/use-coupons';
 import type { PaymentMethod, CartItem, Order, Category, Coupon } from '@/lib/types';
-import { Landmark, Wallet as WalletIcon, CreditCard, Upload, Loader2, User, Info, Lock, TicketPercent, Coins } from 'lucide-react';
+import { Landmark, Wallet as WalletIcon, CreditCard, Upload, Loader2, User, Info, Lock, TicketPercent, Coins, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/hooks/use-translation';
 import { useCurrency } from '@/hooks/use-currency';
@@ -54,7 +54,7 @@ const PaymentInstructions = ({ method }: { method: PaymentMethod | null }) => {
 
 export default function CheckoutPage() {
     const router = useRouter();
-    const { items, clearCart, updateCustomFieldValue } = useCart();
+    const { items, clearCart, updateCustomFieldValue, removeItem } = useCart();
     const { paymentMethods } = usePaymentSettings();
     const { categories } = useCategories();
     const { addOrder } = useOrders();
@@ -404,16 +404,28 @@ export default function CheckoutPage() {
                                     <ScrollArea className="h-48 pr-3">
                                         <div className="space-y-4">
                                             {items.map(item => (
-                                                <div key={item.id} className="flex justify-between items-center">
-                                                    <div className="flex items-center gap-3">
+                                                <div key={item.id} className="flex justify-between items-start gap-2">
+                                                    <div className="flex items-center gap-3 flex-1">
                                                         <Image src={item.image} alt={item.name} width={40} height={40} className="rounded-md object-cover" />
-                                                        <div>
+                                                        <div className="flex-1">
                                                             <p className="font-semibold">{item.name}</p>
                                                             <p className="text-sm text-muted-foreground">{item.quantity} x {formatPrice(item.variant.price)}</p>
                                                             <p className="text-xs text-muted-foreground">({item.variant.name})</p>
                                                         </div>
                                                     </div>
-                                                    <p className="font-semibold">{formatPrice(item.quantity * item.variant.price)}</p>
+                                                    <div className="flex flex-col items-end gap-1">
+                                                        <p className="font-semibold text-right">{formatPrice(item.quantity * item.variant.price)}</p>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                                                            onClick={() => removeItem(item.id)}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                            <span className="sr-only">Remove item</span>
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
