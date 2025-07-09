@@ -15,7 +15,7 @@ export function CurrencySwitcher() {
   const { currency, setCurrency } = useCurrency();
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
           {currency === 'USD' ? <DollarSign className="h-5 w-5" /> : <Coins className="h-5 w-5" />}
@@ -25,7 +25,6 @@ export function CurrencySwitcher() {
       <DropdownMenuContent
         align="end"
         className="z-[70]"
-        onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DropdownMenuItem onClick={() => setCurrency('USD')}>
           USD ($)
