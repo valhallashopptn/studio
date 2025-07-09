@@ -15,7 +15,8 @@
     "register": "Register",
     "logout": "Log out",
     "adminDashboard": "Admin Dashboard",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "yourRank": "Your Rank: #{{rank}}"
   },
   "login": {
     "title": "Welcome Back",
@@ -259,7 +260,8 @@
     "allRanksDescription": "Rank up by making purchases. Higher ranks unlock greater prestige as a hunter!",
     "rankResetNote": "Note: Ranks are reset every 6 months to keep the competition fresh.",
     "nextRankProgressText": "Earn {{xp}} more to rank up.",
-    "maxRankText": "You have reached the rank of Lord! You are a true Monarch of the system."
+    "maxRankText": "You have reached the rank of Lord! You are a true Monarch of the system.",
+    "globalRank": "Global Rank"
   },
   "productPage": {
     "noReviews": "No reviews yet",

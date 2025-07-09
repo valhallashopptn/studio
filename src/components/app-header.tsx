@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins, Crown } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins, Crown, Trophy } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -54,6 +54,7 @@ import {
 } from '@/components/ui/dialog';
 import { ReviewForm } from '@/components/review-form';
 import { useToast } from '@/hooks/use-toast';
+import { useUserDatabase } from '@/hooks/use-user-database';
 
 
 export function AppHeader() {
@@ -63,6 +64,7 @@ export function AppHeader() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const items = useCart((state) => state.items);
   const { isAuthenticated, user, isAdmin, logout } = useAuth();
+  const { users: allUsers } = useUserDatabase();
   const { logoUrl, siteTitle } = useSiteSettings();
   const { announcementEnabled, announcementText } = useContentSettings();
   const pathname = usePathname();
@@ -134,6 +136,15 @@ export function AppHeader() {
     setIsReviewDialogOpen(true);
     handleReviewPromptClose();
   };
+
+  const leaderboardRank = useMemo(() => {
+    if (!user || isAdmin) return null;
+    const sortedUsers = [...allUsers]
+      .filter(u => !u.isAdmin)
+      .sort((a, b) => b.totalSpent - a.totalSpent);
+    const userIndex = sortedUsers.findIndex(u => u.id === user.id);
+    return userIndex !== -1 ? userIndex + 1 : null;
+  }, [allUsers, user, isAdmin]);
 
 
   // Rank logic
@@ -347,6 +358,14 @@ export function AppHeader() {
                                 </DropdownMenuItem>
                             ) : (
                                 <>
+                                    {leaderboardRank && (
+                                        <DropdownMenuLabel className="font-normal">
+                                          <div className="flex items-center gap-2">
+                                              <Trophy className="h-4 w-4 text-amber-400" />
+                                              <span>{t('auth.yourRank', { rank: leaderboardRank })}</span>
+                                          </div>
+                                        </DropdownMenuLabel>
+                                    )}
                                     <DropdownMenuItem onClick={() => router.push('/leaderboard')}>
                                         <Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                                         <span>{t('leaderboard.fullTitle')}</span>

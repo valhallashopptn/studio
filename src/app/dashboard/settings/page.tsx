@@ -19,7 +19,7 @@ import { getRank, getNextRank, ranks as allRanks, USD_TO_XP_RATE, formatXp } fro
 import { Progress } from '@/components/ui/progress';
 import { useCurrency } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
-import { Info } from 'lucide-react';
+import { Info, Trophy } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -36,9 +36,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useUserDatabase } from '@/hooks/use-user-database';
 
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -59,11 +60,21 @@ export default function SettingsPage() {
     const { toast } = useToast();
     const { t } = useTranslation();
     const { formatPrice } = useCurrency();
+    const { users: allUsers } = useUserDatabase();
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    const leaderboardRank = useMemo(() => {
+        if (!user) return null;
+        const sortedUsers = [...allUsers]
+            .filter(u => !u.isAdmin)
+            .sort((a, b) => b.totalSpent - a.totalSpent);
+        const userIndex = sortedUsers.findIndex(u => u.id === user.id);
+        return userIndex !== -1 ? userIndex + 1 : null;
+    }, [allUsers, user]);
     
     const totalXp = user ? user.totalSpent * USD_TO_XP_RATE : 0;
     const rank = user ? getRank(user.totalSpent) : null;
@@ -185,18 +196,34 @@ export default function SettingsPage() {
                         <CardDescription>Track your journey through the ranks. Higher ranks may unlock future benefits!</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="flex items-center gap-4 p-4 bg-secondary rounded-lg">
-                            <rank.icon className={cn("h-12 w-12", rank.iconColor || rank.color)} />
-                            <div>
-                                <h3 className={cn("text-2xl font-bold", rank.color)}>
-                                    {rank.name}
-                                </h3>
-                                {isMounted ? (
-                                    <p className="text-muted-foreground">Total XP: {formatXp(totalXp)}</p>
-                                ) : (
-                                    <Skeleton className="h-5 w-32 mt-1" />
-                                )}
+                        <div className="flex items-center justify-between gap-4 p-4 bg-secondary rounded-lg">
+                            <div className="flex items-center gap-4">
+                                <rank.icon className={cn("h-12 w-12", rank.iconColor || rank.color)} />
+                                <div>
+                                    <h3 className={cn("text-2xl font-bold", rank.color)}>
+                                        {rank.name}
+                                    </h3>
+                                    {isMounted ? (
+                                        <p className="text-muted-foreground">Total XP: {formatXp(totalXp)}</p>
+                                    ) : (
+                                        <Skeleton className="h-5 w-32 mt-1" />
+                                    )}
+                                </div>
                             </div>
+                             {isMounted && leaderboardRank ? (
+                                <div className="text-right">
+                                    <p className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5 justify-end">
+                                        <Trophy className="h-4 w-4 text-amber-400" />
+                                        <span>{t('dashboardSettings.globalRank')}</span>
+                                    </p>
+                                    <p className="text-2xl font-bold">#{leaderboardRank}</p>
+                                </div>
+                            ) : isMounted ? null : (
+                                <div className="space-y-2">
+                                    <Skeleton className="h-5 w-20 ml-auto" />
+                                    <Skeleton className="h-8 w-12 ml-auto" />
+                                </div>
+                            )}
                         </div>
                         {nextRank ? (
                             <div className="space-y-2">
