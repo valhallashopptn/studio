@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,7 @@ export function LanguageSwitcher() {
           <span className="sr-only">Change language</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="z-[70]">
         <DropdownMenuItem onClick={() => setLocale('en')}>
           English
         </DropdownMenuItem>

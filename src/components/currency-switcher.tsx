@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,7 @@ export function CurrencySwitcher() {
           <span className="sr-only">Change currency</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="z-[70]">
         <DropdownMenuItem onClick={() => setCurrency('USD')}>
           USD ($)
         </DropdownMenuItem>
