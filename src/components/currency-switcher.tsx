@@ -17,7 +17,7 @@ export function CurrencySwitcher() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" onPointerDown={(e) => e.stopPropagation()}>
+        <Button variant="outline" size="icon">
           {currency === 'USD' ? <DollarSign className="h-5 w-5" /> : <Coins className="h-5 w-5" />}
           <span className="sr-only">Change currency</span>
         </Button>

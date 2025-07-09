@@ -298,13 +298,16 @@ export function AppHeader() {
             className={cn("absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity", isMobileMenuOpen ? "opacity-100" : "opacity-0")}
             onClick={() => setMobileMenuOpen(false)}
         />
-        <div className={cn(
-            "absolute top-0 h-full w-4/5 max-w-xs bg-background p-6 shadow-xl transition-transform duration-300 ease-in-out",
-            locale === 'ar' ? "right-0" : "left-0",
-            isMobileMenuOpen
-                ? "translate-x-0"
-                : locale === 'ar' ? "translate-x-full" : "-translate-x-full"
-        )}>
+        <div 
+            className={cn(
+                "absolute top-0 h-full w-4/5 max-w-xs bg-background p-6 shadow-xl transition-transform duration-300 ease-in-out",
+                locale === 'ar' ? "right-0" : "left-0",
+                isMobileMenuOpen
+                    ? "translate-x-0"
+                    : locale === 'ar' ? "translate-x-full" : "-translate-x-full"
+            )}
+            onClick={(e) => e.stopPropagation()}
+        >
             <div className="flex items-center justify-between mb-8">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
                     {logoUrl ? (
