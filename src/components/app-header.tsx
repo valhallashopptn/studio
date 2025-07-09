@@ -368,16 +368,16 @@ export function AppHeader() {
                                           </div>
                                         </DropdownMenuLabel>
                                     )}
-                                    {isAuthenticated && !isAdmin && !user.isPremium && (
+                                    <DropdownMenuItem onClick={() => router.push('/leaderboard')}>
+                                        <Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                                        <span>{t('leaderboard.fullTitle')}</span>
+                                    </DropdownMenuItem>
+                                    {!user?.isPremium && (
                                       <DropdownMenuItem onClick={() => router.push('/premium')}>
                                         <Gem className={cn("h-4 w-4 text-primary", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                                         <span>{t('nav.goPremium')}</span>
                                       </DropdownMenuItem>
                                     )}
-                                    <DropdownMenuItem onClick={() => router.push('/leaderboard')}>
-                                        <Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                                        <span>{t('leaderboard.fullTitle')}</span>
-                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
                                         <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                                         <span>{t('auth.dashboard')}</span>
@@ -476,8 +476,45 @@ export function AppHeader() {
                  </div>
                  {isAuthenticated ? (
                     <div className="space-y-4">
+                        <div className="flex items-center gap-3 border-b pb-4">
+                            <Avatar className="h-12 w-12">
+                                <AvatarImage src={user?.avatar} asChild>
+                                    <Image src={user?.avatar || ''} alt={user?.name || ''} width={48} height={48} unoptimized={user?.isPremium && user?.avatar?.endsWith('.gif')} />
+                                </AvatarImage>
+                                <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p className="font-semibold leading-none">{user?.name}</p>
+                                <p className="text-xs leading-none text-muted-foreground mt-1">
+                                    {user?.email}
+                                </p>
+                            </div>
+                        </div>
+
+                        {!isAdmin && rank && (
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center text-sm mb-1">
+                                    <div className="flex items-center gap-1.5 font-semibold">
+                                        <rank.icon className={cn("h-4 w-4", rank.iconColor || rank.color)} />
+                                        <span className={rank.color}>{rank.name}</span>
+                                    </div>
+                                    {nextRank && (
+                                        <div className={cn("flex items-center gap-1.5 font-semibold text-xs", nextRank.color)}>
+                                            <span>{nextRank.name}</span>
+                                            <nextRank.icon className={cn("h-4 w-4", nextRank.iconColor || nextRank.color)} />
+                                        </div>
+                                    )}
+                                </div>
+                                {nextRank ? (
+                                    <Progress value={progressPercentage} className="h-1.5" />
+                                ) : (
+                                    <div className="text-xs text-center font-semibold text-primary py-1">{t('dashboardSettings.maxRankText')}</div>
+                                )}
+                            </div>
+                        )}
+
                         {!isAdmin && (
-                            <div className="space-y-3 pt-4 border-t">
+                            <div className="space-y-3">
                                 <div className="flex items-center justify-between gap-2 p-3 bg-secondary rounded-md border">
                                     <div className="flex items-center gap-2">
                                         <Wallet className="h-5 w-5 text-primary"/>
@@ -494,19 +531,33 @@ export function AppHeader() {
                                 </div>
                             </div>
                         )}
-                        <div className="space-y-3 pt-4 border-t">
-                            <Button asChild className="w-full" variant="secondary" onClick={() => setMobileMenuOpen(false)}>
-                               <Link href={isAdmin ? '/admin' : '/dashboard/settings'}>
-                                 <LayoutDashboard className={cn(locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.dashboard')}
-                               </Link>
-                           </Button>
-                           <Button asChild className="w-full" variant="destructive" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>
-                               <button><LogOut className={cn(locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.logout')}</button>
+                        <div className="space-y-2 pt-4 border-t">
+                            {isAdmin ? (
+                                <Button asChild className="w-full justify-start" variant="ghost" onClick={() => setMobileMenuOpen(false)}>
+                                    <Link href="/admin"><LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.adminDashboard')}</Link>
+                                </Button>
+                            ) : (
+                                <>
+                                    <Button asChild className="w-full justify-start" variant="ghost" onClick={() => setMobileMenuOpen(false)}>
+                                      <Link href="/leaderboard"><Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('leaderboard.fullTitle')}</Link>
+                                    </Button>
+                                    {!user?.isPremium && (
+                                        <Button asChild className="w-full justify-start" variant="ghost" onClick={() => setMobileMenuOpen(false)}>
+                                          <Link href="/premium"><Gem className={cn("h-4 w-4 text-primary", locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('nav.goPremium')}</Link>
+                                        </Button>
+                                    )}
+                                    <Button asChild className="w-full justify-start" variant="ghost" onClick={() => setMobileMenuOpen(false)}>
+                                        <Link href="/dashboard/settings"><LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.dashboard')}</Link>
+                                    </Button>
+                                </>
+                            )}
+                           <Button className="w-full justify-start" variant="ghost" onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>
+                               <LogOut className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')}/> {t('auth.logout')}
                            </Button>
                         </div>
                     </div>
                  ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-3 pt-4 border-t">
                         <Button asChild className="w-full">
                             <Link href="/login" onClick={() => setMobileMenuOpen(false)}>{t('auth.login')}</Link>
                         </Button>
