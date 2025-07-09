@@ -35,11 +35,14 @@ const features = [
 
 export default function PremiumPage() {
   const router = useRouter();
-  const { user, setPremiumStatus, isAuthenticated, isAdmin } = useAuth();
+  const { user, setPremiumStatus, isAuthenticated, isAdmin, updateWalletBalance } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const price = 9.99;
+  const hasEnoughFunds = user ? user.walletBalance >= price : false;
 
   if (!isAuthenticated || isAdmin) {
     if (typeof window !== 'undefined') {
@@ -69,10 +72,12 @@ export default function PremiumPage() {
   }
 
   const handleUpgrade = () => {
-    if (!user) return;
+    if (!user || !hasEnoughFunds) return;
+
     setIsProcessing(true);
     // Simulate payment processing
     setTimeout(() => {
+        updateWalletBalance(user.id, -price);
         setPremiumStatus(user.id);
         toast({
             title: t('premiumPage.successToastTitle'),
@@ -82,8 +87,6 @@ export default function PremiumPage() {
         router.push('/dashboard/settings');
     }, 1500);
   };
-  
-  const price = 9.99;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -130,17 +133,26 @@ export default function PremiumPage() {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
-                                <AlertDialogTitle>{t('premiumPage.confirmTitle')}</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                    {hasEnoughFunds ? t('premiumPage.confirmTitle') : t('premiumPage.insufficientFundsTitle')}
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    {t('premiumPage.confirmDesc', { price: formatPrice(price) })}
+                                    {hasEnoughFunds
+                                        ? t('premiumPage.confirmDescWithWallet', { price: formatPrice(price) })
+                                        : t('premiumPage.insufficientFundsDesc', { required: formatPrice(price), balance: formatPrice(user?.walletBalance ?? 0) })
+                                    }
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                                 <AlertDialogCancel>{t('premiumPage.cancelButton')}</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleUpgrade} disabled={isProcessing}>
-                                    {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    {t('premiumPage.confirmButton')}
-                                </AlertDialogAction>
+                                {hasEnoughFunds ? (
+                                    <AlertDialogAction onClick={handleUpgrade} disabled={isProcessing}>
+                                        {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                        {t('premiumPage.confirmButton')}
+                                    </AlertDialogAction>
+                                ) : (
+                                    <Button disabled>{t('premiumPage.confirmButton')}</Button>
+                                )}
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>

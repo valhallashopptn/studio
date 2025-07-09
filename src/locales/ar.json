@@ -319,6 +319,9 @@
     "successToastDesc": "تمت ترقية حسابك. جميع المزايا مفعلة الآن.",
     "alreadyPremiumTitle": "أنت بالفعل صياد مميز!",
     "alreadyPremiumDesc": "جميع مزاياك الحصرية مفعلة. شكرًا لدعمك!",
-    "goToDashboard": "اذهب إلى لوحة التحكم"
+    "goToDashboard": "اذهب إلى لوحة التحكم",
+    "confirmDescWithWallet": "أنت على وشك شراء عضوية بريميوم مقابل {{price}}. سيتم خصم هذا المبلغ من رصيد محفظتك. هل ترغب في المتابعة؟",
+    "insufficientFundsTitle": "رصيد المحفظة غير كافٍ",
+    "insufficientFundsDesc": "تحتاج إلى {{required}} لشراء بريميوم، ولكن رصيد محفظتك هو {{balance}} فقط. يرجى شحن محفظتك للمتابعة."
   }
 }
