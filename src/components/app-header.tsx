@@ -64,7 +64,7 @@ export function AppHeader() {
   const [isSheetOpen, setSheetOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const items = useCart((state) => state.items);
-  const { isAuthenticated, user, isAdmin, logout } = useAuth();
+  const { isAuthenticated, user, isAdmin, logout, isPremium } = useAuth();
   const { users: allUsers } = useUserDatabase();
   const { logoUrl, siteTitle } = useSiteSettings();
   const { announcementEnabled, announcementText } = useContentSettings();
@@ -202,13 +202,13 @@ export function AppHeader() {
             <div className="flex items-center gap-2">
               <p className={cn(
                   "text-sm font-medium leading-none",
-                  user?.isPremium && user?.nameStyle === 'rgb' && 'bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan',
-                  user?.isPremium && user?.nameStyle === 'gold' && 'text-yellow-500',
-                  user?.isPremium && user?.nameStyle === 'frost' && 'text-cyan-400',
+                  isPremium && user?.nameStyle === 'rgb' && 'bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan',
+                  isPremium && user?.nameStyle === 'gold' && 'text-yellow-500',
+                  isPremium && user?.nameStyle === 'frost' && 'text-cyan-400',
               )}>
                   {user?.name}
               </p>
-              {user?.isPremium && <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold text-[10px] px-1.5 py-0">PREMIUM</Badge>}
+              {isPremium && <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold text-[10px] px-1.5 py-0">PREMIUM</Badge>}
             </div>
             <p className="text-xs leading-none text-muted-foreground">
                 {user?.email}
@@ -266,7 +266,7 @@ export function AppHeader() {
                   <Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                   <span>{t('leaderboard.fullTitle')}</span>
               </DropdownMenuItem>
-              {!user?.isPremium && (
+              {!isPremium && (
                 <DropdownMenuItem onClick={() => router.push('/premium')}>
                   <Gem className={cn("h-4 w-4 text-primary", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                   <span>{t('nav.goPremium')}</span>
@@ -388,7 +388,7 @@ export function AppHeader() {
                           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                               <Avatar className="h-8 w-8">
                               <AvatarImage src={user?.avatar} asChild>
-                                <Image src={user?.avatar || ''} alt={user?.name || ''} width={32} height={32} unoptimized={user?.isPremium && user?.avatar?.endsWith('.gif')} />
+                                <Image src={user?.avatar || ''} alt={user?.name || ''} width={32} height={32} unoptimized={isPremium && user?.avatar?.endsWith('.gif')} />
                               </AvatarImage>
                               <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                               </Avatar>
@@ -435,7 +435,7 @@ export function AppHeader() {
                       <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={user?.avatar} asChild>
-                              <Image src={user?.avatar || ''} alt={user?.name || ''} width={32} height={32} unoptimized={user?.isPremium && user?.avatar?.endsWith('.gif')} />
+                              <Image src={user?.avatar || ''} alt={user?.name || ''} width={32} height={32} unoptimized={isPremium && user?.avatar?.endsWith('.gif')} />
                             </AvatarImage>
                             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                           </Avatar>

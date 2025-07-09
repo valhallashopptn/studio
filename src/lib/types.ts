@@ -70,12 +70,16 @@ export interface User {
   email: string;
   password?: string;
   isAdmin?: boolean;
-  isPremium?: boolean;
   avatar?: string;
   walletBalance: number;
   totalSpent: number;
   valhallaCoins: number;
   nameStyle?: string;
+  premium?: {
+    status: 'active' | 'cancelled';
+    subscribedAt: string; // ISO date string
+    expiresAt: string; // ISO date string
+  } | null;
 }
 
 export interface Review {

@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { useCurrency } from '@/hooks/use-currency';
+import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
 
 const features = [
   { icon: Gem, titleKey: 'premiumPage.feature1Title', descriptionKey: 'premiumPage.feature1Desc' },
@@ -33,16 +33,19 @@ const features = [
   { icon: GitBranch, titleKey: 'premiumPage.feature6Title', descriptionKey: 'premiumPage.feature6Desc' },
 ];
 
+const premiumPriceTND = 10;
+const premiumPriceUSD = premiumPriceTND / CONVERSION_RATES.TND;
+
 export default function PremiumPage() {
   const router = useRouter();
-  const { user, setPremiumStatus, isAuthenticated, isAdmin, updateWalletBalance, updateTotalSpent } = useAuth();
+  const { user, subscribeToPremium, isAuthenticated, isAdmin, updateWalletBalance, updateTotalSpent, isPremium } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const price = 9.99;
-  const hasEnoughFunds = user ? user.walletBalance >= price : false;
+  const priceText = `${premiumPriceTND.toFixed(0)} TND / ${t('premiumPage.month')}`;
+  const hasEnoughFunds = user ? user.walletBalance >= premiumPriceUSD : false;
 
   if (!isAuthenticated || isAdmin) {
     if (typeof window !== 'undefined') {
@@ -51,7 +54,7 @@ export default function PremiumPage() {
     return <div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
   
-  if (user?.isPremium) {
+  if (isPremium) {
      return (
       <div className="flex flex-col min-h-screen bg-secondary/30">
         <AppHeader />
@@ -77,9 +80,9 @@ export default function PremiumPage() {
     setIsProcessing(true);
     // Simulate payment processing
     setTimeout(() => {
-        updateWalletBalance(user.id, -price);
-        updateTotalSpent(user.id, price);
-        setPremiumStatus(user.id);
+        updateWalletBalance(user.id, -premiumPriceUSD);
+        updateTotalSpent(user.id, premiumPriceUSD);
+        subscribeToPremium(user.id);
         toast({
             title: t('premiumPage.successToastTitle'),
             description: t('premiumPage.successToastDesc'),
@@ -102,7 +105,7 @@ export default function PremiumPage() {
           <Card className="max-w-4xl mx-auto overflow-hidden shadow-2xl border-primary/20">
             <CardHeader className="p-8 bg-background">
               <CardTitle className="text-3xl">{t('premiumPage.cardTitle')}</CardTitle>
-              <CardDescription>{t('premiumPage.cardDesc')}</CardDescription>
+              <CardDescription>{t('premiumPage.cardDescMonthly')}</CardDescription>
             </CardHeader>
             <CardContent className="p-8">
                 <div className="grid md:grid-cols-2 gap-8">
@@ -124,7 +127,7 @@ export default function PremiumPage() {
             </CardContent>
             <CardFooter className="p-8 bg-background border-t">
                 <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <p className="text-2xl font-bold">{t('premiumPage.priceText', { price: formatPrice(price) })}</p>
+                    <p className="text-2xl font-bold">{priceText}</p>
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-opacity">
@@ -139,8 +142,8 @@ export default function PremiumPage() {
                                 </AlertDialogTitle>
                                 <AlertDialogDescription>
                                     {hasEnoughFunds
-                                        ? t('premiumPage.confirmDescWithWallet', { price: formatPrice(price) })
-                                        : t('premiumPage.insufficientFundsDesc', { required: formatPrice(price), balance: formatPrice(user?.walletBalance ?? 0) })
+                                        ? t('premiumPage.confirmDescWithWalletMonthly', { price: priceText })
+                                        : t('premiumPage.insufficientFundsDesc', { required: formatPrice(premiumPriceUSD), balance: formatPrice(user?.walletBalance ?? 0) })
                                     }
                                 </AlertDialogDescription>
                             </AlertDialogHeader>

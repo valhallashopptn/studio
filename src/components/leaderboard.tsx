@@ -59,6 +59,7 @@ export function Leaderboard() {
                         {topUsers.map((user, index) => {
                             const rank = getRank(user.totalSpent);
                             const rankPosition = index + 1;
+                            const isPremium = !!(user.premium && user.premium.status === 'active' && new Date(user.premium.expiresAt) > new Date());
                             return (
                                 <TableRow key={user.id}>
                                     <TableCell className="font-bold px-2 text-center">
@@ -77,13 +78,13 @@ export function Leaderboard() {
                                             </Avatar>
                                             <span className={cn(
                                                 'font-medium',
-                                                user.isPremium && user.nameStyle === 'rgb' && 'bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan',
-                                                user.isPremium && user.nameStyle === 'gold' && 'text-yellow-500',
-                                                user.isPremium && user.nameStyle === 'frost' && 'text-cyan-400',
+                                                isPremium && user.nameStyle === 'rgb' && 'bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan',
+                                                isPremium && user.nameStyle === 'gold' && 'text-yellow-500',
+                                                isPremium && user.nameStyle === 'frost' && 'text-cyan-400',
                                             )}>
                                                 {user.name}
                                             </span>
-                                            {user.isPremium && (
+                                            {isPremium && (
                                                 <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold">PREMIUM</Badge>
                                             )}
                                         </div>

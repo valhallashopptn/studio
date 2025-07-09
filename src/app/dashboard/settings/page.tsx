@@ -17,9 +17,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTranslation } from '@/hooks/use-translation';
 import { getRank, getNextRank, ranks as allRanks, USD_TO_XP_RATE, formatXp } from '@/lib/ranks';
 import { Progress } from '@/components/ui/progress';
-import { useCurrency } from '@/hooks/use-currency';
+import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
-import { Info, Trophy, Palette, Lock, Gem } from 'lucide-react';
+import { Info, Trophy, Palette, Lock, Gem, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import {
   Dialog,
@@ -42,6 +42,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useUserDatabase } from '@/hooks/use-user-database';
+import { format } from 'date-fns';
 
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -65,7 +66,7 @@ const nameStyles = [
 ];
 
 export default function SettingsPage() {
-    const { user, updateUser, changePassword, updateAvatar, updateNameStyle } = useAuth();
+    const { user, updateUser, changePassword, updateAvatar, updateNameStyle, isPremium, subscribeToPremium, cancelSubscription, updateWalletBalance, updateTotalSpent } = useAuth();
     const { toast } = useToast();
     const { t } = useTranslation();
     const { formatPrice } = useCurrency();
@@ -96,6 +97,25 @@ export default function SettingsPage() {
     const progressPercentage = requiredForNextRank > 0 ? (progressToNextRank / requiredForNextRank) * 100 : (nextRank ? 0 : 100);
     const amountToNextRank = nextRank ? nextRank.threshold - totalXp : 0;
     const selectedNameStyle = nameStyles.find(s => s.id === user?.nameStyle)?.className || '';
+
+    const premiumPriceUSD = 10 / CONVERSION_RATES.TND;
+    const canResubscribe = user && user.walletBalance >= premiumPriceUSD;
+
+    const handleCancel = () => {
+      if (user) {
+        cancelSubscription(user.id);
+        toast({ title: t('dashboardSettings.cancelToastTitle'), description: t('dashboardSettings.cancelToastDesc') });
+      }
+    }
+    
+    const handleResubscribe = () => {
+      if (user && canResubscribe) {
+        updateWalletBalance(user.id, -premiumPriceUSD);
+        updateTotalSpent(user.id, premiumPriceUSD);
+        subscribeToPremium(user.id);
+        toast({ title: t('dashboardSettings.resubscribeToastTitle'), description: t('dashboardSettings.resubscribeToastDesc') });
+      }
+    }
 
     const profileForm = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
@@ -135,7 +155,7 @@ export default function SettingsPage() {
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file && user) {
-            if (!user.isPremium && file.type === 'image/gif') {
+            if (!isPremium && file.type === 'image/gif') {
                 toast({
                     variant: 'destructive',
                     title: t('premiumPage.featureLockedTitle'),
@@ -170,7 +190,7 @@ export default function SettingsPage() {
                 <p className="text-muted-foreground">{t('dashboardSettings.subtitle')}</p>
             </div>
             
-            {user?.isPremium && (
+            {isPremium && (
                 <Alert className="border-yellow-500 bg-yellow-500/5 text-yellow-700 dark:text-yellow-400">
                     <Trophy className="h-4 w-4 !text-yellow-500" />
                     <AlertTitle className="font-bold">Premium Member</AlertTitle>
@@ -179,6 +199,49 @@ export default function SettingsPage() {
                     </AlertDescription>
                 </Alert>
             )}
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t('dashboardSettings.manageSubTitle')}</CardTitle>
+                    <CardDescription>{t('dashboardSettings.manageSubDesc')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {user?.premium ? (
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <Label>{t('dashboardSettings.statusLabel')}:</Label>
+                            <p className={cn("font-semibold flex items-center gap-1.5", isPremium ? 'text-green-500' : 'text-muted-foreground')}>
+                                {isPremium ? <CheckCircle className="h-4 w-4"/> : <XCircle className="h-4 w-4"/>}
+                                {isPremium ? t('dashboardSettings.activeStatus') : (user.premium.status === 'cancelled' ? t('dashboardSettings.cancelledStatus') : t('dashboardSettings.expiredStatus'))}
+                            </p>
+                        </div>
+                        <div>
+                            <Label>{user.premium.status === 'active' ? t('dashboardSettings.renewsOnLabel') : t('dashboardSettings.expiresOnLabel')}</Label>
+                            <p className="font-semibold">{format(new Date(user.premium.expiresAt), 'PPP')}</p>
+                        </div>
+
+                        {user.premium.status === 'active' && (
+                            <Button variant="destructive" onClick={handleCancel}>{t('dashboardSettings.cancelSubButton')}</Button>
+                        )}
+
+                        {!isPremium && (
+                        <div className="pt-2 border-t mt-4">
+                            <p className="text-sm text-muted-foreground mb-2">{t('dashboardSettings.resubscribePrompt')}</p>
+                            <Button onClick={handleResubscribe} disabled={!canResubscribe}>
+                                {t('dashboardSettings.resubscribeButton', { price: formatPrice(premiumPriceUSD) })}
+                            </Button>
+                            {!canResubscribe && <p className="text-xs text-destructive mt-1">{t('dashboardSettings.insufficientFunds')}</p>}
+                        </div>
+                        )}
+                    </div>
+                    ) : (
+                    <div>
+                        <p className="text-muted-foreground">{t('dashboardSettings.noSubscription')}</p>
+                        <Button asChild className="mt-2"><Link href="/premium">{t('dashboardSettings.goPremiumButton')}</Link></Button>
+                    </div>
+                    )}
+                </CardContent>
+            </Card>
 
             {rank && (
                 <Card>
@@ -294,7 +357,7 @@ export default function SettingsPage() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" /> Profile Customization</CardTitle>
                     <CardDescription>
-                        {user?.isPremium
+                        {isPremium
                             ? "As a premium member, you can customize your profile's appearance."
                             : "Unlock profile customization perks by upgrading to Premium."
                         }
@@ -302,7 +365,7 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="relative">
-                        {!user?.isPremium && (
+                        {!isPremium && (
                             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg -m-6 p-6">
                                 <div className="text-center">
                                     <Lock className="h-10 w-10 text-muted-foreground mb-3 mx-auto" />
@@ -324,7 +387,7 @@ export default function SettingsPage() {
                                 defaultValue={user?.nameStyle || 'default'}
                                 onValueChange={handleNameStyleChange}
                                 className="grid sm:grid-cols-2 gap-4"
-                                disabled={!user?.isPremium}
+                                disabled={!isPremium}
                             >
                                 {nameStyles.map(style => (
                                 <Label
@@ -332,7 +395,7 @@ export default function SettingsPage() {
                                     htmlFor={`style-${style.id}`}
                                     className={cn(
                                         "flex items-center justify-between rounded-lg border p-4",
-                                        user?.isPremium ? "cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-secondary" : "cursor-not-allowed"
+                                        isPremium ? "cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-secondary" : "cursor-not-allowed"
                                     )}
                                 >
                                     <span className={cn('font-semibold', style.className)}>{style.label}</span>
@@ -354,14 +417,14 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-6">
                         <Avatar className="h-20 w-20">
                             <AvatarImage src={user?.avatar} asChild>
-                                <Image src={user?.avatar || ''} alt={user?.name || ''} width={80} height={80} unoptimized={user?.isPremium && user?.avatar?.endsWith('.gif')} />
+                                <Image src={user?.avatar || ''} alt={user?.name || ''} width={80} height={80} unoptimized={isPremium && user?.avatar?.endsWith('.gif')} />
                             </AvatarImage>
                             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div className="grid w-full max-w-sm items-center gap-1.5">
                             <Label htmlFor="picture">{t('dashboardSettings.uploadNewPicture')}</Label>
-                            <Input id="picture" type="file" accept={user?.isPremium ? "image/gif, image/png, image/jpeg" : "image/png, image/jpeg"} onChange={handleAvatarChange} className="file:text-primary file:font-semibold" />
-                             {user?.isPremium ? (
+                            <Input id="picture" type="file" accept={isPremium ? "image/gif, image/png, image/jpeg" : "image/png, image/jpeg"} onChange={handleAvatarChange} className="file:text-primary file:font-semibold" />
+                             {isPremium ? (
                                 <p className="text-xs text-muted-foreground">Premium perk: Animated GIFs are supported!</p>
                              ) : (
                                 <p className="text-xs text-muted-foreground">
@@ -388,7 +451,7 @@ export default function SettingsPage() {
                                 <FormItem>
                                     <FormLabel>{t('dashboardSettings.name')}</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
-                                    {user?.isPremium && (
+                                    {isPremium && (
                                         <div className="text-sm text-muted-foreground pt-2">
                                             Preview: <span className={cn("font-bold", selectedNameStyle)}>{field.value || 'Your Name'}</span>
                                         </div>

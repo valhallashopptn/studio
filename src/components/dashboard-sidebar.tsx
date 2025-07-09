@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, isPremium } = useAuth();
   const { formatPrice } = useCurrency();
   const { t } = useTranslation();
   const rank = user ? getRank(user.totalSpent) : null;
@@ -32,7 +32,7 @@ export function DashboardSidebar() {
       <div className="flex items-center gap-4 mb-8">
         <Avatar className="h-12 w-12">
             <AvatarImage src={user?.avatar} asChild>
-                <Image src={user?.avatar || ''} alt={user?.name || ''} width={48} height={48} unoptimized={user?.isPremium && user?.avatar?.endsWith('.gif')} />
+                <Image src={user?.avatar || ''} alt={user?.name || ''} width={48} height={48} unoptimized={isPremium && user?.avatar?.endsWith('.gif')} />
             </AvatarImage>
             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
         </Avatar>
@@ -40,13 +40,13 @@ export function DashboardSidebar() {
             <div className="flex items-center gap-2">
               <h2 className={cn(
                   "text-lg font-bold",
-                  user?.isPremium && user?.nameStyle === 'rgb' && 'bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan',
-                  user?.isPremium && user?.nameStyle === 'gold' && 'text-yellow-500',
-                  user?.isPremium && user?.nameStyle === 'frost' && 'text-cyan-400',
+                  isPremium && user?.nameStyle === 'rgb' && 'bg-gradient-to-r from-fuchsia-500 via-red-500 to-amber-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-bg-pan',
+                  isPremium && user?.nameStyle === 'gold' && 'text-yellow-500',
+                  isPremium && user?.nameStyle === 'frost' && 'text-cyan-400',
               )}>
                   {user?.name}
               </h2>
-              {user?.isPremium && <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold text-xs">PREMIUM</Badge>}
+              {isPremium && <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold text-xs">PREMIUM</Badge>}
             </div>
             {rank && (
                 <div className="flex items-center gap-1 text-sm font-semibold">

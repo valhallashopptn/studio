@@ -62,7 +62,8 @@ export const useOrders = create(
                         if(previousStatus === 'completed') {
                             const { findUserById } = useUserDatabase.getState();
                             const user = findUserById(orderToUpdate.customer.id);
-                            const xpMultiplier = user?.isPremium ? 1.5 : 1.0;
+                            const isPremium = !!(user?.premium && user.premium.status === 'active' && new Date(user.premium.expiresAt) > new Date());
+                            const xpMultiplier = isPremium ? 1.5 : 1.0;
                             
                             const cashSpent = (orderToUpdate.total + (orderToUpdate.discountAmount ?? 0)) - (orderToUpdate.valhallaCoinsValue ?? 0);
                             useAuth.getState().updateTotalSpent(orderToUpdate.customer.id, -(cashSpent * xpMultiplier));
@@ -81,7 +82,7 @@ export const useOrders = create(
                         
                         // We need the user's LATEST status to check for premium boost.
                         const user = findUserById(orderToUpdate.customer.id);
-                        const isPremium = user?.isPremium || false;
+                        const isPremium = !!(user?.premium && user.premium.status === 'active' && new Date(user.premium.expiresAt) > new Date());
                         const xpMultiplier = isPremium ? 1.5 : 1.0;
                         
                         // Amount paid with cash/wallet after all discounts and coin redemptions

@@ -10,17 +10,24 @@ type AuthState = {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isPremium: boolean;
   login: (credentials: Pick<User, 'email' | 'password'>) => boolean;
   logout: () => void;
-  register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent' | 'valhallaCoins' | 'walletBalance'>) => boolean;
+  register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent' | 'valhallaCoins' | 'walletBalance' | 'premium'>) => boolean;
   updateUser: (userId: string, updates: Partial<Pick<User, 'name' | 'email'>>) => boolean;
   changePassword: (userId: string, newPassword: string) => boolean;
   updateAvatar: (userId: string, avatar: string) => void;
   updateWalletBalance: (userId: string, amount: number) => void;
   updateTotalSpent: (userId: string, amount: number) => void;
   updateValhallaCoins: (userId: string, amount: number) => void;
-  setPremiumStatus: (userId: string) => void;
+  subscribeToPremium: (userId: string) => void;
+  cancelSubscription: (userId: string) => void;
   updateNameStyle: (userId: string, style: string) => void;
+};
+
+const checkIsPremium = (user: User | null): boolean => {
+  if (!user || !user.premium) return false;
+  return user.premium.status === 'active' && new Date(user.premium.expiresAt) > new Date();
 };
 
 
@@ -30,17 +37,18 @@ export const useAuth = create(
       user: null,
       isAuthenticated: false,
       isAdmin: false,
+      isPremium: false,
       login: (credentials) => {
         const { findUser } = useUserDatabase.getState();
         const foundUser = findUser(credentials.email, credentials.password);
         if (foundUser) {
-          set({ user: foundUser, isAuthenticated: true, isAdmin: !!foundUser.isAdmin });
+          set({ user: foundUser, isAuthenticated: true, isAdmin: !!foundUser.isAdmin, isPremium: checkIsPremium(foundUser) });
           return true;
         }
         return false;
       },
       logout: () => {
-        set({ user: null, isAuthenticated: false, isAdmin: false });
+        set({ user: null, isAuthenticated: false, isAdmin: false, isPremium: false });
       },
       register: (userDetails) => {
         const { findUserByEmail, addUser } = useUserDatabase.getState();
@@ -52,15 +60,15 @@ export const useAuth = create(
             id: `user_${Date.now()}`,
             ...userDetails,
             isAdmin: false,
-            isPremium: false,
             avatar: 'https://placehold.co/100x100.png',
             walletBalance: 0,
             totalSpent: 0,
             valhallaCoins: 0,
             nameStyle: 'default',
+            premium: null,
         };
         addUser(newUser);
-        set({ user: newUser, isAuthenticated: true, isAdmin: false });
+        set({ user: newUser, isAuthenticated: true, isAdmin: false, isPremium: false });
         return true;
       },
       updateUser: (userId, updates) => {
@@ -126,12 +134,44 @@ export const useAuth = create(
           }
         }
       },
-      setPremiumStatus: (userId) => {
-        const { updateUser } = useUserDatabase.getState();
-        const success = updateUser(userId, { isPremium: true });
+      subscribeToPremium: (userId) => {
+        const { updateUser, findUserById } = useUserDatabase.getState();
+        const currentUser = findUserById(userId);
+        if (!currentUser) return;
+        
+        const now = new Date();
+        const currentSubEnd = (currentUser.premium && new Date(currentUser.premium.expiresAt) > now) 
+            ? new Date(currentUser.premium.expiresAt) 
+            : now;
+        
+        const expiresAt = new Date(currentSubEnd.setMonth(currentSubEnd.getMonth() + 1));
+
+        const premiumData = {
+          status: 'active' as const,
+          subscribedAt: new Date().toISOString(),
+          expiresAt: expiresAt.toISOString(),
+        };
+
+        const success = updateUser(userId, { premium: premiumData });
         if (success) {
             get().updateValhallaCoins(userId, 500);
-            set(state => ({ user: state.user ? { ...state.user, isPremium: true } : null }));
+            set(state => ({ 
+              user: state.user ? { ...state.user, premium: premiumData } : null,
+              isPremium: true 
+            }));
+        }
+      },
+      cancelSubscription: (userId) => {
+        const { updateUser, findUserById } = useUserDatabase.getState();
+        const currentUser = findUserById(userId);
+        if (!currentUser || !currentUser.premium) return;
+
+        const updatedPremiumData = { ...currentUser.premium, status: 'cancelled' as const };
+        const success = updateUser(userId, { premium: updatedPremiumData });
+        if (success) {
+            set(state => ({
+                user: state.user ? { ...state.user, premium: updatedPremiumData } : null,
+            }));
         }
       },
       updateNameStyle: (userId, style) => {

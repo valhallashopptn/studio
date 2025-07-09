@@ -33,15 +33,15 @@ import Image from "next/image"
 
 function ReviewCard({ review }: { review: Review }) {
   const { users } = useUserDatabase();
-  // A bit of a mock lookup, in a real app this would be a direct relation
   const user = users.find(u => u.name === review.name);
+  const isPremium = !!(user?.premium && user.premium.status === 'active' && new Date(user.premium.expiresAt) > new Date());
 
   return (
     <Card className="h-full flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/50">
       <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
         <Avatar className="h-20 w-20">
           <AvatarImage src={review.avatar} asChild>
-             <Image src={review.avatar} alt={review.name} width={80} height={80} unoptimized={user?.isPremium && review.avatar?.endsWith('.gif')} />
+             <Image src={review.avatar} alt={review.name} width={80} height={80} unoptimized={isPremium && review.avatar?.endsWith('.gif')} />
           </AvatarImage>
           <AvatarFallback>{review.name.charAt(0)}</AvatarFallback>
         </Avatar>
