@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins, UserCog } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -340,10 +340,23 @@ export function AppHeader() {
                             )}
                           
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => router.push(isAdmin ? '/admin' : '/dashboard/settings')}>
-                                <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
-                                <span>{t('auth.dashboard')}</span>
-                            </DropdownMenuItem>
+                            {isAdmin ? (
+                                <DropdownMenuItem onClick={() => router.push('/admin')}>
+                                    <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                                    <span>{t('auth.adminDashboard')}</span>
+                                </DropdownMenuItem>
+                            ) : (
+                                <>
+                                    <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                                        <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                                        <span>{t('auth.dashboard')}</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+                                        <UserCog className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                                        <span>{t('dashboardSidebar.profile')}</span>
+                                    </DropdownMenuItem>
+                                </>
+                            )}
                             <DropdownMenuItem onClick={handleLogout}>
                                 <LogOut className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                                 <span>{t('auth.logout')}</span>
@@ -488,7 +501,7 @@ export function AppHeader() {
             <AlertDialogDescription>{t('dashboardOrders.reviewPromptDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleReviewPromptClose}>
+            <AlertDialogCancel onClick={handleReviewPromptClose} className="focus-visible:ring-0">
                 {t('dashboardOrders.reviewPromptMaybeLater')}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleReviewPromptAction}>
