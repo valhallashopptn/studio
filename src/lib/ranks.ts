@@ -4,7 +4,7 @@
 import { ShieldOff, Shield, ShieldCheck, Sword, Swords, Gem, Diamond, Trophy, Crown, Hexagon } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export const USD_TO_XP_RATE = 100;
+export const USD_TO_XP_RATE = 1000;
 export const USD_TO_VALHALLA_COIN_RATE = 10;
 export const VALHALLA_COIN_USD_VALUE = 1 / 500; // 500 coins = $1
 
