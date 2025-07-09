@@ -54,10 +54,10 @@ const PaymentInstructions = ({ method }: { method: PaymentMethod | null }) => {
 
 export default function CheckoutPage() {
     const router = useRouter();
-    const { items, clearCart, updateCustomFieldValue, removeItem } = useCart();
+    const { items, clearCart, updateCustomFieldValue, removeItem, checkoutItem } = useCart();
     const { paymentMethods } = usePaymentSettings();
     const { categories } = useCategories();
-    const { addOrder } = useOrders();
+    const { addOrder, updateOrderStatus } = useOrders();
     const { user, isAuthenticated, updateWalletBalance } = useAuth();
     const { validateCoupon, applyCoupon } = useCoupons();
 
@@ -244,6 +244,10 @@ export default function CheckoutPage() {
                 valhallaCoinsValue: appliedCoinsValue,
             };
             addOrder(newOrder);
+
+            if (selectedPayment.id === 'store_wallet') {
+                updateOrderStatus(newOrderId, 'completed');
+            }
 
             if (appliedCoupon) {
                 applyCoupon(appliedCoupon.code);
@@ -531,3 +535,5 @@ export default function CheckoutPage() {
         </div>
     );
 }
+
+    
