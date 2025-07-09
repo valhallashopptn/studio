@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Eye, CheckCircle, XCircle, RefreshCw, KeyRound, Copy } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, RefreshCw, KeyRound, Copy, TicketPercent, Coins } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,7 @@ import { useCategories } from '@/hooks/use-categories';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/use-translation';
+import { formatCoins } from '@/lib/ranks';
 
 const statusConfig: { [key in OrderStatus]: { variant: 'default' | 'secondary' | 'destructive', icon: React.ElementType, label: string } } = {
   pending: { variant: 'secondary', icon: RefreshCw, label: 'Pending' },
@@ -103,6 +104,7 @@ export default function CustomerOrdersPage() {
   }, [orders, user]);
 
   const subtotal = viewingOrder ? viewingOrder.items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0) : 0;
+  const taxAmount = viewingOrder ? (subtotal - (viewingOrder.discountAmount ?? 0) - (viewingOrder.valhallaCoinsValue ?? 0)) * ((viewingOrder.paymentMethod.taxRate ?? 0) / 100) : 0;
 
   return (
     <div className="space-y-8">
@@ -151,12 +153,22 @@ export default function CustomerOrdersPage() {
                                     <span className="text-muted-foreground">{t('cart.subtotal')}</span>
                                     <span>{formatPrice(subtotal)}</span>
                                 </div>
-                                {viewingOrder.discountAmount && viewingOrder.discountAmount > 0 ? (
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">{t('checkoutPage.discount')} ({viewingOrder.appliedCouponCode})</span>
-                                        <span className="text-green-600 dark:text-green-400">- {formatPrice(viewingOrder.discountAmount)}</span>
+                                {viewingOrder.discountAmount && viewingOrder.discountAmount > 0 && (
+                                    <div className="flex justify-between text-green-600 dark:text-green-400">
+                                        <span className="text-muted-foreground flex items-center gap-1"><TicketPercent className="h-4 w-4" />{t('checkoutPage.discount')} ({viewingOrder.appliedCouponCode})</span>
+                                        <span>- {formatPrice(viewingOrder.discountAmount)}</span>
                                     </div>
-                                ) : null}
+                                )}
+                                {viewingOrder.valhallaCoinsValue && viewingOrder.valhallaCoinsValue > 0 && (
+                                    <div className="flex justify-between text-amber-600 dark:text-amber-400">
+                                        <span className="text-muted-foreground flex items-center gap-1"><Coins className="h-4 w-4" />{t('checkoutPage.coinsRedeemed')} ({formatCoins(viewingOrder.valhallaCoinsApplied!)})</span>
+                                        <span>- {formatPrice(viewingOrder.valhallaCoinsValue)}</span>
+                                    </div>
+                                )}
+                                <div className="flex justify-between">
+                                    <span className="text-muted-foreground">{t('cart.tax')} ({viewingOrder.paymentMethod.taxRate ?? 0}%)</span>
+                                    <span>+ {formatPrice(taxAmount)}</span>
+                                </div>
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">{t('dashboardOrders.method')}</span>
                                     <span>{viewingOrder.paymentMethod.name}</span>

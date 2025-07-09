@@ -5,6 +5,8 @@ import { ShieldOff, Shield, ShieldCheck, Sword, Swords, Gem, Diamond, Trophy, Cr
 import type { LucideIcon } from 'lucide-react';
 
 export const USD_TO_XP_RATE = 1000;
+export const USD_TO_VALHALLA_COIN_RATE = 10;
+export const VALHALLA_COIN_USD_VALUE = 0.01; // 100 coins = $1
 
 export interface Rank {
     name: string;
@@ -52,4 +54,8 @@ export const getNextRank = (totalSpent: number): Rank | null => {
 
 export const formatXp = (xp: number) => {
     return `${new Intl.NumberFormat('en-US').format(Math.floor(xp))} XP`;
+};
+
+export const formatCoins = (coins: number) => {
+  return new Intl.NumberFormat('en-US').format(Math.floor(coins));
 };

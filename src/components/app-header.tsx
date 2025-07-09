@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -28,7 +28,7 @@ import { useContentSettings } from '@/hooks/use-content-settings';
 import { useCurrency } from '@/hooks/use-currency';
 import { useTheme } from '@/hooks/use-theme';
 import { Skeleton } from './ui/skeleton';
-import { getRank, getNextRank, formatXp, USD_TO_XP_RATE } from '@/lib/ranks';
+import { getRank, getNextRank, formatXp, USD_TO_XP_RATE, formatCoins } from '@/lib/ranks';
 import { Progress } from './ui/progress';
 
 
@@ -181,10 +181,16 @@ export function AppHeader() {
                   {isAuthenticated ? (
                       <>
                       {!isAdmin && (
+                        <>
                           <div className="flex items-center gap-2 p-2 pr-3 bg-secondary rounded-md border">
-                          <Wallet className="h-5 w-5 text-primary"/>
-                          <span className="font-semibold text-sm whitespace-nowrap">{formatPrice(user?.walletBalance ?? 0)}</span>
+                            <Wallet className="h-5 w-5 text-primary"/>
+                            <span className="font-semibold text-sm whitespace-nowrap">{formatPrice(user?.walletBalance ?? 0)}</span>
                           </div>
+                          <div className="flex items-center gap-2 p-2 pr-3 bg-secondary rounded-md border">
+                            <Coins className="h-5 w-5 text-amber-500"/>
+                            <span className="font-semibold text-sm whitespace-nowrap">{formatCoins(user?.valhallaCoins ?? 0)}</span>
+                          </div>
+                        </>
                       )}
                       <DropdownMenu>
                           <DropdownMenuTrigger asChild>

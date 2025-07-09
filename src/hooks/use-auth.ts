@@ -13,12 +13,13 @@ type AuthState = {
   isAdmin: boolean;
   login: (credentials: Pick<User, 'email' | 'password'>) => boolean;
   logout: () => void;
-  register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent'>) => boolean;
+  register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent' | 'valhallaCoins'>) => boolean;
   updateUser: (userId: string, updates: Partial<Pick<User, 'name' | 'email'>>) => boolean;
   changePassword: (userId: string, newPassword: string) => boolean;
   updateAvatar: (userId: string, avatar: string) => void;
   updateWalletBalance: (userId: string, amount: number) => void;
   updateTotalSpent: (userId: string, amount: number) => void;
+  updateValhallaCoins: (userId: string, amount: number) => void;
 };
 
 // Mock users database
@@ -53,6 +54,7 @@ export const useAuth = create(
             avatar: 'https://placehold.co/100x100.png',
             walletBalance: 0,
             totalSpent: 0,
+            valhallaCoins: 0,
         };
         users.push(newUser);
         set({ user: newUser, isAuthenticated: true, isAdmin: false });
@@ -90,6 +92,18 @@ export const useAuth = create(
             set(state => ({
                 user: state.user && state.user.id === userId
                     ? { ...state.user, walletBalance: newBalance }
+                    : state.user
+            }));
+        }
+      },
+      updateValhallaCoins: (userId, amount) => {
+        const userIndex = users.findIndex(u => u.id === userId);
+        if (userIndex > -1) {
+            const newBalance = users[userIndex].valhallaCoins + amount;
+            users[userIndex].valhallaCoins = newBalance;
+            set(state => ({
+                user: state.user && state.user.id === userId
+                    ? { ...state.user, valhallaCoins: newBalance }
                     : state.user
             }));
         }

@@ -73,6 +73,7 @@ export interface User {
   avatar?: string;
   walletBalance: number;
   totalSpent: number;
+  valhallaCoins: number;
 }
 
 export interface Review {
@@ -112,6 +113,8 @@ export interface Order {
   refundedAt?: string;
   appliedCouponCode?: string;
   discountAmount?: number;
+  valhallaCoinsApplied?: number;
+  valhallaCoinsValue?: number;
 }
 
 export interface ChatMessage {

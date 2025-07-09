@@ -4,13 +4,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { ClipboardList, UserCog, Wallet } from 'lucide-react';
+import { ClipboardList, UserCog, Wallet, Coins } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useCurrency } from '@/hooks/use-currency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/use-translation';
-import { getRank } from '@/lib/ranks';
+import { getRank, formatCoins } from '@/lib/ranks';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
@@ -42,17 +42,28 @@ export function DashboardSidebar() {
             )}
         </div>
       </div>
-
-      <Card className="mb-8">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-2">
-            <CardTitle className="text-sm font-medium">{t('dashboardSidebar.walletBalance')}</CardTitle>
-            <Wallet className="h-5 w-5 text-primary" />
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-            <div className="text-2xl font-bold text-primary">{formatPrice(user?.walletBalance ?? 0)}</div>
-            <p className="text-xs text-muted-foreground">{t('dashboardSidebar.availableToSpend')}</p>
-        </CardContent>
-      </Card>
+      <div className="space-y-4 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-2">
+              <CardTitle className="text-sm font-medium">{t('dashboardSidebar.walletBalance')}</CardTitle>
+              <Wallet className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent className="p-3 pt-0">
+              <div className="text-2xl font-bold text-primary">{formatPrice(user?.walletBalance ?? 0)}</div>
+              <p className="text-xs text-muted-foreground">{t('dashboardSidebar.availableToSpend')}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-2">
+              <CardTitle className="text-sm font-medium">{t('dashboardSidebar.valhallaCoins')}</CardTitle>
+              <Coins className="h-5 w-5 text-amber-500" />
+          </CardHeader>
+          <CardContent className="p-3 pt-0">
+              <div className="text-2xl font-bold text-amber-500">{formatCoins(user?.valhallaCoins ?? 0)}</div>
+              <p className="text-xs text-muted-foreground">{t('dashboardSidebar.availableToRedeem')}</p>
+          </CardContent>
+        </Card>
+      </div>
 
       <nav className="flex flex-col gap-2">
         {navLinks.map((link) => (

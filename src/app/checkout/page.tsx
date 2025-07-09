@@ -26,7 +26,7 @@ import { usePaymentSettings } from '@/hooks/use-payment-settings';
 import { useCategories } from '@/hooks/use-categories';
 import { useCoupons } from '@/hooks/use-coupons';
 import type { PaymentMethod, CartItem, Order, Category, Coupon } from '@/lib/types';
-import { Landmark, Wallet as WalletIcon, CreditCard, Upload, Loader2, User, Info, Lock, TicketPercent } from 'lucide-react';
+import { Landmark, Wallet as WalletIcon, CreditCard, Upload, Loader2, User, Info, Lock, TicketPercent, Coins } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from '@/hooks/use-translation';
 import { useCurrency } from '@/hooks/use-currency';
@@ -35,6 +35,7 @@ import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { products } from '@/lib/data'; // Import products to find details
+import { VALHALLA_COIN_USD_VALUE, formatCoins } from '@/lib/ranks';
 
 const icons: { [key: string]: React.ElementType } = {
   Landmark,
@@ -67,13 +68,16 @@ export default function CheckoutPage() {
     const [orderId, setOrderId] = useState('');
     const { toast } = useToast();
     const { t } = useTranslation();
-    const { formatPrice } = useCurrency();
+    const { formatPrice, currency } = useCurrency();
     const [isVerified, setIsVerified] = useState(false);
     
     const [couponCode, setCouponCode] = useState('');
     const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
     const [discountAmount, setDiscountAmount] = useState(0);
 
+    const [coinsToApply, setCoinsToApply] = useState('');
+    const [appliedCoins, setAppliedCoins] = useState(0);
+    const [appliedCoinsValue, setAppliedCoinsValue] = useState(0);
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -106,9 +110,12 @@ export default function CheckoutPage() {
         [items]
     );
 
+    const postDiscountTotal = subtotal - discountAmount;
+    const postCoinTotal = postDiscountTotal - appliedCoinsValue;
+
     const taxRate = selectedPayment?.taxRate || 0;
-    const taxAmount = (subtotal - discountAmount) * (taxRate / 100);
-    const total = subtotal - discountAmount + taxAmount;
+    const taxAmount = postCoinTotal > 0 ? postCoinTotal * (taxRate / 100) : 0;
+    const total = postCoinTotal + taxAmount;
 
     const walletPaymentMethod: PaymentMethod = {
         id: 'store_wallet',
@@ -144,6 +151,29 @@ export default function CheckoutPage() {
             setAppliedCoupon(null);
             setCouponCode('');
         }
+    };
+    
+    const handleApplyCoins = () => {
+        if (!user) return;
+        const numCoins = parseInt(coinsToApply, 10);
+        if (isNaN(numCoins) || numCoins <= 0) {
+            toast({ variant: 'destructive', title: t('checkoutPage.invalidCoinAmount') });
+            return;
+        }
+        if (numCoins > user.valhallaCoins) {
+            toast({ variant: 'destructive', title: t('checkoutPage.notEnoughCoins') });
+            return;
+        }
+        
+        const coinValue = numCoins * VALHALLA_COIN_USD_VALUE;
+        if (coinValue > postDiscountTotal) {
+            toast({ variant: 'destructive', title: t('checkoutPage.coinsExceedTotal') });
+            return;
+        }
+
+        setAppliedCoins(numCoins);
+        setAppliedCoinsValue(coinValue);
+        toast({ title: t('checkoutPage.coinsApplied') });
     };
 
     const handlePaymentProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -211,7 +241,9 @@ export default function CheckoutPage() {
                 paymentProofImage,
                 status: 'pending',
                 appliedCouponCode: appliedCoupon?.code,
-                discountAmount: discountAmount,
+                discountAmount,
+                valhallaCoinsApplied: appliedCoins,
+                valhallaCoinsValue: appliedCoinsValue,
             };
             addOrder(newOrder);
 
@@ -232,6 +264,9 @@ export default function CheckoutPage() {
         setAppliedCoupon(null);
         setDiscountAmount(0);
         setCouponCode('');
+        setCoinsToApply('');
+        setAppliedCoins(0);
+        setAppliedCoinsValue(0);
         router.push('/dashboard/orders');
     };
     
@@ -381,7 +416,7 @@ export default function CheckoutPage() {
                                         </div>
                                     </ScrollArea>
                                     <Separator/>
-                                    {!appliedCoupon && (
+                                    {!appliedCoupon && !appliedCoins ? (
                                         <div className="space-y-2">
                                             <Label htmlFor="coupon-code">{t('checkoutPage.couponCode')}</Label>
                                             <div className="flex space-x-2">
@@ -393,6 +428,28 @@ export default function CheckoutPage() {
                                                 />
                                                 <Button type="button" onClick={handleApplyCoupon} disabled={!couponCode}>
                                                     {t('checkoutPage.apply')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ): null}
+                                    <Separator/>
+                                    {!appliedCoins && (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="valhalla-coins">{t('checkoutPage.valhallaCoins')}</Label>
+                                            <div className="text-xs text-muted-foreground flex items-center gap-1.5 mb-1">
+                                                <Coins className="h-3 w-3 text-amber-500" />
+                                                {t('checkoutPage.yourBalance')}: {formatCoins(user?.valhallaCoins ?? 0)} ({formatPrice((user?.valhallaCoins ?? 0) * VALHALLA_COIN_USD_VALUE)})
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <Input
+                                                    id="valhalla-coins"
+                                                    type="number"
+                                                    placeholder={t('checkoutPage.coinsToRedeem')}
+                                                    value={coinsToApply}
+                                                    onChange={(e) => setCoinsToApply(e.target.value)}
+                                                />
+                                                <Button type="button" onClick={handleApplyCoins} disabled={!coinsToApply}>
+                                                    {t('checkoutPage.redeem')}
                                                 </Button>
                                             </div>
                                         </div>
@@ -409,9 +466,15 @@ export default function CheckoutPage() {
                                                 <span>- {formatPrice(discountAmount)}</span>
                                             </div>
                                         )}
+                                        {appliedCoins > 0 && (
+                                            <div className="flex justify-between text-amber-600 dark:text-amber-400">
+                                                <span className="text-muted-foreground flex items-center gap-1"><Coins className="h-4 w-4" />{t('checkoutPage.coinsRedeemed')}</span>
+                                                <span>- {formatPrice(appliedCoinsValue)}</span>
+                                            </div>
+                                        )}
                                          <div className="flex justify-between">
                                             <span className="text-muted-foreground">{t('cart.tax')} ({taxRate}%)</span>
-                                            <span>{formatPrice(taxAmount)}</span>
+                                            <span>+ {formatPrice(taxAmount)}</span>
                                         </div>
                                     </div>
                                     <Separator/>
