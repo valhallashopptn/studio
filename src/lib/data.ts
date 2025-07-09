@@ -177,19 +177,6 @@ export let products: Product[] = [
         { title: 'How to Use', content: '1. Open the Valorant game client.\n2. Go to the in-game store and click "Purchase VP".\n3. Select the "Prepaid Cards & Codes" option.\n4. Enter your code to redeem the points.' },
         { title: 'Account Region', content: 'Please ensure your Valorant account region matches the region specified for the card.' }
     ]
-  },
-  {
-    id: 'prod_premium',
-    name: 'Premium Membership',
-    description: 'Unlock exclusive perks like an animated RGB name, GIF avatars, a 1.5x XP boost, and a bonus of 500 Valhalla Coins!',
-    variants: [{ id: 'premium_onetime', name: 'One-Time Purchase', price: 9.99 }],
-    image: 'https://placehold.co/600x400.png',
-    aiHint: 'gold diamond treasure',
-    category: 'Membership',
-    details: [
-      { title: 'Perks', content: '- Animated RGB Username\n- Animated GIF Avatar\n- 1.5x XP Boost on purchases\n- 500 Valhalla Coins bonus\n- Special Discord Role' },
-      { title: 'Note', content: 'This is a permanent, one-time upgrade for your account.' }
-    ]
   }
 ];
 

@@ -52,15 +52,10 @@ export const useUserDatabase = create(
     }),
     {
       name: 'topup-hub-user-database',
-      // This merge strategy prevents initial data from overwriting persisted user changes on re-hydration
+      // This merge strategy now prioritizes the initial data from `data.ts`
+      // to ensure your change is applied, overwriting the stored user list.
       merge: (persistedState, currentState) => {
-        if (!persistedState) {
-          return currentState;
-        }
-        return {
-          ...currentState,
-          users: (persistedState as UserDatabaseState).users,
-        };
+        return currentState;
       },
     }
   )
