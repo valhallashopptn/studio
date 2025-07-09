@@ -49,8 +49,10 @@ export default function ProductDetailPage() {
     const foundProduct = products.find(p => p.id === id);
     if (foundProduct) {
       setProduct(foundProduct);
-      if (foundProduct.variants.length === 1) {
-        setSelectedVariant(foundProduct.variants[0]);
+      if (foundProduct.variants && foundProduct.variants.length > 0) {
+        // Sort variants by price to find the cheapest one and set it as default
+        const sortedVariants = [...foundProduct.variants].sort((a, b) => a.price - b.price);
+        setSelectedVariant(sortedVariants[0]);
       }
     }
     setIsLoading(false);
