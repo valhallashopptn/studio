@@ -256,18 +256,21 @@ export default function CheckoutPage() {
         }, 1000);
     };
 
-    const handleCloseConfirmation = () => {
-        setConfirmOpen(false);
-        clearCart();
-        setSelectedPayment(null);
-        setPaymentProofImage(null);
-        setAppliedCoupon(null);
-        setDiscountAmount(0);
-        setCouponCode('');
-        setCoinsToApply('');
-        setAppliedCoins(0);
-        setAppliedCoinsValue(0);
-        router.push('/dashboard/orders');
+    const handleConfirmationDialogChange = (isOpen: boolean) => {
+        if (!isOpen && orderId) {
+            // This logic runs when the dialog is closed after a successful order.
+            clearCart();
+            setSelectedPayment(null);
+            setPaymentProofImage(null);
+            setAppliedCoupon(null);
+            setDiscountAmount(0);
+            setCouponCode('');
+            setCoinsToApply('');
+            setAppliedCoins(0);
+            setAppliedCoinsValue(0);
+            router.push('/dashboard/orders');
+        }
+        setConfirmOpen(isOpen);
     };
     
     const handlePaymentChange = (id: string) => {
@@ -498,7 +501,7 @@ export default function CheckoutPage() {
                     </div>
                 </div>
             </main>
-            <AlertDialog open={isConfirmOpen} onOpenChange={() => {}}>
+            <AlertDialog open={isConfirmOpen} onOpenChange={handleConfirmationDialogChange}>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>{t('cart.orderPlaced')}</AlertDialogTitle>
@@ -508,7 +511,7 @@ export default function CheckoutPage() {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                    <AlertDialogFooter>
-                    <AlertDialogAction onClick={handleCloseConfirmation}>{t('checkoutPage.viewMyOrders')}</AlertDialogAction>
+                    <AlertDialogAction>{t('checkoutPage.viewMyOrders')}</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
