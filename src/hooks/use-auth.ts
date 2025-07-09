@@ -85,40 +85,49 @@ export const useAuth = create(
          }
       },
       updateWalletBalance: (userId, amount) => {
-        const userIndex = users.findIndex(u => u.id === userId);
-        if (userIndex > -1) {
-            const newBalance = users[userIndex].walletBalance + amount;
-            users[userIndex].walletBalance = newBalance;
-            set(state => ({
-                user: state.user && state.user.id === userId
-                    ? { ...state.user, walletBalance: newBalance }
-                    : state.user
-            }));
-        }
+        set(state => {
+          if (state.user && state.user.id === userId) {
+            const newBalance = state.user.walletBalance + amount;
+            
+            const userIndex = users.findIndex(u => u.id === userId);
+            if (userIndex > -1) {
+                users[userIndex].walletBalance = newBalance;
+            }
+
+            return { user: { ...state.user, walletBalance: newBalance } };
+          }
+          return state;
+        });
       },
       updateValhallaCoins: (userId, amount) => {
-        const userIndex = users.findIndex(u => u.id === userId);
-        if (userIndex > -1) {
-            const newBalance = users[userIndex].valhallaCoins + amount;
-            users[userIndex].valhallaCoins = newBalance;
-            set(state => ({
-                user: state.user && state.user.id === userId
-                    ? { ...state.user, valhallaCoins: newBalance }
-                    : state.user
-            }));
-        }
+        set(state => {
+          if (state.user && state.user.id === userId) {
+            const newBalance = state.user.valhallaCoins + amount;
+
+            const userIndex = users.findIndex(u => u.id === userId);
+            if (userIndex > -1) {
+                users[userIndex].valhallaCoins = newBalance;
+            }
+
+            return { user: { ...state.user, valhallaCoins: newBalance } };
+          }
+          return state;
+        });
       },
       updateTotalSpent: (userId, amount) => {
-        const userIndex = users.findIndex(u => u.id === userId);
-        if (userIndex > -1) {
-            const newTotal = users[userIndex].totalSpent + amount;
-            users[userIndex].totalSpent = newTotal;
-            set(state => ({
-                user: state.user && state.user.id === userId
-                    ? { ...state.user, totalSpent: newTotal }
-                    : state.user
-            }));
-        }
+        set(state => {
+          if (state.user && state.user.id === userId) {
+            const newTotal = state.user.totalSpent + amount;
+
+            const userIndex = users.findIndex(u => u.id === userId);
+            if (userIndex > -1) {
+                users[userIndex].totalSpent = newTotal;
+            }
+
+            return { user: { ...state.user, totalSpent: newTotal } };
+          }
+          return state;
+        });
       },
     }),
     {
