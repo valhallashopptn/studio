@@ -216,7 +216,10 @@
     "codeCopiedDesc": "تم نسخ الكود إلى الحافظة الخاصة بك.",
     "refundDetails": "تفاصيل استرداد المبلغ",
     "refundedOn": "تم الاسترداد في:",
-    "reason": "السبب:"
+    "reason": "السبب:",
+    "leaveReview": "اترك تقييمًا",
+    "noItemsToReviewTitle": "لا توجد عناصر للمراجعة",
+    "noItemsToReviewDesc": "لقد قمت بالفعل بمراجعة جميع العناصر في هذا الطلب."
   },
   "dashboardSidebar": {
     "myOrders": "طلباتي",

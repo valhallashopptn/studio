@@ -216,7 +216,10 @@
     "codeCopiedDesc": "The code has been copied to your clipboard.",
     "refundDetails": "Refund Details",
     "refundedOn": "Refunded On:",
-    "reason": "Reason:"
+    "reason": "Reason:",
+    "leaveReview": "Leave a Review",
+    "noItemsToReviewTitle": "No items to review",
+    "noItemsToReviewDesc": "You have already reviewed all items in this order."
   },
   "dashboardSidebar": {
     "myOrders": "My Orders",

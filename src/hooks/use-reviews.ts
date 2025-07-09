@@ -1,3 +1,4 @@
+
 'use client';
 
 import { create } from 'zustand';
@@ -8,11 +9,12 @@ import { reviews as initialReviews } from '@/lib/data';
 type ReviewsState = {
   reviews: Review[];
   addReview: (review: Omit<Review, 'id' | 'avatar'>) => void;
+  hasReviewed: (productName: string, userName: string) => boolean;
 };
 
 export const useReviews = create(
   persist<ReviewsState>(
-    (set) => ({
+    (set, get) => ({
       reviews: initialReviews,
       addReview: (newReviewData) =>
         set((state) => {
@@ -23,6 +25,12 @@ export const useReviews = create(
             };
             return { reviews: [newReview, ...state.reviews] };
         }),
+      hasReviewed: (productName, userName) => {
+        const { reviews } = get();
+        return reviews.some(
+          (review) => review.product === productName && review.name === userName
+        );
+      },
     }),
     {
       name: 'topup-hub-reviews',

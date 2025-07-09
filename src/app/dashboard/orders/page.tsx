@@ -5,12 +5,12 @@ import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { useOrders } from '@/hooks/use-orders';
 import { useAuth } from '@/hooks/use-auth';
-import type { Order, OrderStatus, CartItem } from '@/lib/types';
+import type { Order, OrderStatus, CartItem, Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Eye, CheckCircle, XCircle, RefreshCw, KeyRound, Copy, TicketPercent, Coins } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, RefreshCw, KeyRound, Copy, TicketPercent, Coins, MessageSquarePlus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -28,6 +28,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatCoins } from '@/lib/ranks';
+import { useReviews } from '@/hooks/use-reviews';
+import { ReviewForm } from '@/components/review-form';
+import { products } from '@/lib/data';
 
 const statusConfig: { [key in OrderStatus]: { variant: 'default' | 'secondary' | 'destructive', icon: React.ElementType, label: string } } = {
   pending: { variant: 'secondary', icon: RefreshCw, label: 'Pending' },
@@ -97,6 +100,11 @@ export default function CustomerOrdersPage() {
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const { formatPrice } = useCurrency();
   const { t } = useTranslation();
+  const { toast } = useToast();
+  const { hasReviewed } = useReviews();
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [productsForReview, setProductsForReview] = useState<Product[]>([]);
+
 
   const customerOrders = useMemo(() => {
     if (!user) return [];
@@ -105,6 +113,31 @@ export default function CustomerOrdersPage() {
 
   const subtotal = viewingOrder ? viewingOrder.items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0) : 0;
   const taxAmount = viewingOrder ? (subtotal - (viewingOrder.discountAmount ?? 0) - (viewingOrder.valhallaCoinsValue ?? 0)) * ((viewingOrder.paymentMethod.taxRate ?? 0) / 100) : 0;
+  
+  const handleReviewClick = () => {
+    if (!viewingOrder || !user) return;
+
+    const unreviewedProductNames = new Set(
+      viewingOrder.items
+        .filter(item => !hasReviewed(item.name, user.name))
+        .map(item => item.name)
+    );
+    
+    if (unreviewedProductNames.size === 0) {
+      toast({
+        title: t('dashboardOrders.noItemsToReviewTitle'),
+        description: t('dashboardOrders.noItemsToReviewDesc'),
+      });
+      return;
+    }
+    
+    const productsToPass = products.filter(p => unreviewedProductNames.has(p.name));
+    
+    setProductsForReview(productsToPass);
+    setViewingOrder(null);
+    setIsReviewDialogOpen(true);
+  };
+
 
   return (
     <div className="space-y-8">
@@ -207,9 +240,32 @@ export default function CustomerOrdersPage() {
                     </div>
                 </ScrollArea>
             )}
-             <DialogFooter>
+            <DialogFooter className="sm:justify-between items-center">
+                <div>
+                    {viewingOrder?.status === 'completed' && (
+                        <Button variant="outline" onClick={handleReviewClick}>
+                            <MessageSquarePlus className="mr-2 h-4 w-4" />
+                            {t('dashboardOrders.leaveReview')}
+                        </Button>
+                    )}
+                </div>
                 <DialogClose asChild><Button type="button" variant="secondary">{t('dashboardOrders.close')}</Button></DialogClose>
             </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('reviewForm.title')}</DialogTitle>
+            <DialogDescription>
+                {t('reviewForm.description')}
+            </DialogDescription>
+          </DialogHeader>
+          <ReviewForm 
+            onReviewSubmitted={() => setIsReviewDialogOpen(false)} 
+            productsToReview={productsForReview}
+          />
         </DialogContent>
       </Dialog>
 

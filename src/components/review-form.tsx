@@ -12,12 +12,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useReviews } from '@/hooks/use-reviews';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { products } from '@/lib/data';
+import { products as allProducts } from '@/lib/data';
 import { Star } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import type React from 'react';
 import { useTranslation } from '@/hooks/use-translation';
+import type { Product } from '@/lib/types';
 
 const reviewSchema = z.object({
   name: z.string().min(2, 'Name is required.'),
@@ -27,18 +28,20 @@ const reviewSchema = z.object({
   proofImage: z.string().optional(),
 });
 
-export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => void }) {
+export function ReviewForm({ onReviewSubmitted, productsToReview }: { onReviewSubmitted: () => void, productsToReview?: Product[] }) {
   const { addReview } = useReviews();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
   const [hoverRating, setHoverRating] = useState(0);
 
+  const productList = productsToReview && productsToReview.length > 0 ? productsToReview : allProducts;
+
   const form = useForm<z.infer<typeof reviewSchema>>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
       name: '',
-      product: '',
+      product: productList[0]?.name || '',
       rating: 0,
       text: '',
       proofImage: '',
@@ -86,7 +89,7 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
             <FormItem>
               <FormLabel>{t('reviewForm.nameLabel')}</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="John Doe" {...field} readOnly={isAuthenticated} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -105,7 +108,7 @@ export function ReviewForm({ onReviewSubmitted }: { onReviewSubmitted: () => voi
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {products.map((p) => (
+                  {productList.map((p) => (
                     <SelectItem key={p.id} value={p.name}>
                       {p.name}
                     </SelectItem>
