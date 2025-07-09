@@ -125,6 +125,14 @@ export default {
           '50%': { backgroundPosition: '100% 50%' },
           '100%': { backgroundPosition: '0% 50%' },
         },
+        'rgb-cycle': {
+          '0%, 100%': { color: '#ff0000' },
+          '16%':  { color: '#ff7f00' },
+          '33%':  { color: '#ffff00' },
+          '50%':  { color: '#00ff00' },
+          '67%':  { color: '#0000ff' },
+          '84%':  { color: '#8b00ff' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -135,6 +143,7 @@ export default {
         'pulse-slow': 'pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'snowfall': 'snowfall linear infinite',
         'bg-pan': 'bg-pan 2s linear infinite',
+        'rgb-cycle': 'rgb-cycle 2s linear infinite',
       },
     },
   },
