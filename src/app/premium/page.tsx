@@ -32,7 +32,7 @@ export default function PremiumPage() {
   const { user, isAuthenticated, isAdmin, isPremium } = useAuth();
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
-  const { addItem } = useCart();
+  const { checkoutItem } = useCart();
 
   useEffect(() => {
     setIsMounted(true);
@@ -88,7 +88,7 @@ export default function PremiumPage() {
     };
     const premiumVariant = premiumProduct.variants[0];
 
-    addItem(premiumProduct, premiumVariant, 1);
+    checkoutItem(premiumProduct, premiumVariant, 1);
     router.push('/checkout');
   };
 

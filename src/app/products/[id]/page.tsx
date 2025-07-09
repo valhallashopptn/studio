@@ -37,7 +37,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
-  const addItemToCart = useCart((state) => state.addItem);
+  const { addItem, checkoutItem } = useCart();
   const { toast } = useToast();
   const { formatPrice } = useCurrency();
   const { t } = useTranslation();
@@ -81,7 +81,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!product || !selectedVariant) return;
-    addItemToCart(product, selectedVariant, quantity);
+    addItem(product, selectedVariant, quantity);
     toast({
       title: t('cart.addItemToastTitle'),
       description: `${quantity} x ${product.name} (${selectedVariant.name}) has been added to your order.`,
@@ -90,7 +90,7 @@ export default function ProductDetailPage() {
 
   const handleBuyNow = () => {
     if (!product || !selectedVariant) return;
-    addItemToCart(product, selectedVariant, quantity);
+    checkoutItem(product, selectedVariant, quantity);
     router.push('/checkout');
   };
 

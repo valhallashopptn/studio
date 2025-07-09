@@ -12,6 +12,7 @@ type CartState = {
   updateQuantity: (itemId: string, quantity: number) => void;
   updateCustomFieldValue: (itemId: string, fieldName: string, value: string) => void;
   clearCart: () => void;
+  checkoutItem: (product: Product, variant: ProductVariant, quantity?: number) => void;
 };
 
 export const useCart = create(
@@ -72,6 +73,21 @@ export const useCart = create(
             ),
         })),
       clearCart: () => set({ items: [] }),
+      checkoutItem: (product, variant, quantity = 1) =>
+        set(() => {
+          const compositeId = `${product.id}-${variant.id}`;
+          const newItem: CartItem = {
+            id: compositeId,
+            productId: product.id,
+            name: product.name,
+            image: product.image,
+            category: product.category,
+            variant,
+            quantity,
+            customFieldValues: {},
+          };
+          return { items: [newItem] };
+        }),
     }),
     {
       name: 'topup-hub-cart',
