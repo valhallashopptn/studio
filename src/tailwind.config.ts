@@ -145,7 +145,7 @@ export default {
         'slide-down-up': 'slide-down-up 8s ease-in-out infinite',
         'pulse-slow': 'pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'snowfall': 'snowfall linear infinite',
-        'bg-pan': 'bg-pan 4s linear infinite',
+        'bg-pan': 'bg-pan 2s linear infinite',
       },
     },
   },

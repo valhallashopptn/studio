@@ -163,14 +163,8 @@ export default function SettingsPage() {
                                             <TableRow key={r.name}>
                                                 <TableCell>
                                                     <div className="flex items-center gap-2 font-semibold text-base">
-                                                      <r.icon className={cn("h-5 w-5", r.color)} />
-                                                      {r.isAnimated ? (
-                                                          <span className="uppercase bg-gradient-to-r from-orange-400 via-rose-400 to-violet-500 bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto]">
-                                                              {r.name}
-                                                          </span>
-                                                      ) : (
-                                                          <span className={r.color}>{r.name}</span>
-                                                      )}
+                                                        <r.icon className={cn("h-5 w-5", r.isAnimated ? 'text-amber-400' : r.color)} />
+                                                        <span className={r.color}>{r.name}</span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right font-mono">
@@ -192,17 +186,11 @@ export default function SettingsPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center gap-4 p-4 bg-secondary rounded-lg">
-                            <rank.icon className={cn("h-12 w-12", rank.color)} />
+                            <rank.icon className={cn("h-12 w-12", rank.isAnimated ? 'text-amber-400' : rank.color)} />
                             <div>
-                                {rank.isAnimated ? (
-                                    <h3 className="text-2xl font-bold uppercase bg-gradient-to-r from-orange-400 via-rose-400 to-violet-500 bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto]">
-                                        {rank.name}
-                                    </h3>
-                                ) : (
-                                    <h3 className={cn("text-2xl font-bold", rank.color)}>
-                                        {rank.name}
-                                    </h3>
-                                )}
+                                <h3 className={cn("text-2xl font-bold", rank.color)}>
+                                    {rank.name}
+                                </h3>
                                 {isMounted ? (
                                     <p className="text-muted-foreground">Total XP: {formatXp(totalXp)}</p>
                                 ) : (

@@ -36,14 +36,8 @@ export function DashboardSidebar() {
             <h2 className="text-lg font-bold">{user?.name}</h2>
             {rank && (
                 <div className="flex items-center gap-1 text-sm font-semibold">
-                  <rank.icon className={cn("h-4 w-4", rank.color)} />
-                  {rank.isAnimated ? (
-                      <span className="uppercase bg-gradient-to-r from-orange-400 via-rose-400 to-violet-500 bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto]">
-                          {rank.name}
-                      </span>
-                  ) : (
-                      <span className={rank.color}>{rank.name}</span>
-                  )}
+                  <rank.icon className={cn("h-4 w-4", rank.isAnimated ? 'text-amber-400' : rank.color)} />
+                  <span className={rank.color}>{rank.name}</span>
                 </div>
             )}
         </div>

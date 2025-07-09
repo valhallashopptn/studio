@@ -24,7 +24,7 @@ export const ranks: Rank[] = [
     { name: 'S-Rank', threshold: 141 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
     { name: 'SS-Rank', threshold: 240 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
     { name: 'Legend', threshold: 408 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-400' },
-    { name: 'LORD', threshold: 694 * USD_TO_XP_RATE, icon: Hexagon, color: 'text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-rose-400 to-violet-500 animate-bg-pan', isAnimated: true },
+    { name: 'LORD', threshold: 694 * USD_TO_XP_RATE, icon: Hexagon, color: 'uppercase bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 bg-[length:400%_auto] bg-clip-text text-transparent animate-bg-pan', isAnimated: true },
 ];
 
 export const getRank = (totalSpent: number): Rank => {
