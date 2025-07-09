@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins, Crown, Trophy, Gem } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins, Crown, Trophy, Gem, UserCog, ClipboardList } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -272,8 +272,12 @@ export function AppHeader() {
                   <span>{t('nav.goPremium')}</span>
                 </DropdownMenuItem>
               )}
+              <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+                  <UserCog className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                  <span>{t('dashboardSidebar.profile')}</span>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push('/dashboard/orders')}>
-                  <LayoutDashboard className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                  <ClipboardList className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />
                   <span>{t('dashboardSidebar.myOrders')}</span>
               </DropdownMenuItem>
           </>
