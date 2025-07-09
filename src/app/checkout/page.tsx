@@ -70,6 +70,7 @@ export default function CheckoutPage() {
     const { t } = useTranslation();
     const { formatPrice, currency } = useCurrency();
     const [isVerified, setIsVerified] = useState(false);
+    const [orderComplete, setOrderComplete] = useState(false);
     
     const [couponCode, setCouponCode] = useState('');
     const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
@@ -84,7 +85,7 @@ export default function CheckoutPage() {
             router.push('/login');
             return;
         }
-        if (items.length === 0) {
+        if (items.length === 0 && !orderComplete) {
             toast({
                 title: 'Your cart is empty',
                 description: 'Please add products to your cart before checking out.',
@@ -94,7 +95,7 @@ export default function CheckoutPage() {
             return;
         }
         setIsVerified(true);
-    }, [isAuthenticated, items, router, toast]);
+    }, [isAuthenticated, items, router, toast, orderComplete]);
 
     const productMap = useMemo(() => new Map(products.map(p => [p.id, p])), []);
     const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
@@ -250,6 +251,8 @@ export default function CheckoutPage() {
             if (appliedCoupon) {
                 applyCoupon(appliedCoupon.code);
             }
+            
+            setOrderComplete(true);
 
             setConfirmOpen(true);
             setIsProcessing(false);
@@ -259,6 +262,7 @@ export default function CheckoutPage() {
     const handleConfirmationDialogChange = (isOpen: boolean) => {
         if (!isOpen && orderId) {
             // This logic runs when the dialog is closed after a successful order.
+            router.push('/dashboard/orders');
             clearCart();
             setSelectedPayment(null);
             setPaymentProofImage(null);
@@ -268,7 +272,6 @@ export default function CheckoutPage() {
             setCoinsToApply('');
             setAppliedCoins(0);
             setAppliedCoinsValue(0);
-            router.push('/dashboard/orders');
         }
         setConfirmOpen(isOpen);
     };
