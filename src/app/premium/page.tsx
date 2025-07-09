@@ -35,7 +35,7 @@ const features = [
 
 export default function PremiumPage() {
   const router = useRouter();
-  const { user, setPremiumStatus, isAuthenticated, isAdmin, updateWalletBalance } = useAuth();
+  const { user, setPremiumStatus, isAuthenticated, isAdmin, updateWalletBalance, updateTotalSpent } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
@@ -78,6 +78,7 @@ export default function PremiumPage() {
     // Simulate payment processing
     setTimeout(() => {
         updateWalletBalance(user.id, -price);
+        updateTotalSpent(user.id, price);
         setPremiumStatus(user.id);
         toast({
             title: t('premiumPage.successToastTitle'),
