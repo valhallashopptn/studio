@@ -306,7 +306,6 @@ export function AppHeader() {
                     ? "translate-x-0"
                     : locale === 'ar' ? "translate-x-full" : "-translate-x-full"
             )}
-            onClick={(e) => e.stopPropagation()}
         >
             <div className="flex items-center justify-between mb-8">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>

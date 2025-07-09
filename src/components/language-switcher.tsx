@@ -15,14 +15,18 @@ export function LanguageSwitcher() {
   const { setLocale } = useTranslation();
 
   return (
-    <DropdownMenu modal={false}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
           <Languages className="h-5 w-5" />
           <span className="sr-only">Change language</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="z-[70]">
+      <DropdownMenuContent
+        align="end"
+        className="z-[70]"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
         <DropdownMenuItem onClick={() => setLocale('en')}>
           English
         </DropdownMenuItem>
