@@ -192,14 +192,13 @@ export const useAuth = create(
             return currentState;
         }
         
-        // This time, we re-evaluate the premium status on load,
-        // but keep the rest of the persisted data.
         const rehydratedUser = persisted.user;
         const isNowPremium = checkIsPremium(rehydratedUser);
 
         return {
-            ...persisted,
-            isPremium: isNowPremium,
+          ...currentState,
+          ...persisted,
+          isPremium: isNowPremium,
         };
       },
     }
