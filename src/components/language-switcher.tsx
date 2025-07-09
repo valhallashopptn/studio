@@ -15,8 +15,8 @@ export function LanguageSwitcher() {
   const { setLocale } = useTranslation();
 
   return (
-    <DropdownMenu modal={false}>
-      <DropdownMenuTrigger asChild>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild onPointerDown={(e) => e.stopPropagation()}>
         <Button variant="outline" size="icon">
           <Languages className="h-5 w-5" />
           <span className="sr-only">Change language</span>
