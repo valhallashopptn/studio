@@ -23,33 +23,9 @@ export let categories: Category[] = [
       { id: 'field_1', name: 'account_email', label: 'Account Email', type: 'email', placeholder: 'Enter the account email' }
     ] 
   },
-  {
-    id: 'cat_3',
-    name: 'Membership',
-    image: 'https://placehold.co/300x200.png',
-    backImage: 'https://placehold.co/300x200.png',
-    description: 'Unlock exclusive perks and benefits with a premium membership.',
-    deliveryMethod: 'manual',
-    customFields: []
-  },
 ];
 
 export let products: Product[] = [
-  {
-    id: 'prod_premium',
-    name: 'Premium Membership',
-    description: 'Unlock exclusive perks: a premium badge, animated RGB name, 1.5x XP boost, 500 Valhalla Coins, animated GIF avatars, and a special Discord rank!',
-    variants: [
-        { id: 'prem_1m', name: '1 Month', price: 9.99 },
-    ],
-    image: 'https://placehold.co/600x400.png',
-    aiHint: 'gold crown diamond',
-    category: 'Membership',
-    details: [
-        { title: 'Perks', content: '• Premium badge next to your name\n• Animated RGB username on leaderboards\n• 1.5x XP boost on all purchases\n• 500 Valhalla Coins upon purchase\n• Ability to use animated GIFs for your profile picture\n• Special rank in our Discord server (contact support after purchase)' },
-        { title: 'Activation', content: 'Premium status is activated automatically on your account after your order is completed.' },
-    ]
-  },
   {
     id: 'prod_001',
     name: 'Mobile Legends Diamonds',

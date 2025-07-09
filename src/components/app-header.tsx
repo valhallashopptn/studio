@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins, Crown, Trophy } from 'lucide-react';
+import { ShoppingCart, Flame, LogOut, LayoutDashboard, Wallet, Megaphone, Menu, X, Coins, Crown, Trophy, Gem } from 'lucide-react';
 import { CartSheet } from '@/components/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useAuth } from '@/hooks/use-auth';
@@ -367,6 +367,12 @@ export function AppHeader() {
                                               <span>{t('auth.yourRank', { rank: leaderboardRank })}</span>
                                           </div>
                                         </DropdownMenuLabel>
+                                    )}
+                                    {isAuthenticated && !isAdmin && !user.isPremium && (
+                                      <DropdownMenuItem onClick={() => router.push('/premium')}>
+                                        <Gem className={cn("h-4 w-4 text-primary", locale === 'ar' ? 'ml-2' : 'mr-2')} />
+                                        <span>{t('nav.goPremium')}</span>
+                                      </DropdownMenuItem>
                                     )}
                                     <DropdownMenuItem onClick={() => router.push('/leaderboard')}>
                                         <Crown className={cn("h-4 w-4", locale === 'ar' ? 'ml-2' : 'mr-2')} />

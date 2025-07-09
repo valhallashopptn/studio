@@ -8,7 +8,6 @@ import { useStock } from '@/hooks/use-stock';
 import { useCategoriesStore } from '@/hooks/use-categories';
 import { useAuth } from './use-auth';
 import { USD_TO_VALHALLA_COIN_RATE } from '@/lib/ranks';
-import { products } from '@/lib/data';
 
 type OrdersState = {
     orders: Order[];
@@ -76,16 +75,9 @@ export const useOrders = create(
 
                     // Process completion logic - only if moving from a non-completed state
                     if (status === 'completed' && previousStatus !== 'completed') {
-                        const { updateTotalSpent, updateValhallaCoins, findUserById, setPremiumStatus } = useAuth.getState();
+                        const { updateTotalSpent, updateValhallaCoins, findUserById } = useAuth.getState();
                         
-                        // Check for premium membership purchase
-                        const premiumProduct = products.find(p => p.id === 'prod_premium');
-                        if (orderToUpdate.items.some(item => item.productId === premiumProduct?.id)) {
-                            setPremiumStatus(orderToUpdate.customer.id);
-                        }
-
                         // We need the user's LATEST status to check for premium boost.
-                        // The user might have just become premium from this order.
                         const user = findUserById(orderToUpdate.customer.id);
                         const isPremium = user?.isPremium || false;
                         const xpMultiplier = isPremium ? 1.5 : 1.0;
