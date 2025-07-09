@@ -17,14 +17,14 @@ export interface Rank {
 export const ranks: Rank[] = [
     { name: 'F-Rank', threshold: 0 * USD_TO_XP_RATE, icon: ShieldOff, color: 'text-slate-400' },
     { name: 'E-Rank', threshold: 10 * USD_TO_XP_RATE, icon: Shield, color: 'text-green-500' },
-    { name: 'D-Rank', threshold: 13 * USD_TO_XP_RATE, icon: ShieldCheck, color: 'text-cyan-500' },
-    { name: 'C-Rank', threshold: 17 * USD_TO_XP_RATE, icon: Sword, color: 'text-blue-500' },
-    { name: 'B-Rank', threshold: 22 * USD_TO_XP_RATE, icon: Swords, color: 'text-violet-500' },
-    { name: 'A-Rank', threshold: 29 * USD_TO_XP_RATE, icon: Gem, color: 'text-rose-500' },
-    { name: 'S-Rank', threshold: 38 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
-    { name: 'SS-Rank', threshold: 50 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
-    { name: 'Legend', threshold: 65 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-400' },
-    { name: 'LORD', threshold: 85 * USD_TO_XP_RATE, icon: Hexagon, color: 'bg-gradient-to-r from-orange-400 via-rose-400 to-violet-500 bg-clip-text text-transparent animate-bg-pan bg-[length:200%_auto]', isAnimated: true },
+    { name: 'D-Rank', threshold: 17 * USD_TO_XP_RATE, icon: ShieldCheck, color: 'text-cyan-500' },
+    { name: 'C-Rank', threshold: 29 * USD_TO_XP_RATE, icon: Sword, color: 'text-blue-500' },
+    { name: 'B-Rank', threshold: 49 * USD_TO_XP_RATE, icon: Swords, color: 'text-violet-500' },
+    { name: 'A-Rank', threshold: 83 * USD_TO_XP_RATE, icon: Gem, color: 'text-rose-500' },
+    { name: 'S-Rank', threshold: 141 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
+    { name: 'SS-Rank', threshold: 240 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
+    { name: 'Legend', threshold: 408 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-400' },
+    { name: 'LORD', threshold: 694 * USD_TO_XP_RATE, icon: Hexagon, color: 'text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-rose-400 to-violet-500 animate-bg-pan', isAnimated: true },
 ];
 
 export const getRank = (totalSpent: number): Rank => {
