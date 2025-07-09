@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 const registerSchema = z.object({
@@ -28,9 +28,15 @@ const registerSchema = z.object({
 export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { register } = useAuth();
+  const { register, isAuthenticated, isAdmin } = useAuth();
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push(isAdmin ? '/admin' : '/dashboard/settings');
+    }
+  }, [isAuthenticated, isAdmin, router]);
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -50,7 +56,7 @@ export default function RegisterPage() {
         title: 'Registration Successful',
         description: 'Your account has been created.',
       });
-      router.push('/');
+      // The useEffect will handle the redirect
     } else {
       toast({
         variant: 'destructive',
@@ -59,6 +65,15 @@ export default function RegisterPage() {
       });
       setIsSubmitting(false);
     }
+  }
+
+  // Add loader while checking auth state
+  if (isAuthenticated) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (

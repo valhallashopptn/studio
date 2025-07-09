@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
-import { Flame } from 'lucide-react';
+import { Flame, Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 
 const loginSchema = z.object({
@@ -27,9 +27,15 @@ const loginSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { login, isAdmin } = useAuth();
+  const { login, isAuthenticated, isAdmin } = useAuth();
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push(isAdmin ? '/admin' : '/dashboard/settings');
+    }
+  }, [isAuthenticated, isAdmin, router]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -48,11 +54,7 @@ export default function LoginPage() {
         title: 'Login Successful',
         description: 'Welcome back!',
       });
-      if (isAdmin) {
-        router.push('/admin');
-      } else {
-        router.push('/');
-      }
+      // The useEffect will handle the redirect.
     } else {
       toast({
         variant: 'destructive',
@@ -61,6 +63,15 @@ export default function LoginPage() {
       });
       setIsSubmitting(false);
     }
+  }
+
+  // Show a loader while checking auth state before rendering the form
+  if (isAuthenticated) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
