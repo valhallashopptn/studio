@@ -55,6 +55,7 @@ import {
 import { ReviewForm } from '@/components/review-form';
 import { useToast } from '@/hooks/use-toast';
 import { useUserDatabase } from '@/hooks/use-user-database';
+import { Badge } from './ui/badge';
 
 
 export function AppHeader() {
@@ -198,10 +199,13 @@ export function AppHeader() {
      <DropdownMenuContent className="w-64" align={locale === 'ar' ? 'start' : 'end'} forceMount>
       <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-          <p className="text-sm font-medium leading-none">{user?.name}</p>
-          <p className="text-xs leading-none text-muted-foreground">
-              {user?.email}
-          </p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium leading-none">{user?.name}</p>
+              {user?.isPremium && <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold text-[10px] px-1.5 py-0">PREMIUM</Badge>}
+            </div>
+            <p className="text-xs leading-none text-muted-foreground">
+                {user?.email}
+            </p>
           </div>
       </DropdownMenuLabel>
       
@@ -409,6 +413,15 @@ export function AppHeader() {
 
             {/* Mobile Nav */}
             <div className="flex items-center gap-2 md:hidden">
+                <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
+                  <ShoppingCart className="h-5 w-5" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
+                      {totalItems}
+                    </span>
+                  )}
+                  <span className="sr-only">Open Cart</span>
+                </Button>
                 {isAuthenticated ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -428,16 +441,6 @@ export function AppHeader() {
                         <Link href="/login">{t('auth.login')}</Link>
                     </Button>
                 )}
-                
-                <Button onClick={() => setSheetOpen(true)} variant="outline" size="icon" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
-                  {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold">
-                      {totalItems}
-                    </span>
-                  )}
-                  <span className="sr-only">Open Cart</span>
-                </Button>
                 
                 <Button onClick={() => setMobileMenuOpen(true)} variant="ghost" size="icon">
                   <Menu className="h-6 w-6" />

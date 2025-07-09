@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/use-translation';
 import { getRank, formatCoins } from '@/lib/ranks';
 import Image from 'next/image';
+import { Badge } from '@/components/ui/badge';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
@@ -36,7 +37,10 @@ export function DashboardSidebar() {
             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
         </Avatar>
         <div>
-            <h2 className="text-lg font-bold">{user?.name}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold">{user?.name}</h2>
+              {user?.isPremium && <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold text-xs">PREMIUM</Badge>}
+            </div>
             {rank && (
                 <div className="flex items-center gap-1 text-sm font-semibold">
                   <rank.icon className={cn("h-4 w-4", rank.iconColor || rank.color)} />
