@@ -120,6 +120,14 @@ export default {
           '0%': { transform: 'translateY(-10vh)', opacity: '1' },
           '100%': { transform: 'translateY(110vh)', opacity: '1' },
         },
+        'rgb-text': {
+          '0%, 100%': { color: 'hsl(0, 100%, 70%)' }, // Red
+          '16%': { color: 'hsl(60, 100%, 70%)' },    // Yellow
+          '33%': { color: 'hsl(120, 100%, 70%)' },   // Green
+          '50%': { color: 'hsl(180, 100%, 70%)' },   // Cyan
+          '66%': { color: 'hsl(240, 100%, 70%)' },   // Blue
+          '83%': { color: 'hsl(300, 100%, 70%)' },   // Magenta
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -129,6 +137,7 @@ export default {
         'slide-down-up': 'slide-down-up 8s ease-in-out infinite',
         'pulse-slow': 'pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'snowfall': 'snowfall linear infinite',
+        'rgb-text': 'rgb-text 4s linear infinite',
       },
     },
   },

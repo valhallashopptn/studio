@@ -23,7 +23,7 @@ export const ranks: Rank[] = [
     { name: 'S-Rank', threshold: 1200 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
     { name: 'SS-Rank', threshold: 2500 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
     { name: 'Legend', threshold: 5000 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-500' },
-    { name: 'Lord', threshold: 10000 * USD_TO_XP_RATE, icon: Hexagon, color: 'text-violet-400' },
+    { name: 'Lord', threshold: 10000 * USD_TO_XP_RATE, icon: Hexagon, color: 'animate-rgb-text' },
 ];
 
 export const getRank = (totalSpent: number): Rank => {
