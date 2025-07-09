@@ -220,13 +220,13 @@ export function AppHeader() {
                                 <div className="px-2 py-2 text-sm">
                                     <div className="flex justify-between items-center mb-2">
                                         <div className="flex items-center gap-1.5 font-semibold">
-                                            <rank.icon className={cn("h-4 w-4", rank.isAnimated ? 'text-amber-400' : rank.color)} />
+                                            <rank.icon className={cn("h-4 w-4", rank.iconColor || rank.color)} />
                                             <span className={rank.color}>{rank.name}</span>
                                         </div>
                                         {nextRank && (
                                             <div className={cn("flex items-center gap-1.5 font-semibold text-xs", nextRank.color)}>
                                                 <span>{nextRank.name}</span>
-                                                <nextRank.icon className="h-4 w-4" />
+                                                <nextRank.icon className={cn("h-4 w-4", nextRank.iconColor || nextRank.color)} />
                                             </div>
                                         )}
                                     </div>

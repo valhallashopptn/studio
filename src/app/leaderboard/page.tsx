@@ -80,7 +80,7 @@ export default function LeaderboardPage() {
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex items-center gap-1.5 font-semibold">
-                                                            <rank.icon className={cn("h-4 w-4", rank.isAnimated ? 'text-amber-400' : rank.color)} />
+                                                            <rank.icon className={cn("h-4 w-4", rank.iconColor || rank.color)} />
                                                             <span className={rank.color}>{rank.name}</span>
                                                         </div>
                                                     </TableCell>

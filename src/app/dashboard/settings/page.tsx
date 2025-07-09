@@ -163,7 +163,7 @@ export default function SettingsPage() {
                                             <TableRow key={r.name}>
                                                 <TableCell>
                                                     <div className="flex items-center gap-2 font-semibold text-base">
-                                                        <r.icon className={cn("h-5 w-5", r.isAnimated ? 'text-amber-400' : r.color)} />
+                                                        <r.icon className={cn("h-5 w-5", r.iconColor || r.color)} />
                                                         <span className={r.color}>{r.name}</span>
                                                     </div>
                                                 </TableCell>
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center gap-4 p-4 bg-secondary rounded-lg">
-                            <rank.icon className={cn("h-12 w-12", rank.isAnimated ? 'text-amber-400' : rank.color)} />
+                            <rank.icon className={cn("h-12 w-12", rank.iconColor || rank.color)} />
                             <div>
                                 <h3 className={cn("text-2xl font-bold", rank.color)}>
                                     {rank.name}
