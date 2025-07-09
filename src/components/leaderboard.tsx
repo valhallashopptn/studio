@@ -13,6 +13,7 @@ import { useTranslation } from "@/hooks/use-translation";
 import { Skeleton } from "./ui/skeleton";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { Badge } from "./ui/badge";
 
 export function Leaderboard() {
     const { t } = useTranslation();
@@ -73,7 +74,10 @@ export function Leaderboard() {
                                                 <AvatarImage src={user.avatar} />
                                                 <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                            <span className={cn("font-medium", rankPosition === 1 && "text-yellow-500")}>{user.name}</span>
+                                            <span className="font-medium">{user.name}</span>
+                                            {rankPosition === 1 && (
+                                                <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold">PREMIUM</Badge>
+                                            )}
                                         </div>
                                     </TableCell>
                                     <TableCell>

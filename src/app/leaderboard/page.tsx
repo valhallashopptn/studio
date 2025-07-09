@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Crown, Medal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from '@/components/ui/badge';
 
 export default function LeaderboardPage() {
     const { t } = useTranslation();
@@ -83,7 +84,10 @@ export default function LeaderboardPage() {
                                                                 <AvatarImage src={user.avatar} />
                                                                 <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                                                             </Avatar>
-                                                            <span className={cn("font-medium", rankPosition === 1 && "text-yellow-500")}>{user.name}</span>
+                                                            <span className="font-medium">{user.name}</span>
+                                                            {rankPosition === 1 && (
+                                                                <Badge variant="outline" className="border-yellow-500 text-yellow-500 animate-pulse font-bold">PREMIUM</Badge>
+                                                            )}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
