@@ -200,49 +200,6 @@ export default function SettingsPage() {
                 </Alert>
             )}
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('dashboardSettings.manageSubTitle')}</CardTitle>
-                    <CardDescription>{t('dashboardSettings.manageSubDesc')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {user?.premium ? (
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            <Label>{t('dashboardSettings.statusLabel')}:</Label>
-                            <p className={cn("font-semibold flex items-center gap-1.5", isPremium ? 'text-green-500' : 'text-muted-foreground')}>
-                                {isPremium ? <CheckCircle className="h-4 w-4"/> : <XCircle className="h-4 w-4"/>}
-                                {isPremium ? t('dashboardSettings.activeStatus') : (user.premium.status === 'cancelled' ? t('dashboardSettings.cancelledStatus') : t('dashboardSettings.expiredStatus'))}
-                            </p>
-                        </div>
-                        <div>
-                            <Label>{user.premium.status === 'active' ? t('dashboardSettings.renewsOnLabel') : t('dashboardSettings.expiresOnLabel')}</Label>
-                            <p className="font-semibold">{format(new Date(user.premium.expiresAt), 'PPP')}</p>
-                        </div>
-
-                        {user.premium.status === 'active' && (
-                            <Button variant="destructive" onClick={handleCancel}>{t('dashboardSettings.cancelSubButton')}</Button>
-                        )}
-
-                        {!isPremium && (
-                        <div className="pt-2 border-t mt-4">
-                            <p className="text-sm text-muted-foreground mb-2">{t('dashboardSettings.resubscribePrompt')}</p>
-                            <Button onClick={handleResubscribe} disabled={!canResubscribe}>
-                                {t('dashboardSettings.resubscribeButton', { price: formatPrice(premiumPriceUSD) })}
-                            </Button>
-                            {!canResubscribe && <p className="text-xs text-destructive mt-1">{t('dashboardSettings.insufficientFunds')}</p>}
-                        </div>
-                        )}
-                    </div>
-                    ) : (
-                    <div>
-                        <p className="text-muted-foreground">{t('dashboardSettings.noSubscription')}</p>
-                        <Button asChild className="mt-2"><Link href="/premium">{t('dashboardSettings.goPremiumButton')}</Link></Button>
-                    </div>
-                    )}
-                </CardContent>
-            </Card>
-
             {rank && (
                 <Card>
                     <CardHeader>
@@ -436,6 +393,49 @@ export default function SettingsPage() {
                              )}
                         </div>
                     </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t('dashboardSettings.manageSubTitle')}</CardTitle>
+                    <CardDescription>{t('dashboardSettings.manageSubDesc')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {user?.premium ? (
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <Label>{t('dashboardSettings.statusLabel')}:</Label>
+                            <p className={cn("font-semibold flex items-center gap-1.5", isPremium ? 'text-green-500' : 'text-muted-foreground')}>
+                                {isPremium ? <CheckCircle className="h-4 w-4"/> : <XCircle className="h-4 w-4"/>}
+                                {isPremium ? t('dashboardSettings.activeStatus') : (user.premium.status === 'cancelled' ? t('dashboardSettings.cancelledStatus') : t('dashboardSettings.expiredStatus'))}
+                            </p>
+                        </div>
+                        <div>
+                            <Label>{user.premium.status === 'active' ? t('dashboardSettings.renewsOnLabel') : t('dashboardSettings.expiresOnLabel')}</Label>
+                            <p className="font-semibold">{format(new Date(user.premium.expiresAt), 'PPP')}</p>
+                        </div>
+
+                        {user.premium.status === 'active' && (
+                            <Button variant="destructive" onClick={handleCancel}>{t('dashboardSettings.cancelSubButton')}</Button>
+                        )}
+
+                        {!isPremium && (
+                        <div className="pt-2 border-t mt-4">
+                            <p className="text-sm text-muted-foreground mb-2">{t('dashboardSettings.resubscribePrompt')}</p>
+                            <Button onClick={handleResubscribe} disabled={!canResubscribe}>
+                                {t('dashboardSettings.resubscribeButton', { price: formatPrice(premiumPriceUSD) })}
+                            </Button>
+                            {!canResubscribe && <p className="text-xs text-destructive mt-1">{t('dashboardSettings.insufficientFunds')}</p>}
+                        </div>
+                        )}
+                    </div>
+                    ) : (
+                    <div>
+                        <p className="text-muted-foreground">{t('dashboardSettings.noSubscription')}</p>
+                        <Button asChild className="mt-2"><Link href="/premium">{t('dashboardSettings.goPremiumButton')}</Link></Button>
+                    </div>
+                    )}
                 </CardContent>
             </Card>
 
