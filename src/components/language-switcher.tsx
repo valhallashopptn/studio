@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" onPointerDown={(e) => e.stopPropagation()}>
           <Languages className="h-5 w-5" />
           <span className="sr-only">Change language</span>
         </Button>
