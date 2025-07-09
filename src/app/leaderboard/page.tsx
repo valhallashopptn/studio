@@ -70,15 +70,12 @@ export default function LeaderboardPage() {
                                             return (
                                                 <TableRow key={user.id}>
                                                     <TableCell className="font-bold px-2 text-center">
-                                                        {rankPosition === 1 ? (
-                                                            <Crown className="h-6 w-6 text-yellow-500 fill-yellow-500 mx-auto" />
-                                                        ) : rankPosition === 2 ? (
-                                                            <Medal className="h-6 w-6 text-slate-400 fill-slate-400 mx-auto" />
-                                                        ) : rankPosition === 3 ? (
-                                                            <Medal className="h-6 w-6 text-amber-700 fill-amber-700 mx-auto" />
-                                                        ) : (
+                                                        <div className="flex items-center justify-center gap-1.5">
                                                             <span className="text-lg">{rankPosition}</span>
-                                                        )}
+                                                            {rankPosition === 1 && <Crown className="h-5 w-5 text-yellow-500 fill-yellow-500" />}
+                                                            {rankPosition === 2 && <Medal className="h-5 w-5 text-slate-400 fill-slate-400" />}
+                                                            {rankPosition === 3 && <Medal className="h-5 w-5 text-amber-700 fill-amber-700" />}
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex items-center gap-3">
