@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,30 @@ import { Skeleton } from './ui/skeleton';
 import { getRank, getNextRank, formatXp, USD_TO_XP_RATE, formatCoins } from '@/lib/ranks';
 import { Progress } from './ui/progress';
 
+import { useOrders } from '@/hooks/use-orders';
+import { useReviews } from '@/hooks/use-reviews';
+import { products } from '@/lib/data';
+import type { Order, Product } from '@/lib/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { ReviewForm } from '@/components/review-form';
+import { useToast } from '@/hooks/use-toast';
+
 
 export function AppHeader() {
   const [isMounted, setIsMounted] = useState(false);
@@ -46,6 +70,71 @@ export function AppHeader() {
   const { t, locale } = useTranslation();
   const { formatPrice } = useCurrency();
   const { theme } = useTheme();
+
+  // Review Prompt Logic
+  const { orders, markOrderAsReviewPrompted } = useOrders();
+  const { hasReviewed } = useReviews();
+  const { toast } = useToast();
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [productsForReview, setProductsForReview] = useState<Product[]>([]);
+  const [isReviewPromptOpen, setIsReviewPromptOpen] = useState(false);
+  const [ordersToReview, setOrdersToReview] = useState<Order[]>([]);
+
+  const customerOrders = useMemo(() => {
+    if (!user) return [];
+    return orders.filter(order => order.customer.id === user.id);
+  }, [orders, user]);
+
+  useEffect(() => {
+    if (!user || isAdmin || !isMounted) return;
+    const unpromptedCompletedOrders = customerOrders.filter(
+        order => order.status === 'completed' && !order.reviewPrompted
+    );
+    
+    if (unpromptedCompletedOrders.length > 0) {
+        const timer = setTimeout(() => {
+            setOrdersToReview(unpromptedCompletedOrders);
+            setIsReviewPromptOpen(true);
+        }, 3000); // 3-second delay
+        
+        return () => clearTimeout(timer);
+    }
+  }, [customerOrders, user, isAdmin, isMounted]);
+
+  const handleReviewPromptClose = () => {
+    const orderIds = ordersToReview.map(o => o.id);
+    if (orderIds.length > 0) {
+        markOrderAsReviewPrompted(orderIds);
+    }
+    setIsReviewPromptOpen(false);
+    setOrdersToReview([]);
+  };
+
+  const handleReviewPromptAction = () => {
+    if (!user) return;
+
+    const unreviewedProductNames = new Set(
+      ordersToReview
+        .flatMap(order => order.items)
+        .filter(item => !hasReviewed(item.name, user.name))
+        .map(item => item.name)
+    );
+    
+    if (unreviewedProductNames.size === 0) {
+      toast({
+        title: t('dashboardOrders.noItemsToReviewTitle'),
+        description: t('dashboardOrders.noItemsToReviewDesc'),
+      });
+      handleReviewPromptClose();
+      return;
+    }
+    
+    const productsToPass = products.filter(p => unreviewedProductNames.has(p.name));
+    setProductsForReview(productsToPass);
+    setIsReviewDialogOpen(true);
+    handleReviewPromptClose();
+  };
+
 
   // Rank logic
   const totalXp = user ? user.totalSpent * USD_TO_XP_RATE : 0;
@@ -293,10 +382,12 @@ export function AppHeader() {
         </header>
       </div>
       
-      <div className={cn("fixed inset-0 z-[60] md:hidden", !isMobileMenuOpen && "pointer-events-none")}>
+      <div 
+        className={cn("fixed inset-0 z-[60] md:hidden", !isMobileMenuOpen && "pointer-events-none")}
+        onClick={() => setMobileMenuOpen(false)}
+      >
         <div 
             className={cn("absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity", isMobileMenuOpen ? "opacity-100" : "opacity-0")}
-            onClick={() => setMobileMenuOpen(false)}
         />
         <div 
             className={cn(
@@ -306,6 +397,7 @@ export function AppHeader() {
                     ? "translate-x-0"
                     : locale === 'ar' ? "translate-x-full" : "-translate-x-full"
             )}
+            onClick={(e) => e.stopPropagation()}
         >
             <div className="flex items-center justify-between mb-8">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
@@ -388,6 +480,38 @@ export function AppHeader() {
       </div>
 
       <CartSheet isOpen={isSheetOpen} onOpenChange={setSheetOpen} />
+
+      <AlertDialog open={isReviewPromptOpen} onOpenChange={setIsReviewPromptOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('dashboardOrders.reviewPromptTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('dashboardOrders.reviewPromptDescription')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleReviewPromptClose}>
+                {t('dashboardOrders.reviewPromptMaybeLater')}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleReviewPromptAction}>
+                {t('dashboardOrders.reviewPromptLeaveReview')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('reviewForm.title')}</DialogTitle>
+            <DialogDescription>
+                {t('reviewForm.description')}
+            </DialogDescription>
+          </DialogHeader>
+          <ReviewForm 
+            onReviewSubmitted={() => setIsReviewDialogOpen(false)} 
+            productsToReview={productsForReview}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

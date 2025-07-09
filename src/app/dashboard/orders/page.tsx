@@ -20,16 +20,6 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { useCurrency } from '@/hooks/use-currency';
@@ -38,9 +28,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/use-translation';
 import { formatCoins } from '@/lib/ranks';
-import { useReviews } from '@/hooks/use-reviews';
-import { ReviewForm } from '@/components/review-form';
-import { products } from '@/lib/data';
 
 const statusConfig: { [key in OrderStatus]: { variant: 'default' | 'secondary' | 'destructive', icon: React.ElementType, label: string } } = {
   pending: { variant: 'secondary', icon: RefreshCw, label: 'Pending' },
@@ -106,95 +93,25 @@ const DeliveredItemsDisplay = ({ order, item }: { order: Order, item: CartItem }
 
 export default function CustomerOrdersPage() {
   const { user } = useAuth();
-  const { orders, markOrderAsReviewPrompted } = useOrders();
+  const { orders } = useOrders();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const { formatPrice } = useCurrency();
   const { t } = useTranslation();
-  const { toast } = useToast();
-  const { hasReviewed } = useReviews();
-  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
-  const [productsForReview, setProductsForReview] = useState<Product[]>([]);
-  const [isReviewPromptOpen, setIsReviewPromptOpen] = useState(false);
-  const [ordersToReview, setOrdersToReview] = useState<Order[]>([]);
-
 
   const customerOrders = useMemo(() => {
     if (!user) return [];
     return orders.filter(order => order.customer.id === user.id);
   }, [orders, user]);
 
-  useEffect(() => {
-    if (!user) return;
-    const unpromptedCompletedOrders = customerOrders.filter(
-        order => order.status === 'completed' && !order.reviewPrompted
-    );
-    
-    if (unpromptedCompletedOrders.length > 0) {
-        setOrdersToReview(unpromptedCompletedOrders);
-        setIsReviewPromptOpen(true);
-    }
-  }, [customerOrders, user]);
-
   const subtotal = viewingOrder ? viewingOrder.items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0) : 0;
   const taxAmount = viewingOrder ? (subtotal - (viewingOrder.discountAmount ?? 0) - (viewingOrder.valhallaCoinsValue ?? 0)) * ((viewingOrder.paymentMethod.taxRate ?? 0) / 100) : 0;
   
-  const handleReviewPromptClose = () => {
-    const orderIds = ordersToReview.map(o => o.id);
-    if (orderIds.length > 0) {
-        markOrderAsReviewPrompted(orderIds);
-    }
-    setIsReviewPromptOpen(false);
-    setOrdersToReview([]);
-  };
-
-  const handleReviewPromptAction = () => {
-    if (!user) return;
-
-    const unreviewedProductNames = new Set(
-      ordersToReview
-        .flatMap(order => order.items)
-        .filter(item => !hasReviewed(item.name, user.name))
-        .map(item => item.name)
-    );
-    
-    if (unreviewedProductNames.size === 0) {
-      toast({
-        title: t('dashboardOrders.noItemsToReviewTitle'),
-        description: t('dashboardOrders.noItemsToReviewDesc'),
-      });
-      handleReviewPromptClose();
-      return;
-    }
-    
-    const productsToPass = products.filter(p => unreviewedProductNames.has(p.name));
-    setProductsForReview(productsToPass);
-    setIsReviewDialogOpen(true);
-    handleReviewPromptClose();
-  };
-
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">{t('dashboardOrders.title')}</h1>
         <p className="text-muted-foreground">{t('dashboardOrders.subtitle')}</p>
       </div>
-
-       <AlertDialog open={isReviewPromptOpen} onOpenChange={setIsReviewPromptOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('dashboardOrders.reviewPromptTitle')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('dashboardOrders.reviewPromptDescription')}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleReviewPromptClose}>
-                {t('dashboardOrders.reviewPromptMaybeLater')}
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleReviewPromptAction}>
-                {t('dashboardOrders.reviewPromptLeaveReview')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <Dialog open={!!viewingOrder} onOpenChange={(isOpen) => !isOpen && setViewingOrder(null)}>
         <DialogContent className="sm:max-w-2xl">
@@ -296,22 +213,6 @@ export default function CustomerOrdersPage() {
         </DialogContent>
       </Dialog>
       
-      <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t('reviewForm.title')}</DialogTitle>
-            <DialogDescription>
-                {t('reviewForm.description')}
-            </DialogDescription>
-          </DialogHeader>
-          <ReviewForm 
-            onReviewSubmitted={() => setIsReviewDialogOpen(false)} 
-            productsToReview={productsForReview}
-          />
-        </DialogContent>
-      </Dialog>
-
-
       <Card>
         <CardHeader>
           <CardTitle>{t('dashboardOrders.orderHistory')}</CardTitle>
