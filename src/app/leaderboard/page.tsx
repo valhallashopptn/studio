@@ -71,7 +71,7 @@ export default function LeaderboardPage() {
                                                 <TableRow key={user.id}>
                                                     <TableCell className="font-bold px-2 text-center">
                                                         <div className="flex items-baseline justify-center gap-1.5">
-                                                            <span className="text-lg">{rankPosition}</span>
+                                                            <span className={cn("text-lg", rankPosition === 1 && "text-yellow-500")}>{rankPosition}</span>
                                                             {rankPosition === 1 && <Crown className="h-5 w-5 text-yellow-500 fill-yellow-500" />}
                                                             {rankPosition === 2 && <Medal className="h-5 w-5 text-slate-400" />}
                                                             {rankPosition === 3 && <Medal className="h-5 w-5 text-amber-700" />}
