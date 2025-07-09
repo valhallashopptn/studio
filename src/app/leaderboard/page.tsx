@@ -83,7 +83,7 @@ export default function LeaderboardPage() {
                                                                 <AvatarImage src={user.avatar} />
                                                                 <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                                                             </Avatar>
-                                                            <span className="font-medium">{user.name}</span>
+                                                            <span className={cn("font-medium", rankPosition === 1 && "text-yellow-500")}>{user.name}</span>
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
