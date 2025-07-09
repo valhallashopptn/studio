@@ -80,6 +80,13 @@ export const useOrders = create(
                         const { updateTotalSpent, updateValhallaCoins } = useAuth.getState();
                         const { findUserById } = useUserDatabase.getState();
                         
+                        // Check for premium subscription item in the order
+                        const premiumItem = orderToUpdate.items.find(item => item.productId === 'premium-membership-product');
+                        if (premiumItem) {
+                            const { subscribeToPremium } = useAuth.getState();
+                            subscribeToPremium(orderToUpdate.customer.id);
+                        }
+                        
                         // We need the user's LATEST status to check for premium boost.
                         const user = findUserById(orderToUpdate.customer.id);
                         const isPremium = !!(user?.premium && user.premium.status === 'active' && new Date(user.premium.expiresAt) > new Date());

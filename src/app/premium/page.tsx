@@ -8,21 +8,12 @@ import { AppFooter } from '@/components/app-footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
-import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/use-translation';
 import { BadgeCheck, Coins, Gem, GitBranch, Image as ImageIcon, Zap, CheckCircle, Loader2 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
+import { useCart } from '@/hooks/use-cart';
+import type { Product } from '@/lib/types';
+
 
 const features = [
   { icon: Gem, titleKey: 'premiumPage.feature1Title', descriptionKey: 'premiumPage.feature1Desc' },
@@ -38,12 +29,10 @@ const premiumPriceUSD = premiumPriceTND / CONVERSION_RATES.TND;
 
 export default function PremiumPage() {
   const router = useRouter();
-  const { user, subscribeToPremium, isAuthenticated, isAdmin, updateWalletBalance, updateTotalSpent, isPremium } = useAuth();
-  const { toast } = useToast();
+  const { user, isAuthenticated, isAdmin, isPremium } = useAuth();
   const { t } = useTranslation();
-  const { formatPrice } = useCurrency();
-  const [isProcessing, setIsProcessing] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const { addItem } = useCart();
 
   useEffect(() => {
     setIsMounted(true);
@@ -58,7 +47,6 @@ export default function PremiumPage() {
   }, [isMounted, isAuthenticated, isAdmin, router]);
 
   const priceText = `${premiumPriceTND.toFixed(0)} TND / ${t('premiumPage.month')}`;
-  const hasEnoughFunds = user ? user.walletBalance >= premiumPriceUSD : false;
 
   if (!isMounted || !isAuthenticated || isAdmin) {
     return <div className="flex h-screen w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
@@ -85,22 +73,25 @@ export default function PremiumPage() {
   }
 
   const handleUpgrade = () => {
-    if (!user || !hasEnoughFunds) return;
+    if (!user) return;
 
-    setIsProcessing(true);
-    // Simulate payment processing
-    setTimeout(() => {
-        updateWalletBalance(user.id, -premiumPriceUSD);
-        updateTotalSpent(user.id, premiumPriceUSD);
-        subscribeToPremium(user.id);
-        toast({
-            title: t('premiumPage.successToastTitle'),
-            description: t('premiumPage.successToastDesc'),
-        });
-        setIsProcessing(false);
-        router.push('/dashboard/settings');
-    }, 1500);
+    // A "virtual" product that only exists for the checkout flow
+    const premiumProduct: Product = {
+      id: 'premium-membership-product',
+      name: t('premiumPage.productName'),
+      description: t('premiumPage.productDescription'),
+      variants: [{ id: 'monthly', name: t('premiumPage.month'), price: premiumPriceUSD }],
+      image: 'https://placehold.co/128x128.png', // A placeholder for the cart
+      category: 'Digital',
+      aiHint: 'premium membership gem',
+      details: [],
+    };
+    const premiumVariant = premiumProduct.variants[0];
+
+    addItem(premiumProduct, premiumVariant, 1);
+    router.push('/checkout');
   };
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -138,38 +129,10 @@ export default function PremiumPage() {
             <CardFooter className="p-8 bg-background border-t">
                 <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
                     <p className="text-2xl font-bold">{priceText}</p>
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-opacity">
-                                <Gem className="mr-2" />
-                                {t('premiumPage.upgradeButton')}
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                    {hasEnoughFunds ? t('premiumPage.confirmTitle') : t('premiumPage.insufficientFundsTitle')}
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    {hasEnoughFunds
-                                        ? t('premiumPage.confirmDescWithWalletMonthly', { price: priceText })
-                                        : t('premiumPage.insufficientFundsDesc', { required: formatPrice(premiumPriceUSD), balance: formatPrice(user?.walletBalance ?? 0) })
-                                    }
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>{t('premiumPage.cancelButton')}</AlertDialogCancel>
-                                {hasEnoughFunds ? (
-                                    <AlertDialogAction onClick={handleUpgrade} disabled={isProcessing}>
-                                        {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        {t('premiumPage.confirmButton')}
-                                    </AlertDialogAction>
-                                ) : (
-                                    <Button disabled>{t('premiumPage.confirmButton')}</Button>
-                                )}
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                     <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 transition-opacity" onClick={handleUpgrade}>
+                        <Gem className="mr-2" />
+                        {t('premiumPage.upgradeButton')}
+                    </Button>
                 </div>
             </CardFooter>
           </Card>

@@ -154,7 +154,9 @@ export const useAuth = create(
 
         const success = updateUser(userId, { premium: premiumData });
         if (success) {
+            // Award the one-time welcome bonus
             get().updateValhallaCoins(userId, 500);
+            // Update the auth state
             set(state => ({ 
               user: state.user ? { ...state.user, premium: premiumData } : null,
               isPremium: true 
