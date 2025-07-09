@@ -189,7 +189,8 @@
     "notEnoughCoins": "You do not have enough coins.",
     "coinsExceedTotal": "The value of coins cannot exceed the order total.",
     "coinsApplied": "Coins applied successfully!",
-    "coinsRedeemed": "Coins Redeemed"
+    "coinsRedeemed": "Coins Redeemed",
+    "noCoinsToRedeem": "You have no coins to redeem."
   },
   "dashboardOrders": {
     "title": "My Orders",

@@ -447,11 +447,15 @@ export default function CheckoutPage() {
                                                     placeholder={t('checkoutPage.coinsToRedeem')}
                                                     value={coinsToApply}
                                                     onChange={(e) => setCoinsToApply(e.target.value)}
+                                                    disabled={(user?.valhallaCoins ?? 0) === 0}
                                                 />
-                                                <Button type="button" onClick={handleApplyCoins} disabled={!coinsToApply}>
+                                                <Button type="button" onClick={handleApplyCoins} disabled={!coinsToApply || (user?.valhallaCoins ?? 0) === 0}>
                                                     {t('checkoutPage.redeem')}
                                                 </Button>
                                             </div>
+                                            {(user?.valhallaCoins ?? 0) === 0 && (
+                                                <p className="text-xs text-muted-foreground pt-1">{t('checkoutPage.noCoinsToRedeem')}</p>
+                                            )}
                                         </div>
                                     )}
                                     <Separator/>

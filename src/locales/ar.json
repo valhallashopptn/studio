@@ -189,7 +189,8 @@
     "notEnoughCoins": "ليس لديك عملات كافية.",
     "coinsExceedTotal": "لا يمكن أن تتجاوز قيمة العملات إجمالي الطلب.",
     "coinsApplied": "تم تطبيق العملات بنجاح!",
-    "coinsRedeemed": "العملات المستبدلة"
+    "coinsRedeemed": "العملات المستبدلة",
+    "noCoinsToRedeem": "ليس لديك عملات لاستبدالها."
   },
   "dashboardOrders": {
     "title": "طلباتي",
