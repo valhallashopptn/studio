@@ -336,7 +336,7 @@ export function AppHeader() {
                 ))}
             </nav>
              <div className="mt-8 pt-6 border-t space-y-4">
-                 <div className="flex justify-around">
+                 <div className="flex justify-around" onClick={(e) => e.stopPropagation()}>
                     <CurrencySwitcher />
                     <LanguageSwitcher />
                  </div>
