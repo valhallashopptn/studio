@@ -20,7 +20,7 @@ type AuthState = {
   updateWalletBalance: (userId: string, amount: number) => void;
   updateTotalSpent: (userId: string, amount: number) => void;
   updateValhallaCoins: (userId: string, amount: number) => void;
-  subscribeToPremium: (userId: string) => void;
+  subscribeToPremium: (userId: string, months?: number) => void;
   cancelSubscription: (userId: string) => void;
   updateNameStyle: (userId: string, style: string) => void;
 };
@@ -134,7 +134,7 @@ export const useAuth = create(
           }
         }
       },
-      subscribeToPremium: (userId) => {
+      subscribeToPremium: (userId, months = 1) => {
         const { updateUser, findUserById } = useUserDatabase.getState();
         const currentUser = findUserById(userId);
         if (!currentUser) return;
@@ -144,18 +144,20 @@ export const useAuth = create(
             ? new Date(currentUser.premium.expiresAt) 
             : now;
         
-        const expiresAt = new Date(currentSubEnd.setMonth(currentSubEnd.getMonth() + 1));
+        const expiresAt = new Date(currentSubEnd.setMonth(currentSubEnd.getMonth() + months));
 
         const premiumData = {
           status: 'active' as const,
-          subscribedAt: new Date().toISOString(),
+          subscribedAt: currentUser.premium?.subscribedAt || new Date().toISOString(),
           expiresAt: expiresAt.toISOString(),
         };
 
         const success = updateUser(userId, { premium: premiumData });
         if (success) {
-            // Award the one-time welcome bonus
-            get().updateValhallaCoins(userId, 500);
+            // Award the one-time welcome bonus if this is the first subscription
+            if (!currentUser.premium?.subscribedAt) {
+              get().updateValhallaCoins(userId, 500);
+            }
             // Update the auth state
             set(state => ({ 
               user: state.user ? { ...state.user, premium: premiumData } : null,
@@ -185,7 +187,20 @@ export const useAuth = create(
     {
       name: 'topup-hub-auth',
       merge: (persistedState, currentState) => {
-        return currentState;
+        const persisted = persistedState as AuthState;
+        if (!persisted || !persisted.user) {
+            return currentState;
+        }
+        
+        // This time, we re-evaluate the premium status on load,
+        // but keep the rest of the persisted data.
+        const rehydratedUser = persisted.user;
+        const isNowPremium = checkIsPremium(rehydratedUser);
+
+        return {
+            ...persisted,
+            isPremium: isNowPremium,
+        };
       },
     }
   )

@@ -84,7 +84,7 @@ export const useOrders = create(
                         const premiumItem = orderToUpdate.items.find(item => item.productId === 'premium-membership-product');
                         if (premiumItem) {
                             const { subscribeToPremium } = useAuth.getState();
-                            subscribeToPremium(orderToUpdate.customer.id);
+                            subscribeToPremium(orderToUpdate.customer.id, premiumItem.quantity);
                         }
                         
                         // We need the user's LATEST status to check for premium boost.
