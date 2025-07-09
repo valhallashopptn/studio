@@ -6,7 +6,7 @@ import type { LucideIcon } from 'lucide-react';
 
 export const USD_TO_XP_RATE = 1000;
 export const USD_TO_VALHALLA_COIN_RATE = 10;
-export const VALHALLA_COIN_USD_VALUE = 0.01; // 100 coins = $1
+export const VALHALLA_COIN_USD_VALUE = 1 / 300; // 300 coins = $1
 
 export interface Rank {
     name: string;
@@ -27,7 +27,7 @@ export const ranks: Rank[] = [
     { name: 'S-Rank', threshold: 107 * USD_TO_XP_RATE, icon: Diamond, color: 'text-red-500' },
     { name: 'SS-Rank', threshold: 171 * USD_TO_XP_RATE, icon: Trophy, color: 'text-amber-400' },
     { name: 'Legend', threshold: 274 * USD_TO_XP_RATE, icon: Crown, color: 'text-fuchsia-400' },
-    { name: 'LORD', threshold: 438 * USD_TO_XP_RATE, icon: Hexagon, color: 'animate-rgb-cycle', isAnimated: true },
+    { name: 'LORD', threshold: 438 * USD_TO_XP_RATE, icon: Hexagon, color: 'bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 bg-clip-text text-transparent animate-bg-pan', iconColor: 'bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 bg-clip-text text-transparent animate-bg-pan', isAnimated: true },
 ];
 
 export const getRank = (totalSpent: number): Rank => {
