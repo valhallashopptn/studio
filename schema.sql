@@ -1,213 +1,150 @@
---
--- TopUp Hub Database Schema
---
--- This SQL file defines the structure for all necessary tables.
---
 
--- --------------------------------------------------------
+-- SQL Schema for TopUp Hub
+-- This script creates the tables needed for the application to run in a production environment.
+
+-- Use the correct database name provided by your hosting service.
+-- For example: USE u123456789_mydb;
+
+SET NAMES utf8mb4;
+SET time_zone = '+00:00';
+SET foreign_key_checks = 0;
 
 --
--- Table structure for table `users`
+-- Table structure for `users`
 --
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
-  `id` VARCHAR(255) NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `email` VARCHAR(255) NOT NULL,
-  `password` VARCHAR(255) NOT NULL,
-  `isAdmin` BOOLEAN DEFAULT FALSE,
-  `avatar` TEXT,
-  `walletBalance` DECIMAL(10, 2) DEFAULT 0.00,
-  `totalSpent` DECIMAL(10, 2) DEFAULT 0.00,
-  `valhallaCoins` INT DEFAULT 0,
-  `nameStyle` VARCHAR(50) DEFAULT 'default',
-  `premium_status` ENUM('active', 'cancelled'),
-  `premium_subscribedAt` DATETIME,
-  `premium_expiresAt` DATETIME,
+  `id` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `isAdmin` tinyint(1) NOT NULL DEFAULT 0,
+  `avatar` text DEFAULT NULL,
+  `walletBalance` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `totalSpent` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `valhallaCoins` int(11) NOT NULL DEFAULT 0,
+  `nameStyle` varchar(50) DEFAULT 'default',
+  `premium` json DEFAULT NULL,
+  `isBanned` tinyint(1) NOT NULL DEFAULT 0,
+  `bannedAt` datetime DEFAULT NULL,
+  `banReason` text DEFAULT NULL,
+  `warningMessage` text DEFAULT NULL,
+  `permissions` json DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `email_unique` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
 
 --
--- Table structure for table `categories`
+-- Table structure for `categories`
 --
+DROP TABLE IF EXISTS `categories`;
 CREATE TABLE `categories` (
-  `id` VARCHAR(255) NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `image` TEXT,
-  `backImage` TEXT,
-  `description` TEXT,
-  `deliveryMethod` ENUM('manual', 'instant') NOT NULL,
+  `id` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `image` text NOT NULL,
+  `backImage` text NOT NULL,
+  `description` text NOT NULL,
+  `deliveryMethod` enum('manual','instant') NOT NULL DEFAULT 'manual',
+  `customFields` json DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `category_custom_fields`
---
-CREATE TABLE `category_custom_fields` (
-  `id` VARCHAR(255) NOT NULL,
-  `categoryId` VARCHAR(255) NOT NULL,
-  `label` VARCHAR(255) NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `type` ENUM('text', 'email', 'number') NOT NULL,
-  `placeholder` VARCHAR(255),
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`categoryId`) REFERENCES `categories`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
 
 --
--- Table structure for table `products`
+-- Table structure for `products`
 --
+DROP TABLE IF EXISTS `products`;
 CREATE TABLE `products` (
-  `id` VARCHAR(255) NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `description` TEXT,
-  `image` TEXT,
-  `aiHint` TEXT,
-  `categoryId` VARCHAR(255),
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`categoryId`) REFERENCES `categories`(`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `product_variants`
---
-CREATE TABLE `product_variants` (
-  `id` VARCHAR(255) NOT NULL,
-  `productId` VARCHAR(255) NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `price` DECIMAL(10, 2) NOT NULL,
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `product_details`
---
-CREATE TABLE `product_details` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `productId` VARCHAR(255) NOT NULL,
-  `title` VARCHAR(255) NOT NULL,
-  `content` TEXT NOT NULL,
-  FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `orders`
---
-CREATE TABLE `orders` (
-  `id` VARCHAR(255) NOT NULL,
-  `customerId` VARCHAR(255) NOT NULL,
-  `total` DECIMAL(10, 2) NOT NULL,
-  `paymentMethodId` VARCHAR(255),
-  `paymentProofImage` TEXT,
-  `status` ENUM('pending', 'completed', 'refunded') NOT NULL,
-  `createdAt` DATETIME NOT NULL,
-  `refundReason` TEXT,
-  `refundedAt` DATETIME,
-  `appliedCouponCode` VARCHAR(255),
-  `discountAmount` DECIMAL(10, 2),
-  `valhallaCoinsApplied` INT,
-  `valhallaCoinsValue` DECIMAL(10, 2),
-  `reviewPrompted` BOOLEAN DEFAULT FALSE,
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`customerId`) REFERENCES `users`(`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `order_items`
---
-CREATE TABLE `order_items` (
-  `id` VARCHAR(255) NOT NULL,
-  `orderId` VARCHAR(255) NOT NULL,
-  `productId` VARCHAR(255) NOT NULL,
-  `variantId` VARCHAR(255) NOT NULL,
-  `quantity` INT NOT NULL,
-  `price` DECIMAL(10, 2) NOT NULL,
-  `customFieldValues` JSON,
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`orderId`) REFERENCES `orders`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `stock`
---
-CREATE TABLE `stock` (
-  `id` VARCHAR(255) NOT NULL,
-  `productId` VARCHAR(255) NOT NULL,
-  `code` TEXT NOT NULL,
-  `isUsed` BOOLEAN DEFAULT FALSE,
-  `addedAt` DATETIME NOT NULL,
-  `usedAt` DATETIME,
-  `orderId` VARCHAR(255),
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `coupons`
---
-CREATE TABLE `coupons` (
-  `id` VARCHAR(255) NOT NULL,
-  `code` VARCHAR(255) NOT NULL,
-  `discountType` ENUM('percentage', 'fixed') NOT NULL,
-  `value` DECIMAL(10, 2) NOT NULL,
-  `expiresAt` DATETIME,
-  `usageLimit` INT NOT NULL,
-  `timesUsed` INT DEFAULT 0,
-  `firstPurchaseOnly` BOOLEAN DEFAULT FALSE,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `code_unique` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `reviews`
---
-CREATE TABLE `reviews` (
-  `id` VARCHAR(255) NOT NULL,
-  `reviewerName` VARCHAR(255) NOT NULL,
-  `reviewerAvatar` TEXT,
-  `rating` INT NOT NULL,
-  `text` TEXT,
-  `productId` VARCHAR(255) NOT NULL,
-  `proofImage` TEXT,
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `payment_methods`
---
-CREATE TABLE `payment_methods` (
-  `id` VARCHAR(255) NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `icon` VARCHAR(255),
-  `instructions` TEXT,
-  `requiresProof` BOOLEAN DEFAULT FALSE,
-  `taxRate` DECIMAL(5, 2) DEFAULT 0.00,
+  `id` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `variants` json NOT NULL,
+  `image` text NOT NULL,
+  `category` varchar(255) NOT NULL,
+  `aiHint` varchar(255) NOT NULL,
+  `details` json DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
--- Note: Site content (About page, contact info, etc.) is often stored in a simpler key-value table or a 'settings' table, but for simplicity, you can manage this via environment variables or a JSON file in your deployed app.
+--
+-- Table structure for `orders`
+--
+DROP TABLE IF EXISTS `orders`;
+CREATE TABLE `orders` (
+  `id` varchar(255) NOT NULL,
+  `customerId` varchar(255) NOT NULL,
+  `items` json NOT NULL,
+  `total` decimal(10,2) NOT NULL,
+  `paymentMethod` json NOT NULL,
+  `paymentProofImage` text DEFAULT NULL,
+  `status` enum('pending','completed','refunded') NOT NULL DEFAULT 'pending',
+  `createdAt` datetime NOT NULL,
+  `deliveredItems` json DEFAULT NULL,
+  `refundReason` text DEFAULT NULL,
+  `refundedAt` datetime DEFAULT NULL,
+  `appliedCouponCode` varchar(255) DEFAULT NULL,
+  `discountAmount` decimal(10,2) DEFAULT 0.00,
+  `valhallaCoinsApplied` int(11) DEFAULT 0,
+  `valhallaCoinsValue` decimal(10,2) DEFAULT 0.00,
+  `reviewPrompted` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+--
+-- Table structure for `stock`
+--
+DROP TABLE IF EXISTS `stock`;
+CREATE TABLE `stock` (
+  `id` varchar(255) NOT NULL,
+  `productId` varchar(255) NOT NULL,
+  `code` text NOT NULL,
+  `isUsed` tinyint(1) NOT NULL DEFAULT 0,
+  `addedAt` datetime NOT NULL,
+  `usedAt` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+--
+-- Table structure for `reviews`
+--
+DROP TABLE IF EXISTS `reviews`;
+CREATE TABLE `reviews` (
+  `id` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `avatar` text DEFAULT NULL,
+  `rating` int(1) NOT NULL,
+  `text` text NOT NULL,
+  `product` varchar(255) NOT NULL,
+  `proofImage` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for `coupons`
+--
+DROP TABLE IF EXISTS `coupons`;
+CREATE TABLE `coupons` (
+  `id` varchar(255) NOT NULL,
+  `code` varchar(255) NOT NULL,
+  `discountType` enum('percentage','fixed') NOT NULL,
+  `value` decimal(10,2) NOT NULL,
+  `expiresAt` datetime DEFAULT NULL,
+  `usageLimit` int(11) NOT NULL,
+  `timesUsed` int(11) NOT NULL DEFAULT 0,
+  `firstPurchaseOnly` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Note: Chat sessions are handled by Firebase Firestore and do not need a SQL table.
+
+--
+-- You would also need to insert your initial data (from lib/data.ts)
+-- into these tables using INSERT statements if you want to start with
+-- the same products, users, and categories.
+--
+
