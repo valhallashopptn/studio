@@ -9,7 +9,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Eye, CheckCircle, XCircle, RefreshCw, KeyRound, Copy, Braces } from 'lucide-react';
+import { MoreHorizontal, Eye, CheckCircle, XCircle, RefreshCw, KeyRound, Copy } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -96,38 +96,15 @@ const DeliveredItemsDisplay = ({ order, item }: { order: Order, item: CartItem }
                 <CardTitle className="text-xs text-green-800 dark:text-green-300 flex items-center gap-2"><KeyRound className="h-4 w-4" /> Delivered Information</CardTitle>
             </CardHeader>
             <CardContent className="p-2 pt-0">
-                <div className="space-y-2">
-                    {deliveredData.map((data, index) => {
-                         try {
-                            const parsedData = JSON.parse(data);
-                            return (
-                                <div key={index} className="bg-background p-2 rounded-md text-xs space-y-1">
-                                    <div className="flex justify-between items-center mb-1">
-                                      <p className="font-bold flex items-center gap-1"><Braces className="h-3 w-3" /> Account Details</p>
-                                      <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(data)}>
-                                        <Copy className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                    {Object.entries(parsedData).map(([key, value]) => (
-                                        <div key={key} className="flex justify-between">
-                                            <span className="capitalize text-muted-foreground">{key}:</span>
-                                            <code className="font-mono">{String(value)}</code>
-                                        </div>
-                                    ))}
-                                </div>
-                            )
-                        } catch (e) {
-                            // It's not JSON, just a simple code
-                            return (
-                                <div key={index} className="flex items-center justify-between bg-background p-1.5 rounded-md">
-                                    <code className="text-xs font-mono">{data}</code>
-                                    <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(data)}>
-                                        <Copy className="h-3 w-3" />
-                                    </Button>
-                                </div>
-                            )
-                        }
-                    })}
+                <div className="space-y-1">
+                    {deliveredData.map((data, index) => (
+                        <div key={index} className="flex items-center justify-between bg-background p-1.5 rounded-md">
+                            <code className="text-xs font-mono whitespace-pre-wrap">{data}</code>
+                            <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => copyToClipboard(data)}>
+                                <Copy className="h-3 w-3" />
+                            </Button>
+                        </div>
+                    ))}
                 </div>
             </CardContent>
         </Card>

@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, Braces } from 'lucide-react';
+import { CheckCircle, XCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -25,15 +25,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-
-function isValidJson(str: string) {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
-}
 
 export default function AdminStockPage() {
   const { stock, getAvailableStockCount, getStockForProduct, addStockItems } = useStock();
@@ -67,18 +58,6 @@ export default function AdminStockPage() {
     }
     
     const dataArray = newStockData.split('\n').filter(line => line.trim() !== '');
-
-    // Validate that if a line starts with '{', it's valid JSON
-    for (const line of dataArray) {
-        if (line.trim().startsWith('{') && !isValidJson(line)) {
-            toast({
-                variant: 'destructive',
-                title: 'Invalid JSON format',
-                description: `Please check the format of this line: ${line}`,
-            });
-            return;
-        }
-    }
 
     addStockItems(selectedProduct.id, dataArray);
     
@@ -121,10 +100,10 @@ export default function AdminStockPage() {
                                 value={newStockData}
                                 onChange={(e) => setNewStockData(e.target.value)}
                                 rows={8}
-                                placeholder={'CODE-1234-ABCD\n{"username":"user1","password":"pw1"}'}
+                                placeholder={'CODE-1234-ABCD\nusername:password\nanother-code'}
                             />
                              <p className="text-xs text-muted-foreground mt-2">
-                                For simple codes, enter one per line. For complex data like accounts, enter a valid JSON object on a single line.
+                                Paste your codes, account details, or other data here. Each line will become a single stock item.
                             </p>
                         </div>
                         <Button onClick={handleAddStock}>Add to Stock</Button>
@@ -148,12 +127,7 @@ export default function AdminStockPage() {
                                     {productStock.length > 0 ? productStock.map(item => (
                                         <TableRow key={item.id}>
                                             <TableCell className="font-mono text-xs">
-                                                {item.data.startsWith('{') ? (
-                                                    <span className="flex items-center gap-2 text-blue-500">
-                                                        <Braces className="h-4 w-4" />
-                                                        JSON Object
-                                                    </span>
-                                                ) : item.data}
+                                                {item.data}
                                             </TableCell>
                                             <TableCell>
                                                 {item.isUsed ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}
