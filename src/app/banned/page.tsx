@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useAuth } from '@/components/hooks/use-auth';
+import { useAuth } from '@/hooks/use-auth';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
