@@ -33,6 +33,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Combobox } from '@/components/ui/combobox';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const permissionsSchema = z.object({
   canManageProducts: z.boolean().default(false),
@@ -136,67 +137,69 @@ export default function AdminAdminsPage() {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-xl">
+                <DialogContent className="sm:max-w-xl max-h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>{editingAdmin ? 'Edit Admin Permissions' : 'Add New Admin'}</DialogTitle>
                     <DialogDescription>
                     {editingAdmin ? `Editing permissions for ${editingAdmin.name}.` : 'Select a user to promote and configure their permissions.'}
                     </DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                    <form id="admin-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
-                        {!editingAdmin && (
-                            <FormField
-                                control={form.control}
-                                name="userId"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                        <FormLabel>User to Promote</FormLabel>
-                                        <Combobox
-                                            options={userOptions}
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                            placeholder="Select a user..."
-                                            searchPlaceholder="Search users..."
+                <div className="flex-grow overflow-y-auto -mx-6 px-6 pr-2">
+                    <Form {...form}>
+                        <form id="admin-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
+                            {!editingAdmin && (
+                                <FormField
+                                    control={form.control}
+                                    name="userId"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col px-1">
+                                            <FormLabel>User to Promote</FormLabel>
+                                            <Combobox
+                                                options={userOptions}
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                placeholder="Select a user..."
+                                                searchPlaceholder="Search users..."
+                                            />
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                        
+                            <Separator />
+
+                            <div className="space-y-1 px-1">
+                                <h3 className="font-medium">Permissions</h3>
+                                <div className="space-y-4 pt-2">
+                                    {ALL_PERMISSIONS.map((p) => (
+                                        <FormField
+                                            key={p.key}
+                                            control={form.control}
+                                            name={`permissions.${p.key}`}
+                                            render={({ field }) => (
+                                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                                    <div className="space-y-0.5">
+                                                    <FormLabel>{p.label}</FormLabel>
+                                                    <FormDescription>{p.description}</FormDescription>
+                                                    </div>
+                                                    <FormControl>
+                                                    <Switch
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
                                         />
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        )}
-                       
-                        <Separator />
-
-                        <div className="space-y-1">
-                            <h3 className="font-medium">Permissions</h3>
-                            <div className="space-y-4 pt-2">
-                                {ALL_PERMISSIONS.map((p) => (
-                                    <FormField
-                                        key={p.key}
-                                        control={form.control}
-                                        name={`permissions.${p.key}`}
-                                        render={({ field }) => (
-                                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                                                <div className="space-y-0.5">
-                                                <FormLabel>{p.label}</FormLabel>
-                                                <FormDescription>{p.description}</FormDescription>
-                                                </div>
-                                                <FormControl>
-                                                <Switch
-                                                    checked={field.value}
-                                                    onCheckedChange={field.onChange}
-                                                />
-                                                </FormControl>
-                                            </FormItem>
-                                        )}
-                                    />
-                                ))}
+                                    ))}
+                                </div>
                             </div>
-                        </div>
 
-                    </form>
-                </Form>
-                 <DialogFooter>
+                        </form>
+                    </Form>
+                 </div>
+                 <DialogFooter className="border-t pt-4">
                     <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
                     <Button type="submit" form="admin-form">Save Changes</Button>
                 </DialogFooter>
