@@ -47,6 +47,7 @@ import { useCategories } from '@/hooks/use-categories';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useStock } from '@/hooks/use-stock';
 
 const statusConfig: { [key in OrderStatus]: { variant: 'default' | 'secondary' | 'destructive', icon: React.ElementType, label: string } } = {
   pending: { variant: 'secondary', icon: RefreshCw, label: 'Pending' },
@@ -120,22 +121,40 @@ export default function AdminOrdersPage() {
   const [refundReason, setRefundReason] = useState('');
   const { formatPrice } = useCurrency();
   const { categories } = useCategories();
+  const { getAvailableStockCount } = useStock();
   const { toast } = useToast();
 
   const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
   
   const manualItemsInDelivery = useMemo(() => {
     if (!deliveringOrder) return [];
-    return deliveringOrder.items.filter(item => categoryMap.get(item.category)?.deliveryMethod === 'manual');
-  }, [deliveringOrder, categoryMap]);
+    return deliveringOrder.items.filter(item => {
+        const category = categoryMap.get(item.category);
+        const isInstant = category?.deliveryMethod === 'instant';
+        const isOutOfStock = isInstant && getAvailableStockCount(item.productId) < item.quantity;
+        return category?.deliveryMethod === 'manual' || isOutOfStock;
+    });
+  }, [deliveringOrder, categoryMap, getAvailableStockCount]);
 
 
   const handleOpenCompleteDialog = (order: Order) => {
-    const manualItems = order.items.filter(item => categoryMap.get(item.category)?.deliveryMethod === 'manual');
-    if (manualItems.length > 0) {
+    const needsManualIntervention = order.items.some(item => {
+        const category = categoryMap.get(item.category);
+        if (!category) return false;
+
+        const isInstant = category.deliveryMethod === 'instant';
+        if (isInstant) {
+            const stockCount = getAvailableStockCount(item.productId);
+            return stockCount < item.quantity;
+        }
+        return true; // It's a manual item
+    });
+
+    if (needsManualIntervention) {
         setDeliveringOrder(order);
     } else {
         updateOrderStatus(order.id, 'completed');
+        toast({ title: 'Order Completed', description: 'The order has been marked as completed and delivery details have been saved.' });
     }
   };
 
