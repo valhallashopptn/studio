@@ -72,6 +72,7 @@ export interface AdminPermissions {
   canManageCoupons?: boolean;
   canManageAppearance?: boolean;
   canManageAdmins?: boolean;
+  canManageLiveChat?: boolean;
 }
 
 export interface User {

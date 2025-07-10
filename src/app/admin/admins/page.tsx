@@ -8,7 +8,7 @@ import type { User, AdminPermissions } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, PlusCircle, Trash2, Edit, Check, X, Shield, UserPlus } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Trash2, Edit, Check, X, Shield, UserPlus, MessageSquare } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,11 +28,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { Combobox } from '@/components/ui/combobox';
 
 const permissionsSchema = z.object({
   canManageProducts: z.boolean().default(false),
@@ -42,6 +42,7 @@ const permissionsSchema = z.object({
   canManageCoupons: z.boolean().default(false),
   canManageAppearance: z.boolean().default(false),
   canManageAdmins: z.boolean().default(false),
+  canManageLiveChat: z.boolean().default(false),
 });
 
 const addAdminSchema = z.object({
@@ -56,6 +57,7 @@ export const ALL_PERMISSIONS: { key: keyof AdminPermissions, label: string, desc
     { key: 'canManageUsers', label: 'Manage Users', description: 'Can ban, warn, and edit user balances.' },
     { key: 'canManageCoupons', label: 'Manage Coupons', description: 'Can create and delete promotional coupons.' },
     { key: 'canManageAppearance', label: 'Manage Appearance', description: 'Can change site theme, branding, and content.' },
+    { key: 'canManageLiveChat', label: 'Manage Live Chat', description: 'Can view and respond to live support chats.' },
     { key: 'canManageAdmins', label: 'Manage Admins', description: 'Can add, edit permissions for, and remove other admins.' },
 ];
 
@@ -68,6 +70,11 @@ export default function AdminAdminsPage() {
 
     const admins = useMemo(() => users.filter(u => u.isAdmin), [users]);
     const regularUsers = useMemo(() => users.filter(u => !u.isAdmin), [users]);
+    
+    const userOptions = useMemo(() => regularUsers.map(user => ({
+        value: user.id,
+        label: `${user.name} (${user.email})`,
+    })), [regularUsers]);
 
     const form = useForm<z.infer<typeof addAdminSchema>>({
         resolver: zodResolver(addAdminSchema),
@@ -81,6 +88,7 @@ export default function AdminAdminsPage() {
                 canManageCoupons: false,
                 canManageAppearance: false,
                 canManageAdmins: false,
+                canManageLiveChat: false,
             }
         }
     });
@@ -138,34 +146,21 @@ export default function AdminAdminsPage() {
                 <Form {...form}>
                     <form id="admin-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
                         {!editingAdmin && (
-                             <FormField
+                            <FormField
                                 control={form.control}
                                 name="userId"
                                 render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>User to Promote</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                        <SelectValue placeholder="Select a user" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {regularUsers.map(user => (
-                                        <SelectItem key={user.id} value={user.id}>
-                                            <div className="flex items-center gap-2">
-                                                <Avatar className="h-6 w-6">
-                                                    <AvatarImage src={user.avatar} />
-                                                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                                {user.name} ({user.email})
-                                            </div>
-                                        </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
+                                    <FormItem className="flex flex-col">
+                                        <FormLabel>User to Promote</FormLabel>
+                                        <Combobox
+                                            options={userOptions}
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            placeholder="Select a user..."
+                                            searchPlaceholder="Search users..."
+                                        />
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
                             />
                         )}
