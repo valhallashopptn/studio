@@ -146,11 +146,11 @@ export default function AdminUsersPage() {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                         <Label htmlFor="wallet-add" className="flex items-center gap-1 text-green-600"><ArrowUp className="h-4 w-4"/>Add</Label>
-                        <Input id="wallet-add" type="number" placeholder="0.00" value={walletAddAmount} onChange={(e) => setWalletAddAmount(e.target.value)} />
+                        <Input id="wallet-add" type="number" min="0" step="0.01" placeholder="0.00" value={walletAddAmount} onChange={(e) => setWalletAddAmount(e.target.value)} />
                     </div>
                      <div className="space-y-1">
                         <Label htmlFor="wallet-remove" className="flex items-center gap-1 text-red-600"><ArrowDown className="h-4 w-4"/>Remove</Label>
-                        <Input id="wallet-remove" type="number" placeholder="0.00" value={walletRemoveAmount} onChange={(e) => setWalletRemoveAmount(e.target.value)} />
+                        <Input id="wallet-remove" type="number" min="0" step="0.01" placeholder="0.00" value={walletRemoveAmount} onChange={(e) => setWalletRemoveAmount(e.target.value)} />
                     </div>
                 </div>
             </div>
@@ -162,11 +162,11 @@ export default function AdminUsersPage() {
                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                         <Label htmlFor="coins-add" className="flex items-center gap-1 text-green-600"><ArrowUp className="h-4 w-4"/>Add</Label>
-                        <Input id="coins-add" type="number" placeholder="0" value={coinsAddAmount} onChange={(e) => setCoinsAddAmount(e.target.value)} />
+                        <Input id="coins-add" type="number" min="0" step="1" placeholder="0" value={coinsAddAmount} onChange={(e) => setCoinsAddAmount(e.target.value)} />
                     </div>
                      <div className="space-y-1">
                         <Label htmlFor="coins-remove" className="flex items-center gap-1 text-red-600"><ArrowDown className="h-4 w-4"/>Remove</Label>
-                        <Input id="coins-remove" type="number" placeholder="0" value={coinsRemoveAmount} onChange={(e) => setCoinsRemoveAmount(e.target.value)} />
+                        <Input id="coins-remove" type="number" min="0" step="1" placeholder="0" value={coinsRemoveAmount} onChange={(e) => setCoinsRemoveAmount(e.target.value)} />
                     </div>
                 </div>
             </div>
