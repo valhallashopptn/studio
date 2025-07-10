@@ -15,6 +15,7 @@ type OrdersState = {
     addOrder: (order: Omit<Order, 'createdAt'>) => void;
     updateOrderStatus: (orderId: string, status: OrderStatus, reason?: string, deliveredItems?: Record<string, string[]>) => void;
     markOrderAsReviewPrompted: (orderIds: string[]) => void;
+    updateDeliveredItems: (orderId: string, deliveredItems: Record<string, string[]>) => void;
 };
 
 export const useOrders = create(
@@ -135,7 +136,14 @@ export const useOrders = create(
                         : order
                     )
                 }));
-            }
+            },
+            updateDeliveredItems: (orderId, deliveredItems) => {
+                set((state) => ({
+                    orders: state.orders.map(order =>
+                        order.id === orderId ? { ...order, deliveredItems } : order
+                    )
+                }));
+            },
         }),
         {
             name: 'topup-hub-orders',

@@ -9,7 +9,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Eye, CheckCircle, XCircle, RefreshCw, KeyRound, Copy } from 'lucide-react';
+import { MoreHorizontal, Eye, CheckCircle, XCircle, RefreshCw, KeyRound, Copy, Edit } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +48,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useStock } from '@/hooks/use-stock';
+import { Input } from '@/components/ui/input';
 
 const statusConfig: { [key in OrderStatus]: { variant: 'default' | 'secondary' | 'destructive', icon: React.ElementType, label: string } } = {
   pending: { variant: 'secondary', icon: RefreshCw, label: 'Pending' },
@@ -112,11 +113,13 @@ const DeliveredItemsDisplay = ({ order, item }: { order: Order, item: CartItem }
 
 
 export default function AdminOrdersPage() {
-  const { orders, updateOrderStatus } = useOrders();
+  const { orders, updateOrderStatus, updateDeliveredItems } = useOrders();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [refundingOrder, setRefundingOrder] = useState<Order | null>(null);
   const [deliveringOrder, setDeliveringOrder] = useState<Order | null>(null);
   const [deliveryInfoOrder, setDeliveryInfoOrder] = useState<Order | null>(null);
+  const [isEditingDelivery, setIsEditingDelivery] = useState(false);
+  const [editableDeliveryData, setEditableDeliveryData] = useState<Record<string, string[]>>({});
   const [manualDeliveryData, setManualDeliveryData] = useState<Record<string, string>>({});
   const [refundReason, setRefundReason] = useState('');
   const { formatPrice } = useCurrency();
@@ -132,7 +135,7 @@ export default function AdminOrdersPage() {
         const category = categoryMap.get(item.category);
         const isInstant = category?.deliveryMethod === 'instant';
         const isOutOfStock = isInstant && getAvailableStockCount(item.productId) < item.quantity;
-        return category?.deliveryMethod === 'manual' || isOutOfStock;
+        return !isInstant || isOutOfStock;
     });
   }, [deliveringOrder, categoryMap, getAvailableStockCount]);
 
@@ -151,6 +154,7 @@ export default function AdminOrdersPage() {
     });
 
     if (needsManualIntervention) {
+        setManualDeliveryData({});
         setDeliveringOrder(order);
     } else {
         updateOrderStatus(order.id, 'completed');
@@ -183,6 +187,21 @@ export default function AdminOrdersPage() {
     });
     setRefundingOrder(null);
     setRefundReason('');
+  };
+
+  const handleOpenDeliveryInfo = (order: Order) => {
+    setEditableDeliveryData(order.deliveredItems || {});
+    setIsEditingDelivery(false);
+    setDeliveryInfoOrder(order);
+  };
+  
+  const handleSaveDeliveryEdits = () => {
+    if (!deliveryInfoOrder) return;
+    updateDeliveredItems(deliveryInfoOrder.id, editableDeliveryData);
+    toast({ title: 'Delivery Info Updated' });
+    setIsEditingDelivery(false);
+    // Manually update the dialog's state to reflect changes
+    setDeliveryInfoOrder(prev => prev ? { ...prev, deliveredItems: { ...editableDeliveryData } } : null);
   };
   
   const subtotal = viewingOrder ? viewingOrder.items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0) : 0;
@@ -259,7 +278,7 @@ export default function AdminOrdersPage() {
             <ScrollArea className="max-h-[60vh]">
             <div className="space-y-4 pr-6 py-4">
                 {deliveryInfoOrder?.items.map(item => {
-                    const deliveredData = deliveryInfoOrder.deliveredItems?.[item.id];
+                    const deliveredData = editableDeliveryData?.[item.id];
                     if (!deliveredData || deliveredData.length === 0) return null;
 
                     return (
@@ -267,11 +286,25 @@ export default function AdminOrdersPage() {
                            <p className="font-semibold">{item.name} <span className="text-muted-foreground">({item.variant.name})</span></p>
                            <div className="space-y-1">
                                {deliveredData.map((data, index) => (
-                                   <div key={index} className="flex items-center justify-between bg-secondary p-2 rounded-md">
-                                       <code className="text-sm font-mono whitespace-pre-wrap">{data}</code>
-                                       <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" onClick={() => copyToClipboard(data)}>
-                                           <Copy className="h-4 w-4" />
-                                       </Button>
+                                   <div key={index} className="flex items-center justify-between gap-2 bg-secondary p-2 rounded-md">
+                                        {isEditingDelivery ? (
+                                            <Input
+                                                value={data}
+                                                onChange={(e) => {
+                                                    const newData = [...deliveredData];
+                                                    newData[index] = e.target.value;
+                                                    setEditableDeliveryData(prev => ({...prev, [item.id]: newData }));
+                                                }}
+                                                className="h-8"
+                                            />
+                                        ) : (
+                                           <>
+                                            <code className="text-sm font-mono whitespace-pre-wrap flex-grow">{data}</code>
+                                            <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" onClick={() => copyToClipboard(data)}>
+                                                <Copy className="h-4 w-4" />
+                                            </Button>
+                                           </>
+                                        )}
                                    </div>
                                ))}
                            </div>
@@ -280,8 +313,22 @@ export default function AdminOrdersPage() {
                 })}
             </div>
             </ScrollArea>
-            <DialogFooter>
-                <DialogClose asChild><Button type="button" variant="secondary">Close</Button></DialogClose>
+            <DialogFooter className="sm:justify-between items-center gap-2">
+                <div>
+                  {isEditingDelivery ? (
+                    <Button onClick={handleSaveDeliveryEdits}>Save Changes</Button>
+                  ) : (
+                    <Button variant="outline" onClick={() => setIsEditingDelivery(true)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </Button>
+                  )}
+                </div>
+                <DialogClose asChild>
+                    <Button type="button" variant={isEditingDelivery ? "secondary" : "default"}>
+                        {isEditingDelivery ? 'Cancel' : 'Close'}
+                    </Button>
+                </DialogClose>
             </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -427,7 +474,7 @@ export default function AdminOrdersPage() {
                     </TableCell>
                     <TableCell className="text-right flex items-center justify-end gap-2">
                         {hasDeliveredItems && (
-                           <Button variant="outline" size="sm" onClick={() => setDeliveryInfoOrder(order)}>
+                           <Button variant="outline" size="sm" onClick={() => handleOpenDeliveryInfo(order)}>
                                <KeyRound className="mr-2 h-4 w-4" /> Delivery
                            </Button>
                        )}
