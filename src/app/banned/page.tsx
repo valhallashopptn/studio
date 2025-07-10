@@ -2,18 +2,19 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { AppHeader } from '@/components/app-header';
-import { AppFooter } from '@/components/app-footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShieldBan, LogOut, Loader2 } from 'lucide-react';
+import { ShieldBan, LogOut, Loader2, Flame } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
+import { useSiteSettings } from '@/hooks/use-site-settings';
+import Link from 'next/link';
 
 export default function BannedPage() {
     const { user, logout } = useAuth();
     const router = useRouter();
+    const { siteTitle, logoUrl } = useSiteSettings();
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -21,8 +22,6 @@ export default function BannedPage() {
     }, []);
 
     useEffect(() => {
-        // This effect runs after the component mounts.
-        // It's safe to perform redirects here.
         if (isMounted && (!user || !user.isBanned)) {
             router.push('/');
         }
@@ -33,7 +32,6 @@ export default function BannedPage() {
         router.push('/');
     };
     
-    // While checking auth status or if user is not banned, show a loader or nothing to prevent content flashing.
     if (!isMounted || !user || !user.isBanned) {
          return (
             <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -44,9 +42,20 @@ export default function BannedPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-secondary">
-            <AppHeader />
+            <header className="absolute top-0 left-0 w-full p-4">
+                <div className="container mx-auto flex justify-between items-center">
+                    <Link href="/" className="flex items-center gap-2 text-foreground/80 hover:text-foreground transition-colors">
+                        {logoUrl ? (
+                          <img src={logoUrl} alt="Logo" className="h-8 w-8 rounded-sm" />
+                        ) : (
+                          <Flame className="h-6 w-6" />
+                        )}
+                        <span className="font-semibold">{siteTitle}</span>
+                    </Link>
+                </div>
+            </header>
             <main className="flex-1 flex items-center justify-center p-4">
-                <Card className="w-full max-w-lg text-center shadow-lg">
+                <Card className="w-full max-w-lg text-center shadow-lg animate-fade-in-up">
                     <CardHeader>
                         <div className="mx-auto bg-destructive/10 p-4 rounded-full w-fit mb-4">
                             <ShieldBan className="h-12 w-12 text-destructive" />
@@ -65,7 +74,7 @@ export default function BannedPage() {
                            <p className="text-muted-foreground">{user.banReason || 'No reason was provided.'}</p>
                         </div>
                         <p className="text-sm text-muted-foreground pt-4">
-                            If you believe this is a mistake, please contact our support team.
+                            If you believe this is a mistake, please contact our support team through other channels.
                         </p>
                         <Button onClick={handleLogout} className="w-full">
                             <LogOut className="mr-2 h-4 w-4" />
@@ -74,7 +83,6 @@ export default function BannedPage() {
                     </CardContent>
                 </Card>
             </main>
-            <AppFooter />
         </div>
     );
 }
