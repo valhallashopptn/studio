@@ -17,7 +17,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -116,6 +115,7 @@ export default function AdminOrdersPage() {
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [refundingOrder, setRefundingOrder] = useState<Order | null>(null);
   const [deliveringOrder, setDeliveringOrder] = useState<Order | null>(null);
+  const [deliveryInfoOrder, setDeliveryInfoOrder] = useState<Order | null>(null);
   const [manualDeliveryData, setManualDeliveryData] = useState<Record<string, string>>({});
   const [refundReason, setRefundReason] = useState('');
   const { formatPrice } = useCurrency();
@@ -167,6 +167,12 @@ export default function AdminOrdersPage() {
   };
   
   const subtotal = viewingOrder ? viewingOrder.items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0) : 0;
+  
+  const copyToClipboard = (text: string) => {
+      navigator.clipboard.writeText(text);
+      toast({ title: "Copied!", description: "The information has been copied to your clipboard." });
+  };
+
 
   return (
     <div className="space-y-8">
@@ -221,6 +227,42 @@ export default function AdminOrdersPage() {
             <DialogFooter>
                 <DialogClose asChild><Button variant="secondary">Cancel</Button></DialogClose>
                 <Button onClick={handleManualDeliverySubmit}>Complete Order</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={!!deliveryInfoOrder} onOpenChange={(isOpen) => !isOpen && setDeliveryInfoOrder(null)}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Delivered Information</DialogTitle>
+                <DialogDescription>Your delivery information for order {deliveryInfoOrder?.id}</DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="max-h-[60vh]">
+            <div className="space-y-4 pr-6 py-4">
+                {deliveryInfoOrder?.items.map(item => {
+                    const deliveredData = deliveryInfoOrder.deliveredItems?.[item.id];
+                    if (!deliveredData || deliveredData.length === 0) return null;
+
+                    return (
+                        <div key={item.id} className="space-y-2">
+                           <p className="font-semibold">{item.name} <span className="text-muted-foreground">({item.variant.name})</span></p>
+                           <div className="space-y-1">
+                               {deliveredData.map((data, index) => (
+                                   <div key={index} className="flex items-center justify-between bg-secondary p-2 rounded-md">
+                                       <code className="text-sm font-mono whitespace-pre-wrap">{data}</code>
+                                       <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" onClick={() => copyToClipboard(data)}>
+                                           <Copy className="h-4 w-4" />
+                                       </Button>
+                                   </div>
+                               ))}
+                           </div>
+                        </div>
+                    )
+                })}
+            </div>
+            </ScrollArea>
+            <DialogFooter>
+                <DialogClose asChild><Button type="button" variant="secondary">Close</Button></DialogClose>
             </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -351,6 +393,7 @@ export default function AdminOrdersPage() {
             <TableBody>
               {orders.map((order) => {
                 const statusInfo = statusConfig[order.status];
+                const hasDeliveredItems = order.status === 'completed' && order.deliveredItems && Object.keys(order.deliveredItems).length > 0;
                 return (
                   <TableRow key={order.id}>
                     <TableCell className="font-mono text-xs">{order.id}</TableCell>
@@ -363,7 +406,15 @@ export default function AdminOrdersPage() {
                         {statusInfo.label}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right flex items-center justify-end gap-2">
+                        {hasDeliveredItems && (
+                           <Button variant="outline" size="sm" onClick={() => setDeliveryInfoOrder(order)}>
+                               <KeyRound className="mr-2 h-4 w-4" /> Delivery
+                           </Button>
+                       )}
+                       <Button variant="ghost" size="sm" onClick={() => setViewingOrder(order)}>
+                            <Eye className="mr-2 h-4 w-4" /> View
+                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -372,33 +423,27 @@ export default function AdminOrdersPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setViewingOrder(order)}>
-                            <Eye className="mr-2 h-4 w-4" /> View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger disabled={order.status !== 'pending'}>
-                                <RefreshCw className="mr-2 h-4 w-4" />
-                                <span>Update Status</span>
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                                <DropdownMenuSubContent>
-                                    <DropdownMenuItem onClick={() => handleOpenCompleteDialog(order)}>
-                                        <CheckCircle className="mr-2 h-4 w-4" />
-                                        Completed
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem 
-                                        className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                        onClick={() => {
-                                            setRefundReason('');
-                                            setRefundingOrder(order);
-                                        }}
-                                    >
-                                        <XCircle className="mr-2 h-4 w-4" />
-                                        Refunded
-                                    </DropdownMenuItem>
-                                </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
+                           <DropdownMenuItem onClick={() => setViewingOrder(order)}>
+                              <Eye className="mr-2 h-4 w-4" /> View Details
+                           </DropdownMenuItem>
+                          {order.status === 'pending' && (
+                            <DropdownMenuItem onClick={() => handleOpenCompleteDialog(order)}>
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                Mark as Completed
+                            </DropdownMenuItem>
+                          )}
+                          {order.status !== 'refunded' && (
+                             <DropdownMenuItem 
+                                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                onClick={() => {
+                                    setRefundReason('');
+                                    setRefundingOrder(order);
+                                }}
+                            >
+                                <XCircle className="mr-2 h-4 w-4" />
+                                Refund Order
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
