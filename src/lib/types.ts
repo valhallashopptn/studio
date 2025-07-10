@@ -92,6 +92,8 @@ export interface User {
     expiresAt: string; // ISO date string
   } | null;
   isBanned?: boolean;
+  bannedAt?: string | null;
+  banReason?: string | null;
   warningMessage?: string | null;
   permissions?: AdminPermissions;
 }

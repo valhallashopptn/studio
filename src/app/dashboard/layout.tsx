@@ -38,6 +38,8 @@ export default function DashboardLayout({
         router.push('/login');
       } else if(isAdmin) {
         router.push('/admin');
+      } else if (user.isBanned) {
+        router.push('/banned');
       }
     }
   }, [isMounted, isAuthenticated, user, isAdmin, router]);
@@ -50,7 +52,7 @@ export default function DashboardLayout({
 
   // While not mounted, or if the user is not a regular customer, show a loader.
   // This prevents a flash of content before the logic in useEffect can redirect.
-  if (!isMounted || !isAuthenticated || !user || isAdmin) {
+  if (!isMounted || !isAuthenticated || !user || isAdmin || user.isBanned) {
     return (
         <div className="flex h-screen w-full items-center justify-center bg-background">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />

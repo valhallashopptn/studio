@@ -48,10 +48,8 @@ export const useAuth = create(
         if (!foundUser) {
             return { success: false, message: 'Invalid email or password.' };
         }
-        if (foundUser.isBanned) {
-            return { success: false, message: 'This account has been banned.' };
-        }
         
+        // The user can log in, but the UI will handle the redirect if banned.
         set({ user: foundUser, isAuthenticated: true, isAdmin: !!foundUser.isAdmin, isPremium: checkIsPremium(foundUser) });
         return { success: true };
       },
@@ -75,6 +73,8 @@ export const useAuth = create(
             nameStyle: 'default',
             premium: null,
             isBanned: false,
+            bannedAt: null,
+            banReason: null,
             warningMessage: null,
         };
         addUser(newUser);

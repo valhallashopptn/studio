@@ -8,7 +8,7 @@ import type { User } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, Coins, Wallet, Gem, Shield, ShieldOff, MessageCircleWarning, Trash2, CheckCircle, XCircle, ArrowUp, ArrowDown } from 'lucide-react';
+import { MoreHorizontal, Coins, Wallet, Gem, Shield, ShieldOff, MessageCircleWarning, Trash2, CheckCircle, XCircle, ArrowUp, ArrowDown, ShieldBan } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,6 +46,7 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isBalanceDialogOpen, setBalanceDialogOpen] = useState(false);
   const [isWarningDialogOpen, setWarningDialogOpen] = useState(false);
+  const [isBanDialogOpen, setBanDialogOpen] = useState(false);
   
   const [walletAddAmountUSD, setWalletAddAmountUSD] = useState('');
   const [walletAddAmountTND, setWalletAddAmountTND] = useState('');
@@ -54,6 +55,7 @@ export default function AdminUsersPage() {
   const [coinsAddAmount, setCoinsAddAmount] = useState('');
   const [coinsRemoveAmount, setCoinsRemoveAmount] = useState('');
   const [warningMessage, setWarningMessage] = useState('');
+  const [banReason, setBanReason] = useState('');
 
   const nonAdminUsers = useMemo(() => users.filter(u => !u.isAdmin), [users]);
 
@@ -72,6 +74,12 @@ export default function AdminUsersPage() {
     setSelectedUser(user);
     setWarningMessage('');
     setWarningDialogOpen(true);
+  };
+
+  const handleOpenBanDialog = (user: User) => {
+    setSelectedUser(user);
+    setBanReason('');
+    setBanDialogOpen(true);
   };
 
   const handleBalanceUpdate = () => {
@@ -120,14 +128,16 @@ export default function AdminUsersPage() {
     toast({ title: "Premium Removed", description: "The user's premium subscription has been cancelled." });
   };
   
-  const handleBan = (userId: string) => {
-    banUser(userId);
-    toast({ title: "User Banned", description: "The user has been banned and can no longer log in." });
+  const handleBan = () => {
+    if (!selectedUser) return;
+    banUser(selectedUser.id, banReason);
+    toast({ title: "User Banned", description: `${selectedUser.name} has been banned.` });
+    setBanDialogOpen(false);
   };
 
   const handleUnban = (userId: string) => {
     unbanUser(userId);
-    toast({ title: "User Unbanned", description: "The user has been unbanned and can now log in." });
+    toast({ title: "User Unbanned", description: "The user has been unbanned." });
   };
 
   return (
@@ -207,6 +217,25 @@ export default function AdminUsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Ban User Dialog */}
+      <Dialog open={isBanDialogOpen} onOpenChange={setBanDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ban {selectedUser?.name}?</DialogTitle>
+            <DialogDescription>The user will be able to log in but will be redirected to a page informing them of the ban.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+             <Label htmlFor="ban-reason">Reason for Ban</Label>
+             <Textarea id="ban-reason" value={banReason} onChange={(e) => setBanReason(e.target.value)} placeholder="e.g., Violation of terms of service." rows={4} />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="secondary">Cancel</Button></DialogClose>
+            <Button variant="destructive" onClick={handleBan}>Confirm Ban</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <Card>
         <CardHeader>
@@ -284,8 +313,8 @@ export default function AdminUsersPage() {
                                 <Shield className="mr-2 h-4 w-4" /> Unban User
                             </DropdownMenuItem>
                           ) : (
-                            <DropdownMenuItem className="text-destructive" onClick={() => handleBan(user.id)}>
-                                <ShieldOff className="mr-2 h-4 w-4" /> Ban User
+                            <DropdownMenuItem className="text-destructive" onClick={() => handleOpenBanDialog(user)}>
+                                <ShieldBan className="mr-2 h-4 w-4" /> Ban User
                             </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>

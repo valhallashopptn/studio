@@ -14,7 +14,7 @@ type UserDatabaseState = {
   findUserById: (id: string) => User | undefined;
   updateUser: (userId: string, updates: Partial<User>) => boolean;
   addUser: (newUser: User) => void;
-  banUser: (userId: string) => void;
+  banUser: (userId: string, reason: string) => void;
   unbanUser: (userId: string) => void;
   sendWarning: (userId: string, message: string) => void;
   promoteToAdmin: (userId: string, permissions: AdminPermissions) => void;
@@ -63,8 +63,20 @@ export const useUserDatabase = create(
       addUser: (newUser) => {
         set(state => ({ users: [...state.users, newUser] }));
       },
-      banUser: (userId) => get().updateUser(userId, { isBanned: true }),
-      unbanUser: (userId) => get().updateUser(userId, { isBanned: false }),
+      banUser: (userId, reason) => {
+        get().updateUser(userId, { 
+            isBanned: true,
+            bannedAt: new Date().toISOString(),
+            banReason: reason,
+        });
+      },
+      unbanUser: (userId) => {
+        get().updateUser(userId, { 
+            isBanned: false,
+            bannedAt: null,
+            banReason: null,
+        });
+      },
       sendWarning: (userId, message) => get().updateUser(userId, { warningMessage: message }),
       promoteToAdmin: (userId, permissions) => {
         get().updateUser(userId, { isAdmin: true, permissions });
@@ -109,6 +121,8 @@ export const useUserDatabase = create(
         const usersWithDefaults = (persisted.users || currentState.users).map(user => ({
             ...user,
             isBanned: user.isBanned ?? false,
+            bannedAt: user.bannedAt ?? null,
+            banReason: user.banReason ?? null,
             warningMessage: user.warningMessage ?? null,
             permissions: user.permissions ?? (user.isAdmin ? { canManageAdmins: true, canManageAppearance: true, canManageCategories: true, canManageCoupons: true, canManageOrders: true, canManageProducts: true, canManageUsers: true } : {}),
         }));
