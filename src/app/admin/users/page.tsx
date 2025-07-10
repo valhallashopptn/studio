@@ -8,7 +8,7 @@ import type { User } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, Coins, Wallet, Gem, Shield, ShieldOff, MessageCircleWarning, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { MoreHorizontal, Coins, Wallet, Gem, Shield, ShieldOff, MessageCircleWarning, Trash2, CheckCircle, XCircle, ArrowUp, ArrowDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,26 +36,32 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useCurrency } from '@/hooks/use-currency';
 
 export default function AdminUsersPage() {
   const { users } = useUserDatabase();
   const { updateWalletBalance, updateValhallaCoins, subscribeToPremium, cancelSubscription, banUser, unbanUser, sendWarning } = useUserDatabase();
   const { toast } = useToast();
+  const { formatPrice } = useCurrency();
 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isBalanceDialogOpen, setBalanceDialogOpen] = useState(false);
   const [isWarningDialogOpen, setWarningDialogOpen] = useState(false);
   
-  const [walletAmount, setWalletAmount] = useState(0);
-  const [coinsAmount, setCoinsAmount] = useState(0);
+  const [walletAddAmount, setWalletAddAmount] = useState('');
+  const [walletRemoveAmount, setWalletRemoveAmount] = useState('');
+  const [coinsAddAmount, setCoinsAddAmount] = useState('');
+  const [coinsRemoveAmount, setCoinsRemoveAmount] = useState('');
   const [warningMessage, setWarningMessage] = useState('');
 
   const nonAdminUsers = useMemo(() => users.filter(u => !u.isAdmin), [users]);
 
   const handleOpenBalanceDialog = (user: User) => {
     setSelectedUser(user);
-    setWalletAmount(0);
-    setCoinsAmount(0);
+    setWalletAddAmount('');
+    setWalletRemoveAmount('');
+    setCoinsAddAmount('');
+    setCoinsRemoveAmount('');
     setBalanceDialogOpen(true);
   };
   
@@ -67,9 +73,26 @@ export default function AdminUsersPage() {
 
   const handleBalanceUpdate = () => {
     if (!selectedUser) return;
-    if (walletAmount !== 0) updateWalletBalance(selectedUser.id, walletAmount);
-    if (coinsAmount !== 0) updateValhallaCoins(selectedUser.id, coinsAmount);
-    toast({ title: "Balances Updated", description: `${selectedUser.name}'s balances have been adjusted.` });
+    
+    const walletToAdd = parseFloat(walletAddAmount) || 0;
+    const walletToRemove = parseFloat(walletRemoveAmount) || 0;
+    const coinsToAdd = parseInt(coinsAddAmount) || 0;
+    const coinsToRemove = parseInt(coinsRemoveAmount) || 0;
+
+    const netWalletChange = walletToAdd - walletToRemove;
+    const netCoinsChange = coinsToAdd - coinsToRemove;
+
+    if (netWalletChange !== 0) {
+      updateWalletBalance(selectedUser.id, netWalletChange);
+    }
+    if (netCoinsChange !== 0) {
+      updateValhallaCoins(selectedUser.id, netCoinsChange);
+    }
+    
+    if (netWalletChange !== 0 || netCoinsChange !== 0) {
+        toast({ title: "Balances Updated", description: `${selectedUser.name}'s balances have been adjusted.` });
+    }
+    
     setBalanceDialogOpen(false);
   };
 
@@ -112,16 +135,40 @@ export default function AdminUsersPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Manage Balances for {selectedUser?.name}</DialogTitle>
-            <DialogDescription>Add or remove funds from the user's wallet and coin balance. Use negative numbers to remove.</DialogDescription>
+            <DialogDescription>Add or remove funds. Changes will be calculated and applied upon saving.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-                <Label htmlFor="wallet-amount">Wallet Balance (TND)</Label>
-                <Input id="wallet-amount" type="number" value={walletAmount} onChange={(e) => setWalletAmount(parseFloat(e.target.value) || 0)} />
+          <div className="space-y-6 py-4">
+            <div className="p-4 border rounded-lg">
+                <div className="flex justify-between items-center mb-4">
+                    <Label className="text-base font-semibold">Wallet Balance</Label>
+                    <span className="font-bold text-lg text-primary">{formatPrice(selectedUser?.walletBalance ?? 0)}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                        <Label htmlFor="wallet-add" className="flex items-center gap-1 text-green-600"><ArrowUp className="h-4 w-4"/>Add</Label>
+                        <Input id="wallet-add" type="number" placeholder="0.00" value={walletAddAmount} onChange={(e) => setWalletAddAmount(e.target.value)} />
+                    </div>
+                     <div className="space-y-1">
+                        <Label htmlFor="wallet-remove" className="flex items-center gap-1 text-red-600"><ArrowDown className="h-4 w-4"/>Remove</Label>
+                        <Input id="wallet-remove" type="number" placeholder="0.00" value={walletRemoveAmount} onChange={(e) => setWalletRemoveAmount(e.target.value)} />
+                    </div>
+                </div>
             </div>
-            <div className="space-y-2">
-                <Label htmlFor="coins-amount">Valhalla Coins</Label>
-                <Input id="coins-amount" type="number" value={coinsAmount} onChange={(e) => setCoinsAmount(parseInt(e.target.value) || 0)} />
+            <div className="p-4 border rounded-lg">
+                <div className="flex justify-between items-center mb-4">
+                    <Label className="text-base font-semibold">Valhalla Coins</Label>
+                    <span className="font-bold text-lg text-amber-500">{selectedUser?.valhallaCoins.toLocaleString() ?? 0}</span>
+                </div>
+                 <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                        <Label htmlFor="coins-add" className="flex items-center gap-1 text-green-600"><ArrowUp className="h-4 w-4"/>Add</Label>
+                        <Input id="coins-add" type="number" placeholder="0" value={coinsAddAmount} onChange={(e) => setCoinsAddAmount(e.target.value)} />
+                    </div>
+                     <div className="space-y-1">
+                        <Label htmlFor="coins-remove" className="flex items-center gap-1 text-red-600"><ArrowDown className="h-4 w-4"/>Remove</Label>
+                        <Input id="coins-remove" type="number" placeholder="0" value={coinsRemoveAmount} onChange={(e) => setCoinsRemoveAmount(e.target.value)} />
+                    </div>
+                </div>
             </div>
           </div>
           <DialogFooter>
