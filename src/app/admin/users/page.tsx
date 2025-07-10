@@ -36,7 +36,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useCurrency } from '@/hooks/use-currency';
+import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
 
 export default function AdminUsersPage() {
   const { users, updateUser, banUser, unbanUser, sendWarning, subscribeToPremium, cancelSubscription } = useUserDatabase();
@@ -47,8 +47,10 @@ export default function AdminUsersPage() {
   const [isBalanceDialogOpen, setBalanceDialogOpen] = useState(false);
   const [isWarningDialogOpen, setWarningDialogOpen] = useState(false);
   
-  const [walletAddAmount, setWalletAddAmount] = useState('');
-  const [walletRemoveAmount, setWalletRemoveAmount] = useState('');
+  const [walletAddAmountUSD, setWalletAddAmountUSD] = useState('');
+  const [walletAddAmountTND, setWalletAddAmountTND] = useState('');
+  const [walletRemoveAmountUSD, setWalletRemoveAmountUSD] = useState('');
+  const [walletRemoveAmountTND, setWalletRemoveAmountTND] = useState('');
   const [coinsAddAmount, setCoinsAddAmount] = useState('');
   const [coinsRemoveAmount, setCoinsRemoveAmount] = useState('');
   const [warningMessage, setWarningMessage] = useState('');
@@ -57,8 +59,10 @@ export default function AdminUsersPage() {
 
   const handleOpenBalanceDialog = (user: User) => {
     setSelectedUser(user);
-    setWalletAddAmount('');
-    setWalletRemoveAmount('');
+    setWalletAddAmountUSD('');
+    setWalletAddAmountTND('');
+    setWalletRemoveAmountUSD('');
+    setWalletRemoveAmountTND('');
     setCoinsAddAmount('');
     setCoinsRemoveAmount('');
     setBalanceDialogOpen(true);
@@ -73,12 +77,18 @@ export default function AdminUsersPage() {
   const handleBalanceUpdate = () => {
     if (!selectedUser) return;
     
-    const walletToAdd = parseFloat(walletAddAmount) || 0;
-    const walletToRemove = parseFloat(walletRemoveAmount) || 0;
+    const addUSD = parseFloat(walletAddAmountUSD) || 0;
+    const addTND = parseFloat(walletAddAmountTND) || 0;
+    const removeUSD = parseFloat(walletRemoveAmountUSD) || 0;
+    const removeTND = parseFloat(walletRemoveAmountTND) || 0;
+    
+    const totalUSDToAdd = addUSD + (addTND / CONVERSION_RATES.TND);
+    const totalUSDToRemove = removeUSD + (removeTND / CONVERSION_RATES.TND);
+
     const coinsToAdd = parseInt(coinsAddAmount) || 0;
     const coinsToRemove = parseInt(coinsRemoveAmount) || 0;
 
-    const newWalletBalance = selectedUser.walletBalance + walletToAdd - walletToRemove;
+    const newWalletBalance = selectedUser.walletBalance + totalUSDToAdd - totalUSDToRemove;
     const newCoinsBalance = selectedUser.valhallaCoins + coinsToAdd - coinsToRemove;
     
     updateUser(selectedUser.id, {
@@ -86,7 +96,7 @@ export default function AdminUsersPage() {
         valhallaCoins: newCoinsBalance < 0 ? 0 : newCoinsBalance,
     });
     
-    if (walletToAdd || walletToRemove || coinsToAdd || coinsToRemove) {
+    if (totalUSDToAdd || totalUSDToRemove || coinsToAdd || coinsToRemove) {
         toast({ title: "Balances Updated", description: `${selectedUser.name}'s balances have been adjusted.` });
     }
     
@@ -132,7 +142,7 @@ export default function AdminUsersPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Manage Balances for {selectedUser?.name}</DialogTitle>
-            <DialogDescription>Add or remove funds. Changes will be calculated and applied upon saving.</DialogDescription>
+            <DialogDescription>Add or remove funds. Changes are calculated in USD and applied upon saving.</DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="p-4 border rounded-lg">
@@ -140,15 +150,21 @@ export default function AdminUsersPage() {
                     <Label className="text-base font-semibold">Wallet Balance</Label>
                     <span className="font-bold text-lg text-primary">{formatPrice(selectedUser?.walletBalance ?? 0)}</span>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                        <Label htmlFor="wallet-add" className="flex items-center gap-1 text-green-600"><ArrowUp className="h-4 w-4"/>Add</Label>
-                        <Input id="wallet-add" type="number" min="0" step="0.01" placeholder="0.00" value={walletAddAmount} onChange={(e) => setWalletAddAmount(e.target.value)} />
+                <div className="space-y-4">
+                  <div>
+                    <Label className="flex items-center gap-1 text-green-600 mb-2"><ArrowUp className="h-4 w-4"/>Add Funds</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                       <Input type="number" min="0" step="0.01" placeholder="0.00 USD" value={walletAddAmountUSD} onChange={(e) => setWalletAddAmountUSD(e.target.value)} />
+                       <Input type="number" min="0" step="0.01" placeholder="0.00 TND" value={walletAddAmountTND} onChange={(e) => setWalletAddAmountTND(e.target.value)} />
                     </div>
-                     <div className="space-y-1">
-                        <Label htmlFor="wallet-remove" className="flex items-center gap-1 text-red-600"><ArrowDown className="h-4 w-4"/>Remove</Label>
-                        <Input id="wallet-remove" type="number" min="0" step="0.01" placeholder="0.00" value={walletRemoveAmount} onChange={(e) => setWalletRemoveAmount(e.target.value)} />
+                  </div>
+                   <div>
+                    <Label className="flex items-center gap-1 text-red-600 mb-2"><ArrowDown className="h-4 w-4"/>Remove Funds</Label>
+                     <div className="grid grid-cols-2 gap-2">
+                       <Input type="number" min="0" step="0.01" placeholder="0.00 USD" value={walletRemoveAmountUSD} onChange={(e) => setWalletRemoveAmountUSD(e.target.value)} />
+                       <Input type="number" min="0" step="0.01" placeholder="0.00 TND" value={walletRemoveAmountTND} onChange={(e) => setWalletRemoveAmountTND(e.target.value)} />
                     </div>
+                  </div>
                 </div>
             </div>
             <div className="p-4 border rounded-lg">
@@ -158,11 +174,11 @@ export default function AdminUsersPage() {
                 </div>
                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <Label htmlFor="coins-add" className="flex items-center gap-1 text-green-600"><ArrowUp className="h-4 w-4"/>Add</Label>
+                        <Label htmlFor="coins-add" className="flex items-center gap-1 text-green-600"><ArrowUp className="h-4 w-4"/>Add Coins</Label>
                         <Input id="coins-add" type="number" min="0" step="1" placeholder="0" value={coinsAddAmount} onChange={(e) => setCoinsAddAmount(e.target.value)} />
                     </div>
                      <div className="space-y-1">
-                        <Label htmlFor="coins-remove" className="flex items-center gap-1 text-red-600"><ArrowDown className="h-4 w-4"/>Remove</Label>
+                        <Label htmlFor="coins-remove" className="flex items-center gap-1 text-red-600"><ArrowDown className="h-4 w-4"/>Remove Coins</Label>
                         <Input id="coins-remove" type="number" min="0" step="1" placeholder="0" value={coinsRemoveAmount} onChange={(e) => setCoinsRemoveAmount(e.target.value)} />
                     </div>
                 </div>
