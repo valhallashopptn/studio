@@ -39,8 +39,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCurrency } from '@/hooks/use-currency';
 
 export default function AdminUsersPage() {
-  const { users } = useUserDatabase();
-  const { updateWalletBalance, updateValhallaCoins, subscribeToPremium, cancelSubscription, banUser, unbanUser, sendWarning } = useUserDatabase();
+  const { users, updateUser, banUser, unbanUser, sendWarning, subscribeToPremium, cancelSubscription } = useUserDatabase();
   const { toast } = useToast();
   const { formatPrice } = useCurrency();
 
@@ -79,17 +78,15 @@ export default function AdminUsersPage() {
     const coinsToAdd = parseInt(coinsAddAmount) || 0;
     const coinsToRemove = parseInt(coinsRemoveAmount) || 0;
 
-    const netWalletChange = walletToAdd - walletToRemove;
-    const netCoinsChange = coinsToAdd - coinsToRemove;
-
-    if (netWalletChange !== 0) {
-      updateWalletBalance(selectedUser.id, netWalletChange);
-    }
-    if (netCoinsChange !== 0) {
-      updateValhallaCoins(selectedUser.id, netCoinsChange);
-    }
+    const newWalletBalance = selectedUser.walletBalance + walletToAdd - walletToRemove;
+    const newCoinsBalance = selectedUser.valhallaCoins + coinsToAdd - coinsToRemove;
     
-    if (netWalletChange !== 0 || netCoinsChange !== 0) {
+    updateUser(selectedUser.id, {
+        walletBalance: newWalletBalance < 0 ? 0 : newWalletBalance,
+        valhallaCoins: newCoinsBalance < 0 ? 0 : newCoinsBalance,
+    });
+    
+    if (walletToAdd || walletToRemove || coinsToAdd || coinsToRemove) {
         toast({ title: "Balances Updated", description: `${selectedUser.name}'s balances have been adjusted.` });
     }
     

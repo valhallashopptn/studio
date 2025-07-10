@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, AdminPermissions } from '@/lib/types';
 import { users as initialUsers } from '@/lib/data';
+import { useAuth } from './use-auth';
 
 type UserDatabaseState = {
   users: User[];
@@ -19,6 +20,8 @@ type UserDatabaseState = {
   promoteToAdmin: (userId: string, permissions: AdminPermissions) => void;
   demoteAdmin: (userId: string) => void;
   updateAdminPermissions: (userId: string, permissions: AdminPermissions) => void;
+  subscribeToPremium: (userId: string, months?: number) => void;
+  cancelSubscription: (userId: string) => void;
 };
 
 export const useUserDatabase = create(
@@ -50,6 +53,11 @@ export const useUserDatabase = create(
           });
           return { users: newUsers };
         });
+        // Also update the currently logged-in user if they are the one being changed
+        const { user: authUser, setUserState } = useAuth.getState() as any; // Use any to access internal setter
+        if (authUser && authUser.id === userId && setUserState) {
+          setUserState({ ...authUser, ...updates });
+        }
         return userUpdated;
       },
       addUser: (newUser) => {
@@ -66,6 +74,32 @@ export const useUserDatabase = create(
       },
       updateAdminPermissions: (userId, permissions) => {
         get().updateUser(userId, { permissions });
+      },
+      subscribeToPremium: (userId, months = 1) => {
+        const currentUser = get().findUserById(userId);
+        if (!currentUser) return;
+        
+        const now = new Date();
+        const currentSubEnd = (currentUser.premium && new Date(currentUser.premium.expiresAt) > now) 
+            ? new Date(currentUser.premium.expiresAt) 
+            : now;
+        
+        const expiresAt = new Date(currentSubEnd.setMonth(currentSubEnd.getMonth() + months));
+
+        const premiumData = {
+          status: 'active' as const,
+          subscribedAt: currentUser.premium?.subscribedAt || new Date().toISOString(),
+          expiresAt: expiresAt.toISOString(),
+        };
+
+        get().updateUser(userId, { premium: premiumData });
+      },
+      cancelSubscription: (userId) => {
+        const currentUser = get().findUserById(userId);
+        if (!currentUser || !currentUser.premium) return;
+
+        const updatedPremiumData = { ...currentUser.premium, status: 'cancelled' as const };
+        get().updateUser(userId, { premium: updatedPremiumData });
       },
     }),
     {

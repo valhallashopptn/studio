@@ -11,6 +11,7 @@ type AuthState = {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isPremium: boolean;
+  setUserState: (user: User | null) => void; // Internal helper
   login: (credentials: Pick<User, 'email' | 'password'>) => { success: boolean, message?: string };
   logout: () => void;
   register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent' | 'valhallaCoins' | 'walletBalance' | 'premium'>) => boolean;
@@ -20,8 +21,6 @@ type AuthState = {
   updateWalletBalance: (userId: string, amount: number) => void;
   updateTotalSpent: (userId: string, amount: number) => void;
   updateValhallaCoins: (userId: string, amount: number) => void;
-  subscribeToPremium: (userId: string, months?: number) => void;
-  cancelSubscription: (userId: string) => void;
   updateNameStyle: (userId: string, style: string) => void;
   clearWarning: (userId: string) => void;
 };
@@ -39,6 +38,9 @@ export const useAuth = create(
       isAuthenticated: false,
       isAdmin: false,
       isPremium: false,
+      setUserState: (user) => {
+        set({ user, isPremium: checkIsPremium(user) });
+      },
       login: (credentials) => {
         const { findUser } = useUserDatabase.getState();
         const foundUser = findUser(credentials.email, credentials.password);
@@ -82,9 +84,6 @@ export const useAuth = create(
       updateUser: (userId, updates) => {
         const { updateUser } = useUserDatabase.getState();
         const success = updateUser(userId, updates);
-        if (success) {
-            set(state => ({ user: state.user ? { ...state.user, ...updates } : null }));
-        }
         return success;
       },
       changePassword: (userId, newPassword) => {
@@ -98,7 +97,6 @@ export const useAuth = create(
       updateAvatar: (userId, avatar) => {
          const { updateUser } = useUserDatabase.getState();
          updateUser(userId, { avatar });
-         set(state => ({ user: state.user ? { ...state.user, avatar } : null }));
       },
       updateWalletBalance: (userId, amount) => {
         const { findUserById, updateUser } = useUserDatabase.getState();
@@ -107,11 +105,6 @@ export const useAuth = create(
         if (userToUpdate) {
           const newBalance = userToUpdate.walletBalance + amount;
           updateUser(userId, { walletBalance: newBalance });
-      
-          const { user } = get();
-          if (user && user.id === userId) {
-            set({ user: { ...user, walletBalance: newBalance } });
-          }
         }
       },
       updateValhallaCoins: (userId, amount) => {
@@ -121,11 +114,6 @@ export const useAuth = create(
         if (userToUpdate) {
           const newBalance = userToUpdate.valhallaCoins + amount;
           updateUser(userId, { valhallaCoins: newBalance });
-      
-          const { user } = get();
-          if (user && user.id === userId) {
-            set({ user: { ...user, valhallaCoins: newBalance } });
-          }
         }
       },
       updateTotalSpent: (userId, amount) => {
@@ -135,66 +123,15 @@ export const useAuth = create(
         if (userToUpdate) {
           const newTotal = userToUpdate.totalSpent + amount;
           updateUser(userId, { totalSpent: newTotal });
-      
-          const { user } = get();
-          if (user && user.id === userId) {
-            set({ user: { ...user, totalSpent: newTotal } });
-          }
-        }
-      },
-      subscribeToPremium: (userId, months = 1) => {
-        const { updateUser, findUserById } = useUserDatabase.getState();
-        const currentUser = findUserById(userId);
-        if (!currentUser) return;
-        
-        const now = new Date();
-        const currentSubEnd = (currentUser.premium && new Date(currentUser.premium.expiresAt) > now) 
-            ? new Date(currentUser.premium.expiresAt) 
-            : now;
-        
-        const expiresAt = new Date(currentSubEnd.setMonth(currentSubEnd.getMonth() + months));
-
-        const premiumData = {
-          status: 'active' as const,
-          subscribedAt: currentUser.premium?.subscribedAt || new Date().toISOString(),
-          expiresAt: expiresAt.toISOString(),
-        };
-
-        const success = updateUser(userId, { premium: premiumData });
-        if (success) {
-            // Award the one-time welcome bonus if this is the first subscription
-            if (!currentUser.premium?.subscribedAt) {
-              get().updateValhallaCoins(userId, 500);
-            }
-            // Update the auth state
-            set(state => ({ 
-              user: state.user ? { ...state.user, premium: premiumData } : null,
-              isPremium: true 
-            }));
-        }
-      },
-      cancelSubscription: (userId) => {
-        const { updateUser, findUserById } = useUserDatabase.getState();
-        const currentUser = findUserById(userId);
-        if (!currentUser || !currentUser.premium) return;
-
-        const updatedPremiumData = { ...currentUser.premium, status: 'cancelled' as const };
-        const success = updateUser(userId, { premium: updatedPremiumData });
-        if (success) {
-            set(state => ({
-                user: state.user ? { ...state.user, premium: updatedPremiumData } : null,
-            }));
         }
       },
       updateNameStyle: (userId, style) => {
          const { updateUser } = useUserDatabase.getState();
          updateUser(userId, { nameStyle: style });
-         set(state => ({ user: state.user ? { ...state.user, nameStyle: style } : null }));
       },
       clearWarning: (userId) => {
         const { updateUser } = useUserDatabase.getState();
         updateUser(userId, { warningMessage: null });
-        set((state) => (state.user && state.user.id === userId ? { user: { ...state.user, warningMessage: null } } : {}));
       },
     }),
     {
@@ -205,13 +142,21 @@ export const useAuth = create(
             return currentState;
         }
         
-        const rehydratedUser = persisted.user;
-        const isNowPremium = checkIsPremium(rehydratedUser);
+        const { findUserById } = useUserDatabase.getState();
+        // Get the most up-to-date user data from the central database
+        const freshUser = findUserById(persisted.user.id);
+        
+        if (!freshUser) {
+            return { ...currentState, user: null, isAuthenticated: false, isAdmin: false, isPremium: false };
+        }
 
         return {
           ...currentState,
           ...persisted,
-          isPremium: isNowPremium,
+          user: freshUser,
+          isPremium: checkIsPremium(freshUser),
+          isAuthenticated: true,
+          isAdmin: !!freshUser.isAdmin,
         };
       },
     }
