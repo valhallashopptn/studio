@@ -6,25 +6,40 @@ import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShieldBan, LogOut } from 'lucide-react';
+import { ShieldBan, LogOut, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
 
 export default function BannedPage() {
     const { user, logout } = useAuth();
     const router = useRouter();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    useEffect(() => {
+        // This effect runs after the component mounts.
+        // It's safe to perform redirects here.
+        if (isMounted && (!user || !user.isBanned)) {
+            router.push('/');
+        }
+    }, [isMounted, user, router]);
 
     const handleLogout = () => {
         logout();
         router.push('/');
     };
-
-    if (!user || !user.isBanned) {
-        // Redirect non-banned users away
-        if (typeof window !== 'undefined') {
-            router.push('/');
-        }
-        return null;
+    
+    // While checking auth status or if user is not banned, show a loader or nothing to prevent content flashing.
+    if (!isMounted || !user || !user.isBanned) {
+         return (
+            <div className="flex h-screen w-full items-center justify-center bg-background">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
     }
 
     return (
