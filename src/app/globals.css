@@ -264,12 +264,22 @@
     @apply w-2;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-background;
+    @apply bg-transparent;
   }
   ::-webkit-scrollbar-thumb {
     @apply bg-border rounded-lg;
   }
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-primary/80;
+  }
+
+  /* Hide number input arrows */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type=number] {
+    -moz-appearance: textfield;
   }
 }
