@@ -95,8 +95,10 @@ export default function CustomerOrdersPage() {
   const { user } = useAuth();
   const { orders } = useOrders();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+  const [deliveryInfoOrder, setDeliveryInfoOrder] = useState<Order | null>(null);
   const { formatPrice } = useCurrency();
   const { t } = useTranslation();
+  const { toast } = useToast();
 
   const customerOrders = useMemo(() => {
     if (!user) return [];
@@ -106,12 +108,54 @@ export default function CustomerOrdersPage() {
   const subtotal = viewingOrder ? viewingOrder.items.reduce((acc, item) => acc + item.variant.price * item.quantity, 0) : 0;
   const taxAmount = viewingOrder ? (subtotal - (viewingOrder.discountAmount ?? 0) - (viewingOrder.valhallaCoinsValue ?? 0)) * ((viewingOrder.paymentMethod.taxRate ?? 0) / 100) : 0;
   
+  const copyToClipboard = (text: string) => {
+      navigator.clipboard.writeText(text);
+      toast({ title: "Copied!", description: "The information has been copied to your clipboard." });
+  };
+  
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">{t('dashboardOrders.title')}</h1>
         <p className="text-muted-foreground">{t('dashboardOrders.subtitle')}</p>
       </div>
+
+      <Dialog open={!!deliveryInfoOrder} onOpenChange={(isOpen) => !isOpen && setDeliveryInfoOrder(null)}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Delivered Information</DialogTitle>
+                <DialogDescription>Your delivery information for order {deliveryInfoOrder?.id}</DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="max-h-[60vh]">
+            <div className="space-y-4 pr-6 py-4">
+                {deliveryInfoOrder?.items.map(item => {
+                    const deliveredData = deliveryInfoOrder.deliveredItems?.[item.id];
+                    if (!deliveredData || deliveredData.length === 0) return null;
+
+                    return (
+                        <div key={item.id} className="space-y-2">
+                           <p className="font-semibold">{item.name} <span className="text-muted-foreground">({item.variant.name})</span></p>
+                           <div className="space-y-1">
+                               {deliveredData.map((data, index) => (
+                                   <div key={index} className="flex items-center justify-between bg-secondary p-2 rounded-md">
+                                       <code className="text-sm font-mono whitespace-pre-wrap">{data}</code>
+                                       <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" onClick={() => copyToClipboard(data)}>
+                                           <Copy className="h-4 w-4" />
+                                       </Button>
+                                   </div>
+                               ))}
+                           </div>
+                        </div>
+                    )
+                })}
+            </div>
+            </ScrollArea>
+            <DialogFooter>
+                <DialogClose asChild><Button type="button" variant="secondary">Close</Button></DialogClose>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog open={!!viewingOrder} onOpenChange={(isOpen) => !isOpen && setViewingOrder(null)}>
         <DialogContent className="sm:max-w-2xl">
@@ -232,6 +276,8 @@ export default function CustomerOrdersPage() {
             <TableBody>
               {customerOrders.length > 0 ? customerOrders.map((order) => {
                 const statusInfo = statusConfig[order.status];
+                const hasDeliveredItems = order.status === 'completed' && order.deliveredItems && Object.keys(order.deliveredItems).length > 0;
+
                 return (
                   <TableRow key={order.id}>
                     <TableCell className="font-mono text-xs">{order.id}</TableCell>
@@ -243,7 +289,12 @@ export default function CustomerOrdersPage() {
                         {statusInfo.label}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right space-x-2">
+                       {hasDeliveredItems && (
+                           <Button variant="outline" size="sm" onClick={() => setDeliveryInfoOrder(order)}>
+                               <KeyRound className="mr-2 h-4 w-4" /> Delivery
+                           </Button>
+                       )}
                       <Button variant="ghost" size="sm" onClick={() => setViewingOrder(order)}>
                         <Eye className="mr-2 h-4 w-4" /> {t('dashboardOrders.view')}
                       </Button>
