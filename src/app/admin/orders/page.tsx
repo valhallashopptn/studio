@@ -4,7 +4,7 @@
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { useOrders } from '@/hooks/use-orders';
-import type { Order, OrderStatus, CartItem, Product } from '@/lib/types';
+import type { Order, OrderStatus, CartItem, Product, Category } from '@/lib/types';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -45,7 +45,6 @@ import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { useCurrency } from '@/hooks/use-currency';
 import { useCategories } from '@/hooks/use-categories';
-import { products as allProducts } from '@/lib/data';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -116,9 +115,45 @@ export default function AdminOrdersPage() {
   const { orders, updateOrderStatus } = useOrders();
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [refundingOrder, setRefundingOrder] = useState<Order | null>(null);
+  const [deliveringOrder, setDeliveringOrder] = useState<Order | null>(null);
+  const [manualDeliveryData, setManualDeliveryData] = useState<Record<string, string>>({});
   const [refundReason, setRefundReason] = useState('');
   const { formatPrice } = useCurrency();
+  const { categories } = useCategories();
   const { toast } = useToast();
+
+  const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
+  
+  const manualItemsInDelivery = useMemo(() => {
+    if (!deliveringOrder) return [];
+    return deliveringOrder.items.filter(item => categoryMap.get(item.category)?.deliveryMethod === 'manual');
+  }, [deliveringOrder, categoryMap]);
+
+
+  const handleOpenCompleteDialog = (order: Order) => {
+    const manualItems = order.items.filter(item => categoryMap.get(item.category)?.deliveryMethod === 'manual');
+    if (manualItems.length > 0) {
+        setDeliveringOrder(order);
+    } else {
+        updateOrderStatus(order.id, 'completed');
+    }
+  };
+
+  const handleManualDeliverySubmit = () => {
+    if (!deliveringOrder) return;
+    
+    const deliveryPayload: Record<string, string[]> = {};
+    for (const itemId in manualDeliveryData) {
+        if (manualDeliveryData[itemId].trim() !== '') {
+            deliveryPayload[itemId] = [manualDeliveryData[itemId]];
+        }
+    }
+    
+    updateOrderStatus(deliveringOrder.id, 'completed', undefined, deliveryPayload);
+    toast({ title: 'Order Completed', description: 'The order has been marked as completed and delivery details have been saved.' });
+    setDeliveringOrder(null);
+    setManualDeliveryData({});
+  };
 
   const handleRefundSubmit = () => {
     if (!refundingOrder) return;
@@ -163,6 +198,33 @@ export default function AdminOrdersPage() {
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <Dialog open={!!deliveringOrder} onOpenChange={(isOpen) => !isOpen && setDeliveringOrder(null)}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Complete Manual Delivery</DialogTitle>
+                <DialogDescription>Enter the delivery information for the items below. This will be visible to the customer.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+                {manualItemsInDelivery.map(item => (
+                    <div key={item.id} className="space-y-2">
+                        <Label htmlFor={`delivery-${item.id}`}>{item.name} - ({item.variant.name})</Label>
+                        <Textarea
+                            id={`delivery-${item.id}`}
+                            placeholder={`e.g., Subscription activated, or code XYZ-123`}
+                            value={manualDeliveryData[item.id] || ''}
+                            onChange={(e) => setManualDeliveryData(prev => ({...prev, [item.id]: e.target.value}))}
+                        />
+                    </div>
+                ))}
+            </div>
+            <DialogFooter>
+                <DialogClose asChild><Button variant="secondary">Cancel</Button></DialogClose>
+                <Button onClick={handleManualDeliverySubmit}>Complete Order</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog open={!!viewingOrder} onOpenChange={(isOpen) => !isOpen && setViewingOrder(null)}>
         <DialogContent className="sm:max-w-2xl">
@@ -314,17 +376,13 @@ export default function AdminOrdersPage() {
                             <Eye className="mr-2 h-4 w-4" /> View Details
                           </DropdownMenuItem>
                           <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
+                            <DropdownMenuSubTrigger disabled={order.status !== 'pending'}>
                                 <RefreshCw className="mr-2 h-4 w-4" />
                                 <span>Update Status</span>
                             </DropdownMenuSubTrigger>
                             <DropdownMenuPortal>
                                 <DropdownMenuSubContent>
-                                    <DropdownMenuItem onClick={() => updateOrderStatus(order.id, 'pending')}>
-                                        <RefreshCw className="mr-2 h-4 w-4" />
-                                        Pending
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => updateOrderStatus(order.id, 'completed')}>
+                                    <DropdownMenuItem onClick={() => handleOpenCompleteDialog(order)}>
                                         <CheckCircle className="mr-2 h-4 w-4" />
                                         Completed
                                     </DropdownMenuItem>

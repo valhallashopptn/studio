@@ -13,7 +13,7 @@ import { useUserDatabase } from './use-user-database';
 type OrdersState = {
     orders: Order[];
     addOrder: (order: Omit<Order, 'createdAt'>) => void;
-    updateOrderStatus: (orderId: string, status: OrderStatus, reason?: string) => void;
+    updateOrderStatus: (orderId: string, status: OrderStatus, reason?: string, deliveredItems?: Record<string, string[]>) => void;
     markOrderAsReviewPrompted: (orderIds: string[]) => void;
 };
 
@@ -35,7 +35,7 @@ export const useOrders = create(
 
                 set((state) => ({ orders: [newOrder, ...state.orders] }));
             },
-            updateOrderStatus: (orderId, status, reason) => {
+            updateOrderStatus: (orderId, status, reason, manualDeliveredItems) => {
                 set((state) => {
                     const orderIndex = state.orders.findIndex((o) => o.id === orderId);
                     if (orderIndex === -1) return state;
@@ -102,22 +102,22 @@ export const useOrders = create(
                             updateValhallaCoins(orderToUpdate.customer.id, coinsToAward);
                         }
                         
-                        // Deliver instant stock if applicable
+                        // --- DELIVERY LOGIC ---
                         const { deliverStockForOrder } = useStock.getState();
                         const { categories } = useCategoriesStore.getState();
                         const categoryMap = new Map(categories.map(c => [c.name, c]));
-                        const deliveredItems: Order['deliveredItems'] = { ...orderToUpdate.deliveredItems };
+                        const allDeliveredItems: Order['deliveredItems'] = { ...(manualDeliveredItems || {}) };
                         
                         for (const item of orderToUpdate.items) {
                             const category = categoryMap.get(item.category);
                             if (category?.deliveryMethod === 'instant') {
                                 const deliveredCodes = deliverStockForOrder(item.productId, item.quantity);
                                 if (deliveredCodes.length > 0) {
-                                    deliveredItems[item.id] = deliveredCodes;
+                                    allDeliveredItems[item.id] = deliveredCodes;
                                 }
                             }
                         }
-                        orderToUpdate.deliveredItems = deliveredItems;
+                        orderToUpdate.deliveredItems = allDeliveredItems;
                     }
 
                     orderToUpdate.status = status;
