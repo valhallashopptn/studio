@@ -239,7 +239,7 @@ export default function CheckoutPage() {
             const newOrder: Omit<Order, 'createdAt'> = {
                 id: newOrderId,
                 customer: user!,
-                items,
+                items: items, // Pass the full cart items
                 total,
                 paymentMethod: selectedPayment,
                 paymentProofImage,
