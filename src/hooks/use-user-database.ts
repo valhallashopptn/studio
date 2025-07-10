@@ -13,6 +13,9 @@ type UserDatabaseState = {
   findUserById: (id: string) => User | undefined;
   updateUser: (userId: string, updates: Partial<User>) => boolean;
   addUser: (newUser: User) => void;
+  banUser: (userId: string) => void;
+  unbanUser: (userId: string) => void;
+  sendWarning: (userId: string, message: string) => void;
 };
 
 export const useUserDatabase = create(
@@ -48,14 +51,23 @@ export const useUserDatabase = create(
       },
       addUser: (newUser) => {
         set(state => ({ users: [...state.users, newUser] }));
-      }
+      },
+      banUser: (userId) => get().updateUser(userId, { isBanned: true }),
+      unbanUser: (userId) => get().updateUser(userId, { isBanned: false }),
+      sendWarning: (userId, message) => get().updateUser(userId, { warningMessage: message }),
     }),
     {
       name: 'topup-hub-user-database',
       // This merge strategy now prioritizes the initial data from `data.ts`
       // to ensure your change is applied, overwriting the stored user list.
       merge: (persistedState, currentState) => {
-        return currentState;
+        // On initial load, ensure all users have the new fields
+        const usersWithDefaults = currentState.users.map(user => ({
+            ...user,
+            isBanned: user.isBanned ?? false,
+            warningMessage: user.warningMessage ?? null,
+        }));
+        return { ...currentState, users: usersWithDefaults };
       },
     }
   )

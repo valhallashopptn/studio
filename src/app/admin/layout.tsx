@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { AdminSidebar } from '@/components/admin-sidebar';
-import { Loader2, LayoutDashboard, Package, Settings, Paintbrush, Shapes, Boxes, ClipboardList, MessageSquare, TicketPercent } from 'lucide-react';
+import { Loader2, LayoutDashboard, Package, Settings, Paintbrush, Shapes, Boxes, ClipboardList, MessageSquare, TicketPercent, Users } from 'lucide-react';
 import { AppHeader } from '@/components/app-header';
 import { MobileNav, type NavLink } from '@/components/mobile-nav';
 
@@ -13,6 +13,7 @@ const adminNavLinks: NavLink[] = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/orders', label: 'Orders', icon: ClipboardList },
   { href: '/admin/products', label: 'Products', icon: Package },
+  { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/appearance', label: 'Appearance', icon: Paintbrush },
   // These will go into the 'More' sheet
   { href: '/admin/categories', label: 'Categories', icon: Shapes },

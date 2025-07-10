@@ -5,7 +5,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Package, Settings, Flame, Paintbrush, Shapes, Boxes, ClipboardList, MessageSquare, TicketPercent } from 'lucide-react';
+import { LayoutDashboard, Package, Settings, Flame, Paintbrush, Shapes, Boxes, ClipboardList, MessageSquare, TicketPercent, Users } from 'lucide-react';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import Image from 'next/image';
 
@@ -15,6 +15,7 @@ const adminNavLinks = [
   { href: '/admin/categories', label: 'Categories', icon: Shapes },
   { href: '/admin/stock', label: 'Stock', icon: Boxes },
   { href: '/admin/orders', label: 'Orders', icon: ClipboardList },
+  { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/coupons', label: 'Coupons', icon: TicketPercent },
   { href: '/admin/live-chat', label: 'Live Chat', icon: MessageSquare },
   { href: '/admin/settings', label: 'Payments', icon: Settings },

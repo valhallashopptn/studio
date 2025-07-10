@@ -11,7 +11,7 @@ type AuthState = {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isPremium: boolean;
-  login: (credentials: Pick<User, 'email' | 'password'>) => boolean;
+  login: (credentials: Pick<User, 'email' | 'password'>) => { success: boolean, message?: string };
   logout: () => void;
   register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent' | 'valhallaCoins' | 'walletBalance' | 'premium'>) => boolean;
   updateUser: (userId: string, updates: Partial<Pick<User, 'name' | 'email'>>) => boolean;
@@ -23,6 +23,7 @@ type AuthState = {
   subscribeToPremium: (userId: string, months?: number) => void;
   cancelSubscription: (userId: string) => void;
   updateNameStyle: (userId: string, style: string) => void;
+  clearWarning: (userId: string) => void;
 };
 
 const checkIsPremium = (user: User | null): boolean => {
@@ -41,11 +42,16 @@ export const useAuth = create(
       login: (credentials) => {
         const { findUser } = useUserDatabase.getState();
         const foundUser = findUser(credentials.email, credentials.password);
-        if (foundUser) {
-          set({ user: foundUser, isAuthenticated: true, isAdmin: !!foundUser.isAdmin, isPremium: checkIsPremium(foundUser) });
-          return true;
+
+        if (!foundUser) {
+            return { success: false, message: 'Invalid email or password.' };
         }
-        return false;
+        if (foundUser.isBanned) {
+            return { success: false, message: 'This account has been banned.' };
+        }
+        
+        set({ user: foundUser, isAuthenticated: true, isAdmin: !!foundUser.isAdmin, isPremium: checkIsPremium(foundUser) });
+        return { success: true };
       },
       logout: () => {
         set({ user: null, isAuthenticated: false, isAdmin: false, isPremium: false });
@@ -66,6 +72,8 @@ export const useAuth = create(
             valhallaCoins: 0,
             nameStyle: 'default',
             premium: null,
+            isBanned: false,
+            warningMessage: null,
         };
         addUser(newUser);
         set({ user: newUser, isAuthenticated: true, isAdmin: false, isPremium: false });
@@ -182,6 +190,11 @@ export const useAuth = create(
          const { updateUser } = useUserDatabase.getState();
          updateUser(userId, { nameStyle: style });
          set(state => ({ user: state.user ? { ...state.user, nameStyle: style } : null }));
+      },
+      clearWarning: (userId) => {
+        const { updateUser } = useUserDatabase.getState();
+        updateUser(userId, { warningMessage: null });
+        set((state) => (state.user && state.user.id === userId ? { user: { ...state.user, warningMessage: null } } : {}));
       },
     }),
     {

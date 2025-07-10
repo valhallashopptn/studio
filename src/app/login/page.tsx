@@ -47,7 +47,7 @@ export default function LoginPage() {
 
   function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsSubmitting(true);
-    const success = login(values);
+    const { success, message } = login(values);
 
     if (success) {
       toast({
@@ -59,7 +59,7 @@ export default function LoginPage() {
       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: 'Invalid email or password. Please try again.',
+        description: message || 'An unknown error occurred.',
       });
       setIsSubmitting(false);
     }

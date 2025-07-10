@@ -80,6 +80,8 @@ export interface User {
     subscribedAt: string; // ISO date string
     expiresAt: string; // ISO date string
   } | null;
+  isBanned?: boolean;
+  warningMessage?: string | null;
 }
 
 export interface Review {
