@@ -268,19 +268,12 @@ export function LiveChatSupport() {
                 </CardContent>
                 <CardFooter className="p-4 border-t flex flex-col gap-3">
                     {discordUrl && (
-                        <>
-                            <Button asChild variant="outline" className="w-full">
-                                <a href={discordUrl} target="_blank" rel="noopener noreferrer">
-                                    <DiscordIcon className="h-5 w-5 mr-2 fill-current" />
-                                    Open Ticket in Discord
-                                </a>
-                            </Button>
-                            <div className="relative w-full flex items-center">
-                                <Separator className="flex-grow" />
-                                <span className="mx-2 text-xs text-muted-foreground">OR</span>
-                                <Separator className="flex-grow" />
-                            </div>
-                        </>
+                        <Button asChild variant="outline" className="w-full">
+                            <a href={discordUrl} target="_blank" rel="noopener noreferrer">
+                                <DiscordIcon className="h-5 w-5 mr-2 fill-current" />
+                                Open Ticket in Discord
+                            </a>
+                        </Button>
                     )}
                     <form onSubmit={handleSubmit} className="flex w-full items-center space-x-2">
                         <Input 
