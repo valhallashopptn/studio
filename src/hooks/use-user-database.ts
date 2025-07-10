@@ -3,7 +3,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { User } from '@/lib/types';
+import type { User, AdminPermissions } from '@/lib/types';
 import { users as initialUsers } from '@/lib/data';
 
 type UserDatabaseState = {
@@ -16,6 +16,9 @@ type UserDatabaseState = {
   banUser: (userId: string) => void;
   unbanUser: (userId: string) => void;
   sendWarning: (userId: string, message: string) => void;
+  promoteToAdmin: (userId: string, permissions: AdminPermissions) => void;
+  demoteAdmin: (userId: string) => void;
+  updateAdminPermissions: (userId: string, permissions: AdminPermissions) => void;
 };
 
 export const useUserDatabase = create(
@@ -55,17 +58,25 @@ export const useUserDatabase = create(
       banUser: (userId) => get().updateUser(userId, { isBanned: true }),
       unbanUser: (userId) => get().updateUser(userId, { isBanned: false }),
       sendWarning: (userId, message) => get().updateUser(userId, { warningMessage: message }),
+      promoteToAdmin: (userId, permissions) => {
+        get().updateUser(userId, { isAdmin: true, permissions });
+      },
+      demoteAdmin: (userId) => {
+        get().updateUser(userId, { isAdmin: false, permissions: {} });
+      },
+      updateAdminPermissions: (userId, permissions) => {
+        get().updateUser(userId, { permissions });
+      },
     }),
     {
       name: 'topup-hub-user-database',
-      // This merge strategy now prioritizes the initial data from `data.ts`
-      // to ensure your change is applied, overwriting the stored user list.
       merge: (persistedState, currentState) => {
-        // On initial load, ensure all users have the new fields
-        const usersWithDefaults = currentState.users.map(user => ({
+        const persisted = persistedState as UserDatabaseState;
+        const usersWithDefaults = (persisted.users || currentState.users).map(user => ({
             ...user,
             isBanned: user.isBanned ?? false,
             warningMessage: user.warningMessage ?? null,
+            permissions: user.permissions ?? (user.isAdmin ? { canManageAdmins: true, canManageAppearance: true, canManageCategories: true, canManageCoupons: true, canManageOrders: true, canManageProducts: true, canManageUsers: true } : {}),
         }));
         return { ...currentState, users: usersWithDefaults };
       },

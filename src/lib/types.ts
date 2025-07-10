@@ -64,6 +64,16 @@ export interface PaymentMethod {
     taxRate?: number;
 }
 
+export interface AdminPermissions {
+  canManageProducts?: boolean;
+  canManageCategories?: boolean;
+  canManageOrders?: boolean;
+  canManageUsers?: boolean;
+  canManageCoupons?: boolean;
+  canManageAppearance?: boolean;
+  canManageAdmins?: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -82,6 +92,7 @@ export interface User {
   } | null;
   isBanned?: boolean;
   warningMessage?: string | null;
+  permissions?: AdminPermissions;
 }
 
 export interface Review {

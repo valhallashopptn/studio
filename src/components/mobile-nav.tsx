@@ -11,7 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
+import { Menu, Shield } from 'lucide-react';
 
 export interface NavLink {
   href: string;
@@ -29,6 +29,7 @@ export function MobileNav({ links }: MobileNavProps) {
   // Show up to 4 links directly, the rest go in a "More" sheet.
   const primaryLinks = links.slice(0, 4);
   const secondaryLinks = links.slice(4);
+  const isAdminPath = pathname.startsWith('/admin');
 
   return (
     <div className="fixed bottom-0 left-0 z-40 w-full h-16 bg-background border-t md:hidden">
