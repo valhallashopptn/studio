@@ -14,7 +14,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ShoppingCart, Star, Minus, Plus, UserCheck, PackageCheck, Zap } from 'lucide-react';
+import { ShoppingCart, Star, Minus, Plus, UserCheck, PackageCheck, Zap, CheckCircle } from 'lucide-react';
 
 import { products } from '@/lib/data';
 import type { Product, ProductVariant } from '@/lib/types';
@@ -27,6 +27,7 @@ import { useCategories } from '@/hooks/use-categories';
 import { useStock } from '@/hooks/use-stock';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -171,13 +172,24 @@ export default function ProductDetailPage() {
                     }}
                     className="grid grid-cols-2 gap-2"
                   >
-                    {product.variants.map((variant) => (
-                       <Label key={variant.id} htmlFor={variant.id} className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground has-[:checked]:border-primary cursor-pointer">
+                    {product.variants.map((variant) => {
+                      const isSelected = selectedVariant?.id === variant.id;
+                      return (
+                       <Label key={variant.id} htmlFor={variant.id} className={cn(
+                          "relative flex flex-col items-center justify-between rounded-md border-2 p-4 cursor-pointer transition-colors",
+                          isSelected ? "border-primary bg-primary/5" : "border-muted bg-popover hover:bg-accent/10"
+                       )}>
                            <RadioGroupItem value={variant.id} id={variant.id} className="sr-only" />
                            <span className="font-semibold">{variant.name}</span>
                            <span className="text-sm">{formatPrice(variant.price)}</span>
+                           {isSelected && (
+                              <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                <CheckCircle className="h-3 w-3" />
+                              </div>
+                            )}
                        </Label>
-                    ))}
+                      )
+                    })}
                   </RadioGroup>
                 </div>
               )}
