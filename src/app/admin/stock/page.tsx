@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -27,7 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 export default function AdminStockPage() {
-  const { stock, getAvailableStockCount, getStockForProduct, addStockItems } = useStock();
+  const { stock, getAvailableStockCount, getStockForProduct, addStockItems, deleteStockItem } = useStock();
   const { categories } = useCategories();
   const [isMounted, setIsMounted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -67,6 +67,11 @@ export default function AdminStockPage() {
     });
     
     setNewStockData('');
+  };
+
+  const handleDeleteStockItem = (itemId: string) => {
+    deleteStockItem(itemId);
+    toast({ title: "Stock Item Deleted" });
   };
 
   const productStock = selectedProduct ? getStockForProduct(selectedProduct.id) : [];
@@ -121,6 +126,7 @@ export default function AdminStockPage() {
                                         <TableHead>Data</TableHead>
                                         <TableHead>Used</TableHead>
                                         <TableHead>Added</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -130,13 +136,25 @@ export default function AdminStockPage() {
                                                 {item.data}
                                             </TableCell>
                                             <TableCell>
-                                                {item.isUsed ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}
+                                                <Badge variant={item.isUsed ? 'default' : 'secondary'}>
+                                                    {item.isUsed ? 'Yes' : 'No'}
+                                                </Badge>
                                             </TableCell>
                                             <TableCell className="text-xs">{format(new Date(item.addedAt), 'P')}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    className="h-8 w-8"
+                                                    onClick={() => handleDeleteStockItem(item.id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </TableCell>
                                         </TableRow>
                                     )) : (
                                         <TableRow>
-                                            <TableCell colSpan={3} className="text-center">No stock found.</TableCell>
+                                            <TableCell colSpan={4} className="text-center">No stock found.</TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>

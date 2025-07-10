@@ -9,6 +9,7 @@ import { stock as initialStock } from '@/lib/data';
 type StockState = {
   stock: StockItem[];
   addStockItems: (productId: string, newData: string[]) => void;
+  deleteStockItem: (stockItemId: string) => void;
   getStockForProduct: (productId: string) => StockItem[];
   getAvailableStockCount: (productId: string) => number;
   deliverStockForOrder: (productId: string, quantity: number) => string[];
@@ -32,6 +33,11 @@ export const useStock = create(
           
           return { stock: [...state.stock, ...newItems] };
         }),
+      deleteStockItem: (stockItemId) => {
+        set((state) => ({
+            stock: state.stock.filter(item => item.id !== stockItemId)
+        }));
+      },
       getStockForProduct: (productId) => {
         return get().stock.filter(item => item.productId === productId);
       },
