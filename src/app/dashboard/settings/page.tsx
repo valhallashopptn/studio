@@ -19,7 +19,7 @@ import { getRank, getNextRank, ranks as allRanks, USD_TO_XP_RATE, formatXp } fro
 import { Progress } from '@/components/ui/progress';
 import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
-import { Info, Trophy, Palette, Lock, Gem, CheckCircle, XCircle } from 'lucide-react';
+import { Info, Trophy, Palette, Lock, Gem, CheckCircle, XCircle, Moon, Sun } from 'lucide-react';
 import Link from 'next/link';
 import {
   Dialog,
@@ -43,6 +43,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useUserDatabase } from '@/hooks/use-user-database';
 import { format } from 'date-fns';
+import { useTheme } from '@/hooks/use-theme';
 
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -72,6 +73,7 @@ export default function SettingsPage() {
     const { formatPrice } = useCurrency();
     const { users: allUsers } = useUserDatabase();
     const [isMounted, setIsMounted] = useState(false);
+    const { theme, setTheme } = useTheme();
 
     useEffect(() => {
         setIsMounted(true);
@@ -182,6 +184,8 @@ export default function SettingsPage() {
             toast({ title: 'Username style updated!' });
         }
     };
+
+    const isLightMode = theme === 'classic-light';
 
     return (
         <div className="space-y-8">
@@ -309,6 +313,41 @@ export default function SettingsPage() {
                     </CardContent>
                 </Card>
             )}
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" /> Appearance</CardTitle>
+                    <CardDescription>
+                        Choose your preferred site theme.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-2 gap-4">
+                        <Button
+                            variant={!isLightMode ? 'default' : 'outline'}
+                            onClick={() => setTheme('violet-fusion')}
+                            className="h-20"
+                        >
+                            <Moon className="mr-2 h-5 w-5" />
+                            <div>
+                                <p className="font-semibold">Dark Mode</p>
+                                <p className="text-xs font-normal">Recommended</p>
+                            </div>
+                        </Button>
+                        <Button
+                            variant={isLightMode ? 'default' : 'outline'}
+                            onClick={() => setTheme('classic-light')}
+                             className="h-20"
+                        >
+                            <Sun className="mr-2 h-5 w-5" />
+                            <div>
+                                <p className="font-semibold">Light Mode</p>
+                                <p className="text-xs font-normal">Classic View</p>
+                            </div>
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
 
             <Card>
                 <CardHeader>
