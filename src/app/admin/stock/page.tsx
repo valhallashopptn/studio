@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Braces } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -26,13 +26,22 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
+function isValidJson(str: string) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
 export default function AdminStockPage() {
   const { stock, getAvailableStockCount, getStockForProduct, addStockItems } = useStock();
   const { categories } = useCategories();
   const [isMounted, setIsMounted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [newCodes, setNewCodes] = useState('');
+  const [newStockData, setNewStockData] = useState('');
   const { toast } = useToast();
 
   const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
@@ -43,29 +52,42 @@ export default function AdminStockPage() {
 
   const handleManageStock = (product: Product) => {
     setSelectedProduct(product);
-    setNewCodes('');
+    setNewStockData('');
     setIsDialogOpen(true);
   };
   
   const handleAddStock = () => {
-    if (!selectedProduct || !newCodes.trim()) {
+    if (!selectedProduct || !newStockData.trim()) {
         toast({
             variant: "destructive",
             title: "Error",
-            description: "Please enter at least one code.",
+            description: "Please enter at least one item.",
         });
         return;
     }
     
-    const codesArray = newCodes.split('\n').filter(code => code.trim() !== '');
-    addStockItems(selectedProduct.id, codesArray);
+    const dataArray = newStockData.split('\n').filter(line => line.trim() !== '');
+
+    // Validate that if a line starts with '{', it's valid JSON
+    for (const line of dataArray) {
+        if (line.trim().startsWith('{') && !isValidJson(line)) {
+            toast({
+                variant: 'destructive',
+                title: 'Invalid JSON format',
+                description: `Please check the format of this line: ${line}`,
+            });
+            return;
+        }
+    }
+
+    addStockItems(selectedProduct.id, dataArray);
     
     toast({
         title: "Stock Added",
-        description: `${codesArray.length} new code(s) added for ${selectedProduct.name}.`,
+        description: `${dataArray.length} new item(s) added for ${selectedProduct.name}.`,
     });
     
-    setNewCodes('');
+    setNewStockData('');
   };
 
   const productStock = selectedProduct ? getStockForProduct(selectedProduct.id) : [];
@@ -78,29 +100,32 @@ export default function AdminStockPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Stock Management</h1>
-        <p className="text-muted-foreground">Manage keys and codes for your instant delivery products.</p>
+        <p className="text-muted-foreground">Manage keys, codes, or account data for your instant delivery products.</p>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>Manage Stock for: {selectedProduct?.name}</DialogTitle>
-            <DialogDescription>View existing stock or add new codes below.</DialogDescription>
+            <DialogDescription>View existing stock or add new items below.</DialogDescription>
           </DialogHeader>
           <div className="grid md:grid-cols-2 gap-6 py-4">
             <div className="space-y-4">
                 <Card>
-                    <CardHeader><CardTitle>Add New Codes</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>Add New Stock</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
                         <div>
-                            <Label htmlFor="new-codes">New Codes (one per line)</Label>
+                            <Label htmlFor="new-stock-data">New Stock (one item per line)</Label>
                             <Textarea 
-                                id="new-codes"
-                                value={newCodes}
-                                onChange={(e) => setNewCodes(e.target.value)}
+                                id="new-stock-data"
+                                value={newStockData}
+                                onChange={(e) => setNewStockData(e.target.value)}
                                 rows={8}
-                                placeholder="CODE-1234-ABCD&#10;CODE-5678-EFGH&#10;..."
+                                placeholder={'CODE-1234-ABCD\n{"username":"user1","password":"pw1"}'}
                             />
+                             <p className="text-xs text-muted-foreground mt-2">
+                                For simple codes, enter one per line. For complex data like accounts, enter a valid JSON object on a single line.
+                            </p>
                         </div>
                         <Button onClick={handleAddStock}>Add to Stock</Button>
                     </CardContent>
@@ -108,13 +133,13 @@ export default function AdminStockPage() {
             </div>
             <div className="space-y-4">
                <Card>
-                    <CardHeader><CardTitle>Existing Stock</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>Existing Stock ({productStock.length})</CardTitle></CardHeader>
                     <CardContent>
                         <div className="max-h-96 overflow-y-auto">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Code</TableHead>
+                                        <TableHead>Data</TableHead>
                                         <TableHead>Used</TableHead>
                                         <TableHead>Added</TableHead>
                                     </TableRow>
@@ -122,7 +147,14 @@ export default function AdminStockPage() {
                                 <TableBody>
                                     {productStock.length > 0 ? productStock.map(item => (
                                         <TableRow key={item.id}>
-                                            <TableCell className="font-mono text-xs">{item.code}</TableCell>
+                                            <TableCell className="font-mono text-xs">
+                                                {item.data.startsWith('{') ? (
+                                                    <span className="flex items-center gap-2 text-blue-500">
+                                                        <Braces className="h-4 w-4" />
+                                                        JSON Object
+                                                    </span>
+                                                ) : item.data}
+                                            </TableCell>
                                             <TableCell>
                                                 {item.isUsed ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}
                                             </TableCell>

@@ -172,10 +172,10 @@ export let products: Product[] = [
 ];
 
 export let stock: StockItem[] = [
-    { id: 'stk_001', productId: 'prod_002', code: 'STEAM-ABCD-1234', isUsed: false, addedAt: new Date().toISOString() },
-    { id: 'stk_002', productId: 'prod_002', code: 'STEAM-EFGH-5678', isUsed: false, addedAt: new Date().toISOString() },
-    { id: 'stk_003', productId: 'prod_002', code: 'STEAM-IJKL-9012', isUsed: true, addedAt: new Date().toISOString() },
-    { id: 'stk_004', productId: 'prod_006', code: 'PSN-QWER-ASDF', isUsed: false, addedAt: new Date().toISOString() },
+    { id: 'stk_001', productId: 'prod_002', data: 'STEAM-ABCD-1234', isUsed: false, addedAt: new Date().toISOString() },
+    { id: 'stk_002', productId: 'prod_002', data: 'STEAM-EFGH-5678', isUsed: false, addedAt: new Date().toISOString() },
+    { id: 'stk_003', productId: 'prod_002', data: 'STEAM-IJKL-9012', isUsed: true, addedAt: new Date().toISOString() },
+    { id: 'stk_004', productId: 'prod_006', data: 'PSN-QWER-ASDF', isUsed: false, addedAt: new Date().toISOString() },
 ];
 
 export let users: User[] = [

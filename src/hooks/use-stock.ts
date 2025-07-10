@@ -8,7 +8,7 @@ import { stock as initialStock } from '@/lib/data';
 
 type StockState = {
   stock: StockItem[];
-  addStockItems: (productId: string, newCodes: string[]) => void;
+  addStockItems: (productId: string, newData: string[]) => void;
   getStockForProduct: (productId: string) => StockItem[];
   getAvailableStockCount: (productId: string) => number;
   deliverStockForOrder: (productId: string, quantity: number) => string[];
@@ -18,14 +18,14 @@ export const useStock = create(
   persist<StockState>(
     (set, get) => ({
       stock: initialStock,
-      addStockItems: (productId, newCodes) =>
+      addStockItems: (productId, newData) =>
         set((state) => {
-          const newItems: StockItem[] = newCodes
-            .filter(code => code.trim() !== '')
-            .map(code => ({
+          const newItems: StockItem[] = newData
+            .filter(data => data.trim() !== '')
+            .map(data => ({
                 id: `stk_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
                 productId,
-                code: code.trim(),
+                data: data.trim(),
                 isUsed: false,
                 addedAt: new Date().toISOString(),
             }));
@@ -44,7 +44,7 @@ export const useStock = create(
             console.warn(`Not enough stock for product ${productId}. Required: ${quantity}, Available: ${availableStock.length}`);
             // Deliver what's available
             const itemsToDeliver = availableStock;
-            const deliveredCodes = itemsToDeliver.map(item => item.code);
+            const deliveredData = itemsToDeliver.map(item => item.data);
             const deliveredItemIds = new Set(itemsToDeliver.map(item => item.id));
 
             set(state => ({
@@ -53,11 +53,11 @@ export const useStock = create(
                 )
             }));
             
-            return deliveredCodes;
+            return deliveredData;
         }
 
         const itemsToDeliver = availableStock.slice(0, quantity);
-        const deliveredCodes = itemsToDeliver.map(item => item.code);
+        const deliveredData = itemsToDeliver.map(item => item.data);
         const deliveredItemIds = new Set(itemsToDeliver.map(item => item.id));
 
         set(state => ({
@@ -66,7 +66,7 @@ export const useStock = create(
             )
         }));
         
-        return deliveredCodes;
+        return deliveredData;
       },
     }),
     {

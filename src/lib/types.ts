@@ -49,7 +49,7 @@ export interface Category {
 export interface StockItem {
   id: string;
   productId: string;
-  code: string;
+  data: string; // Can be a simple code or a JSON string for complex data
   isUsed: boolean;
   addedAt: string;
   usedAt?: string;
@@ -130,7 +130,7 @@ export interface Order {
   paymentProofImage?: string | null;
   status: OrderStatus;
   createdAt: string;
-  deliveredItems?: { [cartItemId: string]: string[] };
+  deliveredItems?: { [cartItemId: string]: string[] }; // Array of data strings (can be codes or JSON)
   refundReason?: string;
   refundedAt?: string;
   appliedCouponCode?: string;
