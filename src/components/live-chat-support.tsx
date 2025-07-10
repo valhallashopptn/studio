@@ -15,11 +15,20 @@ import { db } from '@/lib/firebase';
 import { collection, doc, addDoc, onSnapshot, updateDoc, arrayUnion, serverTimestamp, query, orderBy, getDoc, setDoc } from 'firebase/firestore';
 import type { ChatMessage, ChatSession } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from './ui/separator';
+import { useContentSettings } from '@/hooks/use-content-settings';
+
+const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-2.0441-.2733-4.2158-.2733-6.2599 0-.1636-.3847-.3973-.8742-.6082-1.2495a.0741.0741 0 00-.0785-.0371 19.7363 19.7363 0 00-4.8852 1.5152.069.069 0 00-.0321.0233C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0586c.2148.1354.4363.254.66.3615a.0751.0751 0 00.0776-.0206c.6776-.5545 1.133-1.2312 1.442-2.0022a.076.076 0 00-.0416-.1064c-.3997-.1582-.7882-.345-1.153-.56a.0726.0726 0 01.011-.0883c.311-.2411.6114-.492.896-.759a.0741.0741 0 01.0728-.011c3.9452 1.7646 8.18 1.7646 12.1252 0a.0741.0741 0 01.0727.011c.2847.267.585.5179.896.759a.0726.0726 0 01.011.0883c-.3648.214-.7533.4008-1.153.56a.076.076 0 00-.0416.1064c.309.7709.7644 1.4477 1.442 2.0022a.0751.0751 0 00.0776.0206c.2236-.1075.4451-.2261.66-.3615a.0824.0824 0 00.0312-.0586c.4182-4.4779-.4334-8.9808-2.3484-13.6647a.069.069 0 00-.032-.0233zM8.02 15.3312c-.7812 0-1.416-.6562-1.416-1.4655S7.2388 12.4 8.02 12.4s1.416.6562 1.416 1.4657-.6348 1.4655-1.416 1.4655zm7.96 0c-.7812 0-1.416-.6562-1.416-1.4655s.6348-1.4655 1.416-1.4655 1.416.6562 1.416 1.4657-.6348 1.4655-1.416 1.4655z"/>
+    </svg>
+);
 
 
 export function LiveChatSupport() {
     const { user, isAuthenticated } = useAuth();
     const { toast } = useToast();
+    const { discordUrl } = useContentSettings();
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -257,7 +266,22 @@ export function LiveChatSupport() {
                         </div>
                     </ScrollArea>
                 </CardContent>
-                <CardFooter className="p-4 border-t">
+                <CardFooter className="p-4 border-t flex flex-col gap-3">
+                    {discordUrl && (
+                        <>
+                            <Button asChild variant="outline" className="w-full">
+                                <a href={discordUrl} target="_blank" rel="noopener noreferrer">
+                                    <DiscordIcon className="h-5 w-5 mr-2 fill-current" />
+                                    Open Ticket in Discord
+                                </a>
+                            </Button>
+                            <div className="relative w-full flex items-center">
+                                <Separator className="flex-grow" />
+                                <span className="mx-2 text-xs text-muted-foreground">OR</span>
+                                <Separator className="flex-grow" />
+                            </div>
+                        </>
+                    )}
                     <form onSubmit={handleSubmit} className="flex w-full items-center space-x-2">
                         <Input 
                             ref={inputRef}
