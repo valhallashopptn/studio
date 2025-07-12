@@ -31,7 +31,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { generateImage } from '@/ai/flows/generate-image-flow';
+// import { generateImage } from '@/ai/flows/generate-image-flow';
 import { Label } from '@/components/ui/label';
 import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
 import { useCategories } from '@/hooks/use-categories';
@@ -130,22 +130,22 @@ export default function AdminProductsPage() {
   };
 
   const handleGenerateImage = async () => {
-    const hint = form.getValues('aiHint');
-    if (!hint) {
-      form.setError('aiHint', { type: 'manual', message: 'Please provide an AI hint to generate an image.' });
-      return;
-    }
-    setIsGeneratingImage(true);
-    form.clearErrors('image');
-    try {
-      const result = await generateImage({ prompt: `a professional product shot for an online store: ${hint}` });
-      form.setValue('image', result.imageDataUri, { shouldValidate: true });
-    } catch (error) {
-      console.error('Image generation failed:', error);
-      form.setError('image', { type: 'manual', message: 'AI image generation failed. Please try again.' });
-    } finally {
-      setIsGeneratingImage(false);
-    }
+    // const hint = form.getValues('aiHint');
+    // if (!hint) {
+    //   form.setError('aiHint', { type: 'manual', message: 'Please provide an AI hint to generate an image.' });
+    //   return;
+    // }
+    // setIsGeneratingImage(true);
+    // form.clearErrors('image');
+    // try {
+    //   // const result = await generateImage({ prompt: `a professional product shot for an online store: ${hint}` });
+    //   // form.setValue('image', result.imageDataUri, { shouldValidate: true });
+    // } catch (error) {
+    //   console.error('Image generation failed:', error);
+    //   form.setError('image', { type: 'manual', message: 'AI image generation failed. Please try again.' });
+    // } finally {
+    //   setIsGeneratingImage(false);
+    // }
   };
 
 
@@ -262,7 +262,7 @@ export default function AdminProductsPage() {
                                 <FormMessage />
                             </FormItem>
                         )}/>
-                        <Button type="button" onClick={handleGenerateImage} disabled={isGeneratingImage} variant="secondary">
+                        <Button type="button" onClick={handleGenerateImage} disabled={true} variant="secondary">
                             {isGeneratingImage ? <Loader2 className="animate-spin" /> : <Sparkles />}
                         </Button>
                     </div>

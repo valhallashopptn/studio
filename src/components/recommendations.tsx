@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { personalizedRecommendations } from '@/ai/flows/personalized-recommendations'
+// import { personalizedRecommendations } from '@/ai/flows/personalized-recommendations'
 import { getProductCatalogForAI } from '@/lib/data'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -35,18 +35,19 @@ export function Recommendations() {
   async function onSubmit(values: z.infer<typeof recommendationSchema>) {
     setIsLoading(true)
     setRecommendations(null)
-    setError(null)
-    try {
-      const result = await personalizedRecommendations({
-        purchaseHistory: values.purchaseHistory,
-        productCatalog: getProductCatalogForAI(),
-      })
-      setRecommendations(result.recommendations)
-    } catch (e) {
-      setError("Sorry, we couldn't generate recommendations at this time. Please try again later.")
-    } finally {
-      setIsLoading(false)
-    }
+    setError("This feature is temporarily disabled for static sites.");
+    setIsLoading(false);
+    // try {
+    //   const result = await personalizedRecommendations({
+    //     purchaseHistory: values.purchaseHistory,
+    //     productCatalog: getProductCatalogForAI(),
+    //   })
+    //   setRecommendations(result.recommendations)
+    // } catch (e) {
+    //   setError("Sorry, we couldn't generate recommendations at this time. Please try again later.")
+    // } finally {
+    //   setIsLoading(false)
+    // }
   }
 
   return (
@@ -81,7 +82,7 @@ export function Recommendations() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isLoading} className="bg-primary hover:bg-primary/90">
+            <Button type="submit" disabled={true} className="bg-primary hover:bg-primary/90">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
