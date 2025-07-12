@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/personalized-recommendations.ts';
-import '@/ai/flows/generate-image-flow.ts';
-import '@/ai/flows/support-chat-flow.ts';
+// This file is used for local development of Genkit flows.
+// It is not included in the production build.
+import './flows';
