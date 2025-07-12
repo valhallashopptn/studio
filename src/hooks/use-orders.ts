@@ -5,7 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Order, OrderStatus, User } from '@/lib/types';
 import { useStock } from '@/hooks/use-stock';
-import { useCategoriesStore } from '@/hooks/use-categories';
+import { useCategories } from '@/hooks/use-categories';
 import { useAuth } from './use-auth';
 import { USD_TO_VALHALLA_COIN_RATE } from '@/lib/ranks';
 import { useUserDatabase } from './use-user-database';
@@ -105,7 +105,7 @@ export const useOrders = create(
                         
                         // --- DELIVERY LOGIC ---
                         const { deliverStockForOrder } = useStock.getState();
-                        const { categories } = useCategoriesStore.getState();
+                        const { categories } = useCategories.getState();
                         const categoryMap = new Map(categories.map(c => [c.name, c]));
                         const allDeliveredItems: Order['deliveredItems'] = { ...(manualDeliveredItems || {}) };
                         

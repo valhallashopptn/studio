@@ -1,4 +1,3 @@
-
 import { products } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { AppHeader } from '@/components/app-header';
