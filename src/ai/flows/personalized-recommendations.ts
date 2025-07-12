@@ -1,5 +1,4 @@
 // src/ai/flows/personalized-recommendations.ts
-'use server';
 
 /**
  * @fileOverview A personalized product recommendation AI agent.

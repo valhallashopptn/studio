@@ -1,4 +1,3 @@
-'use server';
 /**
  * @fileOverview An image generation AI agent.
  *

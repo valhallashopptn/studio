@@ -1,4 +1,3 @@
-'use server';
 /**
  * @fileOverview A conversational support AI agent.
  *
