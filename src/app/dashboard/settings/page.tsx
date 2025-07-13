@@ -67,11 +67,11 @@ const nameStyles = [
 ];
 
 export default function SettingsPage() {
-    const { user, updateUser, changePassword, updateAvatar, updateNameStyle, isPremium, subscribeToPremium, cancelSubscription, updateWalletBalance, updateTotalSpent } = useAuth();
+    const { user, updateUser, changePassword, updateAvatar, isPremium, updateWalletBalance, updateTotalSpent } = useAuth();
+    const { users: allUsers, cancelSubscription, subscribeToPremium, updateNameStyle } = useUserDatabase();
     const { toast } = useToast();
     const { t } = useTranslation();
     const { formatPrice } = useCurrency();
-    const { users: allUsers } = useUserDatabase();
     const [isMounted, setIsMounted] = useState(false);
     const { theme, setTheme } = useTheme();
 
