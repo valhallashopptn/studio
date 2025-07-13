@@ -22,6 +22,7 @@ type UserDatabaseState = {
   updateAdminPermissions: (userId: string, permissions: AdminPermissions) => void;
   subscribeToPremium: (userId: string, months?: number) => void;
   cancelSubscription: (userId: string) => void;
+  updateNameStyle: (userId: string, style: string) => void;
 };
 
 export const useUserDatabase = create(
@@ -90,6 +91,8 @@ export const useUserDatabase = create(
       subscribeToPremium: (userId, months = 1) => {
         const currentUser = get().findUserById(userId);
         if (!currentUser) return;
+
+        const wasSubscribedBefore = currentUser.premium?.subscribedAt;
         
         const now = new Date();
         const currentSubEnd = (currentUser.premium && new Date(currentUser.premium.expiresAt) > now) 
@@ -104,7 +107,14 @@ export const useUserDatabase = create(
           expiresAt: expiresAt.toISOString(),
         };
 
-        get().updateUser(userId, { premium: premiumData });
+        const updates: Partial<User> = { premium: premiumData };
+
+        // Add 500 bonus coins if it's their very first time subscribing
+        if (!wasSubscribedBefore) {
+          updates.valhallaCoins = (currentUser.valhallaCoins || 0) + 500;
+        }
+
+        get().updateUser(userId, updates);
       },
       cancelSubscription: (userId) => {
         const currentUser = get().findUserById(userId);
@@ -112,6 +122,10 @@ export const useUserDatabase = create(
 
         const updatedPremiumData = { ...currentUser.premium, status: 'cancelled' as const };
         get().updateUser(userId, { premium: updatedPremiumData });
+      },
+      updateNameStyle: (userId, style) => {
+         const { updateUser } = get();
+         updateUser(userId, { nameStyle: style });
       },
     }),
     {

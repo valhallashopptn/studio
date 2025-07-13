@@ -93,13 +93,15 @@ export const useOrders = create(
                         const xpMultiplier = isPremium ? 1.5 : 1.0;
                         
                         // Amount paid with cash/wallet after all discounts and coin redemptions
-                        const cashSpent = (orderToUpdate.total + (orderToUpdate.discountAmount || 0)) - (orderToUpdate.valhallaCoinsValue || 0);
+                        const cashSpent = orderToUpdate.total - (orderToUpdate.valhallaCoinsValue || 0);
 
                         // Grant XP and Valhalla coins based on cash spent
                         if (cashSpent > 0) {
                             updateTotalSpent(orderToUpdate.customer.id, cashSpent * xpMultiplier);
                             const coinsToAward = Math.floor(cashSpent * USD_TO_VALHALLA_COIN_RATE);
-                            updateValhallaCoins(orderToUpdate.customer.id, coinsToAward);
+                            if (coinsToAward > 0) {
+                                updateValhallaCoins(orderToUpdate.customer.id, coinsToAward);
+                            }
                         }
                         
                         // --- DELIVERY LOGIC ---
