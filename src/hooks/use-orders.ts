@@ -2,152 +2,187 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { Order, OrderStatus, User } from '@/lib/types';
 import { useStock } from '@/hooks/use-stock';
 import { useCategories } from '@/hooks/use-categories';
-import { useAuth } from './use-auth';
-import { USD_TO_VALHALLA_COIN_RATE } from '@/lib/ranks';
 import { useUserDatabase } from './use-user-database';
+import { USD_TO_VALHALLA_COIN_RATE } from '@/lib/ranks';
+import { createClient } from '@/lib/supabaseClient';
+import { useEffect } from 'react';
+import { useAuth } from './use-auth';
 
 type OrdersState = {
     orders: Order[];
-    addOrder: (order: Omit<Order, 'createdAt'>) => void;
-    updateOrderStatus: (orderId: string, status: OrderStatus, reason?: string, deliveredItems?: Record<string, string[]>) => void;
-    markOrderAsReviewPrompted: (orderIds: string[]) => void;
-    updateDeliveredItems: (orderId: string, deliveredItems: Record<string, string[]>) => void;
+    isLoading: boolean;
+    fetchOrders: () => Promise<void>;
+    addOrder: (order: Omit<Order, 'id' | 'createdAt' | 'customer' | 'reviewPrompted'>) => Promise<Order>;
+    updateOrderStatus: (orderId: string, status: OrderStatus, reason?: string, deliveredItems?: Record<string, string[]>) => Promise<void>;
+    markOrderAsReviewPrompted: (orderIds: string[]) => Promise<void>;
+    updateDeliveredItems: (orderId: string, deliveredItems: Record<string, string[]>) => Promise<void>;
 };
 
-export const useOrders = create(
-    persist<OrdersState>(
-        (set, get) => ({
-            orders: [],
-            addOrder: (newOrderData) => {
-                const newOrder: Order = {
-                    ...newOrderData,
-                    createdAt: new Date().toISOString(),
-                    reviewPrompted: false,
-                };
-                
-                // Deduct any used Valhalla Coins immediately on order creation
-                if (newOrder.customer.id && newOrder.valhallaCoinsApplied && newOrder.valhallaCoinsApplied > 0) {
-                    useAuth.getState().updateValhallaCoins(newOrder.customer.id, -newOrder.valhallaCoinsApplied);
-                }
+export const useOrders = create<OrdersState>((set, get) => ({
+    orders: [],
+    isLoading: true,
+    fetchOrders: async () => {
+        const supabase = createClient();
+        const { findUserById } = useUserDatabase.getState();
+        set({ isLoading: true });
 
-                set((state) => ({ orders: [newOrder, ...state.orders] }));
-            },
-            updateOrderStatus: (orderId, status, reason, manualDeliveredItems) => {
-                set((state) => {
-                    const orderIndex = state.orders.findIndex((o) => o.id === orderId);
-                    if (orderIndex === -1) return state;
-
-                    const orders = [...state.orders];
-                    const orderToUpdate = { ...orders[orderIndex] };
-                    const previousStatus = orderToUpdate.status;
-
-                    // Prevent redundant updates
-                    if (previousStatus === status) return state;
-
-                    // Process refund logic
-                    if (status === 'refunded' && previousStatus !== 'refunded') {
-                        // Refund wallet balance if applicable
-                        if (orderToUpdate.paymentMethod.id === 'store_wallet') {
-                            useAuth.getState().updateWalletBalance(orderToUpdate.customer.id, orderToUpdate.total);
-                        }
-                        // Refund used Valhalla Coins
-                        if (orderToUpdate.valhallaCoinsApplied && orderToUpdate.valhallaCoinsApplied > 0) {
-                            useAuth.getState().updateValhallaCoins(orderToUpdate.customer.id, orderToUpdate.valhallaCoinsApplied);
-                        }
-                        
-                        // Deduct XP and Coins earned from this purchase if it was completed
-                        if(previousStatus === 'completed') {
-                            const { findUserById } = useUserDatabase.getState();
-                            const user = findUserById(orderToUpdate.customer.id);
-                            const isPremium = !!(user?.premium && user.premium.status === 'active' && new Date(user.premium.expiresAt) > new Date());
-                            const xpMultiplier = isPremium ? 1.5 : 1.0;
-                            
-                            const cashSpent = (orderToUpdate.total + (orderToUpdate.discountAmount ?? 0)) - (orderToUpdate.valhallaCoinsValue ?? 0);
-                            useAuth.getState().updateTotalSpent(orderToUpdate.customer.id, -(cashSpent * xpMultiplier));
-                            const coinsEarned = Math.floor(cashSpent * USD_TO_VALHALLA_COIN_RATE);
-                            useAuth.getState().updateValhallaCoins(orderToUpdate.customer.id, -coinsEarned);
-                        }
-
-                        orderToUpdate.refundReason = reason;
-                        orderToUpdate.refundedAt = new Date().toISOString();
-                    }
-
-                    // Process completion logic - only if moving from a non-completed state
-                    if (status === 'completed' && previousStatus !== 'completed') {
-                        const { updateTotalSpent, updateValhallaCoins } = useAuth.getState();
-                        const { findUserById, subscribeToPremium } = useUserDatabase.getState();
-                        
-                        // Check for premium subscription item in the order
-                        const premiumItem = orderToUpdate.items.find(item => item.productId === 'premium-membership-product');
-                        if (premiumItem) {
-                            subscribeToPremium(orderToUpdate.customer.id, premiumItem.quantity);
-                        }
-                        
-                        // We need the user's LATEST status to check for premium boost.
-                        const user = findUserById(orderToUpdate.customer.id);
-                        const isPremium = !!(user?.premium && user.premium.status === 'active' && new Date(user.premium.expiresAt) > new Date());
-                        const xpMultiplier = isPremium ? 1.5 : 1.0;
-                        
-                        // Amount paid with cash/wallet after all discounts and coin redemptions
-                        const cashSpent = orderToUpdate.total - (orderToUpdate.valhallaCoinsValue || 0);
-
-                        // Grant XP and Valhalla coins based on cash spent
-                        if (cashSpent > 0) {
-                            updateTotalSpent(orderToUpdate.customer.id, cashSpent * xpMultiplier);
-                            const coinsToAward = Math.floor(cashSpent * USD_TO_VALHALLA_COIN_RATE);
-                            if (coinsToAward > 0) {
-                                updateValhallaCoins(orderToUpdate.customer.id, coinsToAward);
-                            }
-                        }
-                        
-                        // --- DELIVERY LOGIC ---
-                        const { deliverStockForOrder } = useStock.getState();
-                        const { categories } = useCategories.getState();
-                        const categoryMap = new Map(categories.map(c => [c.name, c]));
-                        const allDeliveredItems: Order['deliveredItems'] = { ...(manualDeliveredItems || {}) };
-                        
-                        for (const item of orderToUpdate.items) {
-                            const category = categoryMap.get(item.category);
-                            if (category?.deliveryMethod === 'instant') {
-                                const deliveredCodes = deliverStockForOrder(item.productId, item.quantity);
-                                if (deliveredCodes.length > 0) {
-                                    allDeliveredItems[item.id] = deliveredCodes;
-                                }
-                            }
-                        }
-                        orderToUpdate.deliveredItems = allDeliveredItems;
-                    }
-
-                    orderToUpdate.status = status;
-                    orders[orderIndex] = orderToUpdate;
-                    
-                    return { orders };
-                });
-            },
-            markOrderAsReviewPrompted: (orderIds: string[]) => {
-                const orderIdSet = new Set(orderIds);
-                set((state) => ({
-                    orders: state.orders.map(order => 
-                        orderIdSet.has(order.id)
-                        ? { ...order, reviewPrompted: true }
-                        : order
-                    )
-                }));
-            },
-            updateDeliveredItems: (orderId, deliveredItems) => {
-                set((state) => ({
-                    orders: state.orders.map(order =>
-                        order.id === orderId ? { ...order, deliveredItems } : order
-                    )
-                }));
-            },
-        }),
-        {
-            name: 'topup-hub-orders',
+        const { data, error } = await supabase
+            .from('orders')
+            .select('*')
+            .order('createdAt', { ascending: false });
+        
+        if (error) {
+            console.error("Error fetching orders:", error);
+            set({ orders: [], isLoading: false });
+            return;
         }
-    )
-);
+
+        const enrichedOrders = data.map(order => {
+            const customer = findUserById(order.customerId);
+            return { ...order, customer };
+        }).filter(order => order.customer); // Filter out orders where customer couldn't be found
+
+        set({ orders: enrichedOrders as Order[], isLoading: false });
+    },
+    addOrder: async (newOrderData) => {
+        const supabase = createClient();
+        const { user: authUser } = useAuth.getState();
+        if (!authUser) throw new Error("User not authenticated");
+
+        const { data, error } = await supabase
+            .from('orders')
+            .insert([{ ...newOrderData, customerId: authUser.id }])
+            .select()
+            .single();
+        
+        if (error) {
+            console.error("Error adding order:", error);
+            throw error;
+        }
+
+        const newOrder: Order = { ...data, customer: authUser };
+        
+        if (newOrder.valhallaCoinsApplied && newOrder.valhallaCoinsApplied > 0) {
+            const { updateUser } = useUserDatabase.getState();
+            await updateUser(authUser.id, { valhallaCoins: authUser.valhallaCoins - newOrder.valhallaCoinsApplied });
+        }
+
+        set((state) => ({ orders: [newOrder, ...state.orders] }));
+        return newOrder;
+    },
+    updateOrderStatus: async (orderId, status, reason, manualDeliveredItems) => {
+        const { orders } = get();
+        const orderToUpdate = orders.find((o) => o.id === orderId);
+        if (!orderToUpdate || orderToUpdate.status === status) return;
+
+        const supabase = createClient();
+        const { updateUser } = useUserDatabase.getState();
+        const { user: customer } = orderToUpdate;
+
+        const updates: Partial<Order> = { status };
+        
+        if (status === 'refunded') {
+            updates.refundReason = reason;
+            updates.refundedAt = new Date().toISOString();
+        }
+
+        if (status === 'completed' && orderToUpdate.status !== 'completed') {
+            const { deliverStockForOrder } = useStock.getState();
+            const { categories } = useCategories.getState();
+            const categoryMap = new Map(categories.map(c => [c.name, c]));
+            const allDeliveredItems: Order['deliveredItems'] = { ...(manualDeliveredItems || {}) };
+            
+            for (const item of orderToUpdate.items) {
+                const category = categoryMap.get(item.category);
+                if (category?.deliveryMethod === 'instant') {
+                    const deliveredCodes = await deliverStockForOrder(item.productId, item.quantity);
+                    if (deliveredCodes.length > 0) {
+                        allDeliveredItems[item.id] = deliveredCodes;
+                    }
+                }
+            }
+            updates.deliveredItems = allDeliveredItems;
+        }
+
+        const { error } = await supabase.from('orders').update(updates).eq('id', orderId);
+        if (error) {
+            console.error('Error updating order status:', error);
+            return;
+        }
+        
+        // Handle side effects after successful DB update
+        if (status === 'refunded') {
+            if (orderToUpdate.paymentMethod.id === 'store_wallet') {
+                await updateUser(customer.id, { walletBalance: customer.walletBalance + orderToUpdate.total });
+            }
+            if (orderToUpdate.valhallaCoinsApplied && orderToUpdate.valhallaCoinsApplied > 0) {
+                await updateUser(customer.id, { valhallaCoins: customer.valhallaCoins + orderToUpdate.valhallaCoinsApplied });
+            }
+            // TODO: Deduct XP and earned coins if it was previously completed
+        }
+
+        if (status === 'completed' && orderToUpdate.status !== 'completed') {
+            const { subscribeToPremium } = useUserDatabase.getState();
+            const premiumItem = orderToUpdate.items.find(item => item.productId === 'premium-membership-product');
+            if (premiumItem) {
+                await subscribeToPremium(customer.id, premiumItem.quantity);
+            }
+            
+            const freshCustomer = useUserDatabase.getState().findUserById(customer.id);
+            const isPremium = !!(freshCustomer?.premium && new Date(freshCustomer.premium.expiresAt) > new Date());
+            const xpMultiplier = isPremium ? 1.5 : 1.0;
+            const cashSpent = orderToUpdate.total - (orderToUpdate.valhallaCoinsValue || 0);
+
+            if (cashSpent > 0) {
+                await updateUser(customer.id, { totalSpent: customer.totalSpent + (cashSpent * xpMultiplier) });
+                const coinsToAward = Math.floor(cashSpent * USD_TO_VALHALLA_COIN_RATE);
+                if (coinsToAward > 0) {
+                    await updateUser(customer.id, { valhallaCoins: customer.valhallaCoins + coinsToAward });
+                }
+            }
+        }
+        
+        // Refetch to ensure local state is consistent
+        get().fetchOrders();
+    },
+    markOrderAsReviewPrompted: async (orderIds: string[]) => {
+        const supabase = createClient();
+        const { error } = await supabase.from('orders').update({ reviewPrompted: true }).in('id', orderIds);
+        if (error) console.error("Error marking orders as prompted:", error);
+        else {
+            set((state) => ({
+                orders: state.orders.map(order =>
+                    orderIds.includes(order.id)
+                    ? { ...order, reviewPrompted: true }
+                    : order
+                )
+            }));
+        }
+    },
+    updateDeliveredItems: async (orderId, deliveredItems) => {
+        const supabase = createClient();
+        const { error } = await supabase.from('orders').update({ deliveredItems }).eq('id', orderId);
+        if (error) console.error("Error updating delivered items:", error);
+        else {
+            set((state) => ({
+                orders: state.orders.map(order =>
+                    order.id === orderId ? { ...order, deliveredItems } : order
+                )
+            }));
+        }
+    },
+}));
+
+export function OrdersInitializer() {
+    const { isInitialized } = useUserDatabase.getState();
+    useEffect(() => {
+        if (isInitialized) {
+            useOrders.getState().fetchOrders();
+        }
+    }, [isInitialized]);
+    
+    return null;
+}

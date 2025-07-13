@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import type React from 'react';
 import { useStock } from '@/hooks/use-stock';
-import { products as initialProducts } from '@/lib/data';
+import { useProducts } from '@/hooks/use-products';
 import { useCategories } from '@/hooks/use-categories';
 import type { Product, StockItem } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -27,9 +27,9 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 export default function AdminStockPage() {
-  const { stock, getAvailableStockCount, getStockForProduct, addStockItems, deleteStockItem } = useStock();
-  const { categories } = useCategories();
-  const [isMounted, setIsMounted] = useState(false);
+  const { stock, getAvailableStockCount, getStockForProduct, addStockItems, deleteStockItem, isLoading: isLoadingStock } = useStock();
+  const { products, isLoading: isLoadingProducts } = useProducts();
+  const { categories, isLoading: isLoadingCategories } = useCategories();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [newStockData, setNewStockData] = useState('');
@@ -37,17 +37,13 @@ export default function AdminStockPage() {
 
   const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   const handleManageStock = (product: Product) => {
     setSelectedProduct(product);
     setNewStockData('');
     setIsDialogOpen(true);
   };
   
-  const handleAddStock = () => {
+  const handleAddStock = async () => {
     if (!selectedProduct || !newStockData.trim()) {
         toast({
             variant: "destructive",
@@ -59,7 +55,7 @@ export default function AdminStockPage() {
     
     const dataArray = newStockData.split('\n').filter(line => line.trim() !== '');
 
-    addStockItems(selectedProduct.id, dataArray);
+    await addStockItems(selectedProduct.id, dataArray);
     
     toast({
         title: "Stock Added",
@@ -69,16 +65,12 @@ export default function AdminStockPage() {
     setNewStockData('');
   };
 
-  const handleDeleteStockItem = (itemId: string) => {
-    deleteStockItem(itemId);
+  const handleDeleteStockItem = async (itemId: string) => {
+    await deleteStockItem(itemId);
     toast({ title: "Stock Item Deleted" });
   };
 
   const productStock = selectedProduct ? getStockForProduct(selectedProduct.id) : [];
-
-  if (!isMounted) {
-    return null;
-  }
 
   return (
     <div className="space-y-8">
@@ -117,7 +109,7 @@ export default function AdminStockPage() {
             </div>
             <div className="space-y-4">
                <Card>
-                    <CardHeader><CardTitle>Existing Stock ({productStock.length})</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>Existing Stock ({isLoadingStock ? '...' : productStock.length})</CardTitle></CardHeader>
                     <CardContent>
                         <div className="max-h-96 overflow-y-auto">
                             <Table>
@@ -130,7 +122,9 @@ export default function AdminStockPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {productStock.length > 0 ? productStock.map(item => (
+                                    {isLoadingStock ? (
+                                        <TableRow><TableCell colSpan={4} className="text-center">Loading stock...</TableCell></TableRow>
+                                    ) : productStock.length > 0 ? productStock.map(item => (
                                         <TableRow key={item.id}>
                                             <TableCell className="font-mono text-xs">
                                                 {item.data}
@@ -187,7 +181,9 @@ export default function AdminStockPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {initialProducts.map((product) => {
+              {isLoadingProducts || isLoadingCategories ? (
+                <TableRow><TableCell colSpan={5} className="text-center h-24">Loading product data...</TableCell></TableRow>
+              ) : products.map((product) => {
                 const category = categoryMap.get(product.category);
                 const deliveryMethod = category?.deliveryMethod || 'manual';
 
@@ -201,7 +197,7 @@ export default function AdminStockPage() {
                         </Badge>
                     </TableCell>
                     <TableCell className="font-semibold">
-                      {deliveryMethod === 'instant' ? getAvailableStockCount(product.id) : 'N/A'}
+                      {deliveryMethod === 'instant' ? (isLoadingStock ? '...' : getAvailableStockCount(product.id)) : 'N/A'}
                     </TableCell>
                     <TableCell className="text-right">
                       {deliveryMethod === 'instant' && (

@@ -33,7 +33,7 @@ import { Progress } from './ui/progress';
 
 import { useOrders } from '@/hooks/use-orders';
 import { useReviews } from '@/hooks/use-reviews';
-import { products } from '@/lib/data';
+import { useProducts } from '@/hooks/use-products';
 import type { Order, Product } from '@/lib/types';
 import {
   AlertDialog,
@@ -60,6 +60,7 @@ import { Badge } from './ui/badge';
 
 export function AppHeader() {
   const [isMounted, setIsMounted] = useState(false);
+  const { products } = useProducts();
   
   const [isSheetOpen, setSheetOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);

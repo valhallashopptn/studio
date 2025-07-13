@@ -10,6 +10,13 @@ import { useTranslation } from '@/hooks/use-translation';
 import { LiveChatSupport } from '@/components/live-chat-support';
 import { Snowfall } from '@/components/snowfall';
 import { AuthInitializer } from '@/hooks/use-auth';
+import { UserDatabaseInitializer } from '@/hooks/use-user-database';
+import { CategoriesInitializer } from '@/hooks/use-categories';
+import { ProductsInitializer } from '@/hooks/use-products';
+import { ReviewsInitializer } from '@/hooks/use-reviews';
+import { OrdersInitializer } from '@/hooks/use-orders';
+import { CouponsInitializer } from '@/hooks/use-coupons';
+import { StockInitializer } from '@/hooks/use-stock';
 
 export default function RootLayout({
   children,
@@ -37,6 +44,13 @@ export default function RootLayout({
       </head>
       <body>
         <AuthInitializer />
+        <UserDatabaseInitializer />
+        <CategoriesInitializer />
+        <ProductsInitializer />
+        <ReviewsInitializer />
+        <OrdersInitializer />
+        <CouponsInitializer />
+        <StockInitializer />
         {isWinterTheme && <Snowfall />}
         {children}
         <Toaster />

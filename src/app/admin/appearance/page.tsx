@@ -5,7 +5,7 @@ import { useTheme, type ThemeName } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { CheckCircle, Flame, Facebook, Instagram, Send } from 'lucide-react';
+import { CheckCircle, Flame, Facebook, Instagram, Send, Loader2 } from 'lucide-react';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,8 @@ import Image from 'next/image';
 import { useContentSettings } from '@/hooks/use-content-settings';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Form, FormControl, FormItem } from '@/components/ui/form';
+import { createClient } from '@/lib/supabaseClient';
+import { useToast } from '@/hooks/use-toast';
 
 const themes: { name: ThemeName; label: string; primary: string; accent: string; bg: string, font: string }[] = [
   { name: 'violet-fusion', label: 'Violet Fusion', primary: 'bg-[#7c3aed]', accent: 'bg-[#22d3ee]', bg: 'bg-[#0f172a]', font: 'font-sans' },
@@ -43,7 +44,10 @@ const TiktokIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function AdminAppearancePage() {
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
   const { heroImageUrl, setHeroImageUrl, logoUrl, setLogoUrl, siteTitle, setSiteTitle } = useSiteSettings();
+  const [isUploading, setIsUploading] = React.useState<string | null>(null);
+
   const {
     aboutSubtitle, setAboutSubtitle,
     aboutStoryTitle, setAboutStoryTitle,
@@ -72,47 +76,30 @@ export default function AdminAppearancePage() {
     tiktokIconUrl, setTiktokIconUrl,
     telegramIconUrl, setTelegramIconUrl,
   } = useContentSettings();
+  
+  const uploadFile = async (file: File, setter: (url: string) => void, fieldName: string) => {
+    setIsUploading(fieldName);
+    const supabase = createClient();
+    const filePath = `public/${fieldName}-${Date.now()}-${file.name}`;
+    
+    const { error } = await supabase.storage.from('topup-hub-public').upload(filePath, file);
 
-
-  const handleHeroFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          setHeroImageUrl(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+    if (error) {
+        toast({ variant: "destructive", title: "Upload failed", description: error.message });
+        setIsUploading(null);
+        return;
     }
-  };
 
-  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { data } = supabase.storage.from('topup-hub-public').getPublicUrl(filePath);
+    setter(data.publicUrl);
+    setIsUploading(null);
+    toast({ title: "Image uploaded successfully!" });
+  };
+  
+  const handleFileChange = (setter: (url: string) => void, fieldName: string) => async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          setLogoUrl(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSocialIconChange = (
-    setter: (url: string) => void,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          setter(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+      await uploadFile(file, setter, fieldName);
     }
   };
 
@@ -173,7 +160,7 @@ export default function AdminAppearancePage() {
             <Label>Preview</Label>
             <div className="flex items-center gap-2 p-4 rounded-md border bg-muted/30 w-fit">
               {logoUrl ? (
-                 <Image src={logoUrl} alt="Logo preview" width={40} height={40} className="rounded-sm" unoptimized={logoUrl.startsWith('data:image')} />
+                 <Image src={logoUrl} alt="Logo preview" width={40} height={40} className="rounded-sm" unoptimized />
               ) : (
                 <Flame className="h-10 w-10 text-primary" />
               )}
@@ -190,24 +177,17 @@ export default function AdminAppearancePage() {
                 />
             </div>
 
-          <div className="relative"><div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div><div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Logo</span></div></div>
-          
           <div className="space-y-2">
-            <Label htmlFor="logo-image-url">Logo Image URL (Recommended size: 40x40px)</Label>
-            <Input
-              id="logo-image-url"
-              value={logoUrl.startsWith('data:image') ? '' : logoUrl}
-              onChange={(e) => setLogoUrl(e.target.value)}
-              placeholder="https://example.com/your-logo.png"
+            <Label htmlFor="logo-image-upload">Upload Logo (40x40px recommended)</Label>
+            <Input 
+                id="logo-image-upload" 
+                type="file" 
+                accept="image/*" 
+                onChange={handleFileChange(setLogoUrl, 'logo')} 
+                className="file:text-primary file:font-semibold"
+                disabled={isUploading === 'logo'}
             />
-          </div>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or</span></div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="logo-image-upload">Upload Logo</Label>
-            <Input id="logo-image-upload" type="file" accept="image/*" onChange={handleLogoFileChange} className="file:text-primary file:font-semibold" />
+            {isUploading === 'logo' && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>
         </CardContent>
       </Card>
@@ -221,41 +201,16 @@ export default function AdminAppearancePage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="hero-image-url">Background Image URL (Recommended)</Label>
-            <Input
-              id="hero-image-url"
-              value={heroImageUrl.startsWith('data:image') ? '' : heroImageUrl}
-              onChange={(e) => setHeroImageUrl(e.target.value)}
-              placeholder="https://example.com/your-image.png"
-            />
-            <p className="text-sm text-muted-foreground">
-              For best performance, upload your image to a hosting service and paste the URL here.
-            </p>
-          </div>
-          
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                Or
-                </span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="hero-image-upload">Upload an Image</Label>
             <Input
               id="hero-image-upload"
               type="file"
               accept="image/*"
-              onChange={handleHeroFileChange}
+              onChange={handleFileChange(setHeroImageUrl, 'hero-image')}
               className="file:text-primary file:font-semibold"
+              disabled={isUploading === 'hero-image'}
             />
-            <p className="text-sm text-muted-foreground">
-              Images are stored in your browser which can impact performance.
-            </p>
+            {isUploading === 'hero-image' && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>
         </CardContent>
       </Card>
@@ -389,7 +344,7 @@ export default function AdminAppearancePage() {
                 </div>
                 <div className="space-y-1">
                     <Label htmlFor="facebook-icon-upload" className="text-xs">Custom Icon</Label>
-                    <Input id="facebook-icon-upload" type="file" accept="image/*" onChange={(e) => handleSocialIconChange(setFacebookIconUrl, e)} className="file:text-primary file:font-semibold" />
+                    <Input id="facebook-icon-upload" type="file" accept="image/*" onChange={handleFileChange(setFacebookIconUrl, 'social-facebook')} className="file:text-primary file:font-semibold" />
                 </div>
             </div>
             <div className="space-y-4 p-4 border rounded-lg">
@@ -403,7 +358,7 @@ export default function AdminAppearancePage() {
                 </div>
                 <div className="space-y-1">
                     <Label htmlFor="instagram-icon-upload" className="text-xs">Custom Icon</Label>
-                    <Input id="instagram-icon-upload" type="file" accept="image/*" onChange={(e) => handleSocialIconChange(setInstagramIconUrl, e)} className="file:text-primary file:font-semibold" />
+                    <Input id="instagram-icon-upload" type="file" accept="image/*" onChange={handleFileChange(setInstagramIconUrl, 'social-instagram')} className="file:text-primary file:font-semibold" />
                 </div>
             </div>
             <div className="space-y-4 p-4 border rounded-lg">
@@ -417,7 +372,7 @@ export default function AdminAppearancePage() {
                 </div>
                 <div className="space-y-1">
                     <Label htmlFor="discord-icon-upload" className="text-xs">Custom Icon</Label>
-                    <Input id="discord-icon-upload" type="file" accept="image/*" onChange={(e) => handleSocialIconChange(setDiscordIconUrl, e)} className="file:text-primary file:font-semibold" />
+                    <Input id="discord-icon-upload" type="file" accept="image/*" onChange={handleFileChange(setDiscordIconUrl, 'social-discord')} className="file:text-primary file:font-semibold" />
                 </div>
             </div>
             <div className="space-y-4 p-4 border rounded-lg">
@@ -431,7 +386,7 @@ export default function AdminAppearancePage() {
                 </div>
                 <div className="space-y-1">
                     <Label htmlFor="tiktok-icon-upload" className="text-xs">Custom Icon</Label>
-                    <Input id="tiktok-icon-upload" type="file" accept="image/*" onChange={(e) => handleSocialIconChange(setTiktokIconUrl, e)} className="file:text-primary file:font-semibold" />
+                    <Input id="tiktok-icon-upload" type="file" accept="image/*" onChange={handleFileChange(setTiktokIconUrl, 'social-tiktok')} className="file:text-primary file:font-semibold" />
                 </div>
             </div>
             <div className="space-y-4 p-4 border rounded-lg">
@@ -445,7 +400,7 @@ export default function AdminAppearancePage() {
                 </div>
                 <div className="space-y-1">
                     <Label htmlFor="telegram-icon-upload" className="text-xs">Custom Icon</Label>
-                    <Input id="telegram-icon-upload" type="file" accept="image/*" onChange={(e) => handleSocialIconChange(setTelegramIconUrl, e)} className="file:text-primary file:font-semibold" />
+                    <Input id="telegram-icon-upload" type="file" accept="image/*" onChange={handleFileChange(setTelegramIconUrl, 'social-telegram')} className="file:text-primary file:font-semibold" />
                 </div>
             </div>
         </CardContent>

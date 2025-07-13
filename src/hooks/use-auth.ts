@@ -16,18 +16,18 @@ type AuthState = {
   isInitialized: boolean;
   login: (credentials: Pick<User, 'email' | 'password'>) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<void>;
-  register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent' | 'valhallaCoins' | 'walletBalance' | 'premium'>) => Promise<{ success: boolean; message?: string }>;
-  updateUser: (userId: string, updates: Partial<Pick<User, 'name' | 'email'>>) => Promise<boolean>;
-  changePassword: (newPassword: string) => Promise<boolean>;
-  updateAvatar: (userId: string, avatarUrl: string) => Promise<void>;
-  updateWalletBalance: (userId: string, amount: number) => void;
-  updateTotalSpent: (userId: string, amount: number) => void;
-  updateValhallaCoins: (userId: string, amount: number) => void;
-  clearWarning: (userId: string) => void;
+  register: (userDetails: Omit<User, 'id' | 'isAdmin' | 'totalSpent' | 'valhallaCoins' | 'walletBalance' | 'premium' | 'isBanned' | 'bannedAt' | 'banReason' | 'warningMessage' | 'nameStyle'>) => Promise<{ success: boolean; message?: string }>;
+  updateUser: (updates: Partial<Pick<User, 'name' | 'email'>>) => Promise<boolean>;
+  changePassword: (newPassword: string) => Promise<{ error: any | null }>;
+  updateAvatar: (avatarUrl: string) => Promise<void>;
+  updateWalletBalance: (amount: number) => void;
+  updateTotalSpent: (amount: number) => void;
+  updateValhallaCoins: (amount: number) => void;
+  clearWarning: () => void;
   initializeAuth: (session: Session | null) => Promise<void>;
 };
 
-const useAuthStore = create<AuthState>((set) => ({
+const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
     isAuthenticated: false,
     isAdmin: false,
@@ -44,7 +44,7 @@ const useAuthStore = create<AuthState>((set) => ({
     logout: async () => {
         const supabase = createClient();
         await supabase.auth.signOut();
-        set({ user: null, isAuthenticated: false, isAdmin: false, isPremium: false });
+        // The onAuthStateChange listener will handle setting state to null.
     },
     register: async ({ name, email, password }) => {
         const supabase = createClient();
@@ -53,7 +53,7 @@ const useAuthStore = create<AuthState>((set) => ({
             password,
             options: {
                 data: {
-                    name,
+                    full_name: name,
                     avatar_url: 'https://placehold.co/100x100.png',
                 }
             }
@@ -89,60 +89,78 @@ const useAuthStore = create<AuthState>((set) => ({
 
         return { success: true };
     },
-    updateUser: async (userId, updates) => {
+    updateUser: async (updates) => {
+        const { user } = get();
+        if (!user) return false;
         const { updateUser } = useUserDatabase.getState();
-        return updateUser(userId, updates);
+        return updateUser(user.id, updates);
     },
     changePassword: async (newPassword) => {
         const supabase = createClient();
         const { error } = await supabase.auth.updateUser({ password: newPassword });
-        return !error;
+        return { error };
     },
-    updateAvatar: async (userId, avatarUrl) => {
+    updateAvatar: async (avatarUrl) => {
+        const { user } = get();
+        if (!user) return;
+        const supabase = createClient();
+        const { error } = await supabase.auth.updateUser({ data: { avatar_url: avatarUrl } });
+        if (error) console.error("Error updating avatar in auth:", error);
+        
         const { updateUser } = useUserDatabase.getState();
-        await updateUser(userId, { avatar: avatarUrl });
+        await updateUser(user.id, { avatar: avatarUrl });
     },
-    updateWalletBalance: (userId, amount) => {
-        const { findUserById, updateUser } = useUserDatabase.getState();
-        const userToUpdate = findUserById(userId);
-        if (userToUpdate) {
-            updateUser(userId, { walletBalance: userToUpdate.walletBalance + amount });
+    updateWalletBalance: (amount) => {
+        const { user } = get();
+        if (user) {
+            const { updateUser } = useUserDatabase.getState();
+            updateUser(user.id, { walletBalance: user.walletBalance + amount });
         }
     },
-    updateValhallaCoins: (userId, amount) => {
-        const { findUserById, updateUser } = useUserDatabase.getState();
-        const userToUpdate = findUserById(userId);
-        if (userToUpdate) {
-            updateUser(userId, { valhallaCoins: userToUpdate.valhallaCoins + amount });
+    updateValhallaCoins: (amount) => {
+        const { user } = get();
+        if (user) {
+            const { updateUser } = useUserDatabase.getState();
+            updateUser(user.id, { valhallaCoins: user.valhallaCoins + amount });
         }
     },
-    updateTotalSpent: (userId, amount) => {
-        const { findUserById, updateUser } = useUserDatabase.getState();
-        const userToUpdate = findUserById(userId);
-        if (userToUpdate) {
-            updateUser(userId, { totalSpent: userToUpdate.totalSpent + amount });
+    updateTotalSpent: (amount) => {
+        const { user } = get();
+        if (user) {
+            const { updateUser } = useUserDatabase.getState();
+            updateUser(user.id, { totalSpent: user.totalSpent + amount });
         }
     },
-    clearWarning: (userId) => {
-        const { updateUser } = useUserDatabase.getState();
-        updateUser(userId, { warningMessage: null });
+    clearWarning: () => {
+        const { user } = get();
+        if (user) {
+            const { updateUser } = useUserDatabase.getState();
+            updateUser(user.id, { warningMessage: null });
+        }
     },
     initializeAuth: async (session) => {
         if (session) {
-            const { findUserById } = useUserDatabase.getState();
-            let profile = findUserById(session.user.id);
-            if (!profile) {
-                // Wait a moment for db initialization
-                await new Promise(res => setTimeout(res, 500));
-                profile = findUserById(session.user.id);
+            const { findUserById, fetchInitialUsers, isInitialized } = useUserDatabase.getState();
+            
+            // Ensure the user database is loaded before trying to find a user
+            if (!isInitialized) {
+                await fetchInitialUsers();
             }
 
-            if (profile) {
-                 const isPremium = !!(profile.premium && new Date(profile.premium.expiresAt) > new Date());
-                 set({ user: profile, isAuthenticated: true, isAdmin: !!profile.isAdmin, isPremium, isInitialized: true });
-            } else {
-                 set({ user: null, isAuthenticated: false, isAdmin: false, isPremium: false, isInitialized: true });
+            let profile = findUserById(session.user.id);
+            if (!profile) {
+                // This can happen if the user record wasn't created yet or there's a sync issue.
+                // Log an error and sign the user out to prevent an inconsistent state.
+                console.error("Could not find user profile for session. Signing out.");
+                const supabase = createClient();
+                await supabase.auth.signOut();
+                set({ user: null, isAuthenticated: false, isAdmin: false, isPremium: false, isInitialized: true });
+                return;
             }
+
+            const isPremium = !!(profile.premium && new Date(profile.premium.expiresAt) > new Date());
+            set({ user: profile, isAuthenticated: true, isAdmin: !!profile.isAdmin, isPremium, isInitialized: true });
+
         } else {
             set({ user: null, isAuthenticated: false, isAdmin: false, isPremium: false, isInitialized: true });
         }
@@ -155,14 +173,14 @@ export function AuthInitializer() {
     useEffect(() => {
         const supabase = createClient();
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event: AuthChangeEvent, session: Session | null) => {
-                useAuth.getState().initializeAuth(session);
+            async (_event: AuthChangeEvent, session: Session | null) => {
+                await useAuth.getState().initializeAuth(session);
             }
         );
 
         // Initial check
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            useAuth.getState().initializeAuth(session);
+        supabase.auth.getSession().then(async ({ data: { session } }) => {
+            await useAuth.getState().initializeAuth(session);
         });
 
         return () => {

@@ -34,9 +34,9 @@ import { cn } from '@/lib/utils';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { products } from '@/lib/data'; // Import products to find details
 import { VALHALLA_COIN_USD_VALUE, formatCoins } from '@/lib/ranks';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useProducts } from '@/hooks/use-products';
 
 const icons: { [key: string]: React.ElementType } = {
   Landmark,
@@ -57,9 +57,10 @@ export default function CheckoutPage() {
     const router = useRouter();
     const { items, clearCart, updateCustomFieldValue, removeItem, checkoutItem } = useCart();
     const { paymentMethods } = usePaymentSettings();
+    const { products } = useProducts();
     const { categories } = useCategories();
     const { addOrder, updateOrderStatus } = useOrders();
-    const { user, isAuthenticated, updateWalletBalance, updateTotalSpent } = useAuth();
+    const { user, isAuthenticated, updateWalletBalance } = useAuth();
     const { validateCoupon, applyCoupon } = useCoupons();
 
     const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
@@ -105,7 +106,7 @@ export default function CheckoutPage() {
         setIsVerified(true);
     }, [isAuthenticated, items, router, toast, orderComplete]);
 
-    const productMap = useMemo(() => new Map(products.map(p => [p.id, p])), []);
+    const productMap = useMemo(() => new Map(products.map(p => [p.id, p])), [products]);
     const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
 
     const itemsWithCustomFields = useMemo(() => items.filter(item => {
@@ -137,8 +138,8 @@ export default function CheckoutPage() {
 
     const isWalletDisabled = !isAuthenticated || (user?.walletBalance ?? 0) < total;
 
-    const handleApplyCoupon = () => {
-        const { isValid, coupon, error } = validateCoupon(couponCode);
+    const handleApplyCoupon = async () => {
+        const { isValid, coupon, error } = await validateCoupon(couponCode);
         if (isValid && coupon) {
             let discount = 0;
             if (coupon.discountType === 'fixed') {
@@ -193,7 +194,7 @@ export default function CheckoutPage() {
         }
     };
 
-    const handleSubmitOrder = () => {
+    const handleSubmitOrder = async () => {
         setIsProcessing(true);
         // Basic validation
         for (const item of itemsWithCustomFields) {
@@ -221,49 +222,42 @@ export default function CheckoutPage() {
             return;
         }
 
-        // Simulate processing
-        setTimeout(() => {
-            if (selectedPayment.id === 'store_wallet') {
-                if (user && user.walletBalance >= total) {
-                    updateWalletBalance(user.id, -total);
-                } else {
-                    toast({ variant: "destructive", title: "Insufficient Balance", description: "Your wallet balance is too low to complete this purchase." });
-                    setIsProcessing(false);
-                    return;
-                }
+        if (selectedPayment.id === 'store_wallet') {
+            if (user && user.walletBalance >= total) {
+                await updateWalletBalance(-total);
+            } else {
+                toast({ variant: "destructive", title: "Insufficient Balance", description: "Your wallet balance is too low to complete this purchase." });
+                setIsProcessing(false);
+                return;
             }
-            
-            const newOrderId = `TUH-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-            setOrderId(newOrderId);
-            
-            const newOrder: Omit<Order, 'createdAt'> = {
-                id: newOrderId,
-                customer: user!,
-                items: items, // Pass the full cart items
-                total,
-                paymentMethod: selectedPayment,
-                paymentProofImage,
-                status: 'pending',
-                appliedCouponCode: appliedCoupon?.code,
-                discountAmount,
-                valhallaCoinsApplied: appliedCoins,
-                valhallaCoinsValue: appliedCoinsValue,
-            };
-            addOrder(newOrder);
+        }
+        
+        const newOrderData: Omit<Order, 'id' | 'createdAt'> = {
+            customerId: user!.id,
+            items: items, // Pass the full cart items
+            total,
+            paymentMethod: selectedPayment,
+            paymentProofImage,
+            status: 'pending',
+            appliedCouponCode: appliedCoupon?.code,
+            discountAmount,
+            valhallaCoinsApplied: appliedCoins,
+            valhallaCoinsValue: appliedCoinsValue,
+        };
+        const newOrder = await addOrder(newOrderData);
+        setOrderId(newOrder.id);
 
-            if (selectedPayment.id === 'store_wallet') {
-                updateOrderStatus(newOrderId, 'completed');
-            }
+        if (selectedPayment.id === 'store_wallet') {
+            await updateOrderStatus(newOrder.id, 'completed');
+        }
 
-            if (appliedCoupon) {
-                applyCoupon(appliedCoupon.code);
-            }
-            
-            setOrderComplete(true);
-
-            setConfirmOpen(true);
-            setIsProcessing(false);
-        }, 1000);
+        if (appliedCoupon) {
+            await applyCoupon(appliedCoupon.code);
+        }
+        
+        setOrderComplete(true);
+        setConfirmOpen(true);
+        setIsProcessing(false);
     };
 
     const handleConfirmationDialogChange = (isOpen: boolean) => {

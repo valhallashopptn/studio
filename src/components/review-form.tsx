@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useReviews } from '@/hooks/use-reviews';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { products as allProducts } from '@/lib/data';
+import { useProducts } from '@/hooks/use-products';
 import { Star } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -31,11 +31,12 @@ const reviewSchema = z.object({
 export function ReviewForm({ onReviewSubmitted, productsToReview }: { onReviewSubmitted: () => void, productsToReview?: Product[] }) {
   const { addReview } = useReviews();
   const { user, isAuthenticated } = useAuth();
+  const { products } = useProducts();
   const { toast } = useToast();
   const { t } = useTranslation();
   const [hoverRating, setHoverRating] = useState(0);
 
-  const productList = productsToReview && productsToReview.length > 0 ? productsToReview : allProducts;
+  const productList = productsToReview && productsToReview.length > 0 ? productsToReview : products;
 
   const form = useForm<z.infer<typeof reviewSchema>>({
     resolver: zodResolver(reviewSchema),
@@ -69,8 +70,17 @@ export function ReviewForm({ onReviewSubmitted, productsToReview }: { onReviewSu
     }
   };
 
-  function onSubmit(values: z.infer<typeof reviewSchema>) {
-    addReview(values);
+  async function onSubmit(values: z.infer<typeof reviewSchema>) {
+    if (!user) {
+        toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to leave a review." });
+        return;
+    }
+    
+    await addReview({
+        ...values,
+        avatar: user.avatar,
+    });
+    
     toast({
       title: t('reviewForm.submittedToast'),
       description: t('reviewForm.submittedToastDesc'),

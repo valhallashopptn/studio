@@ -2,70 +2,61 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { Coupon } from '@/lib/types';
 import { useOrders } from './use-orders';
 import { useAuth } from './use-auth';
+import { createClient } from '@/lib/supabaseClient';
+import { useEffect } from 'react';
 
 type CouponsState = {
   coupons: Coupon[];
-  addCoupon: (coupon: Omit<Coupon, 'id' | 'timesUsed'>) => string;
-  deleteCoupon: (couponId: string) => void;
-  validateCoupon: (code: string) => { isValid: boolean; error?: string; coupon?: Coupon };
-  applyCoupon: (code: string) => void;
+  isLoading: boolean;
+  fetchCoupons: () => Promise<void>;
+  addCoupon: (coupon: Omit<Coupon, 'id' | 'timesUsed'>) => Promise<string | null>;
+  deleteCoupon: (couponId: string) => Promise<void>;
+  validateCoupon: (code: string) => Promise<{ isValid: boolean; error?: string; coupon?: Coupon }>;
+  applyCoupon: (code: string) => Promise<void>;
 };
 
-const initialCoupons: Coupon[] = [
-    {
-        id: 'coupon_1',
-        code: 'WINTER10',
-        discountType: 'percentage',
-        value: 10,
-        expiresAt: new Date(new Date().getFullYear() + 1, 0, 1).toISOString(), // Jan 1st next year
-        usageLimit: 100,
-        timesUsed: 5,
-        firstPurchaseOnly: false,
-    },
-    {
-        id: 'coupon_2',
-        code: '5OFF',
-        discountType: 'fixed',
-        value: 5,
-        usageLimit: 50,
-        timesUsed: 10,
-        firstPurchaseOnly: false,
-    },
-    {
-        id: 'coupon_3',
-        code: 'WELCOME15',
-        discountType: 'percentage',
-        value: 15,
-        usageLimit: 500,
-        timesUsed: 0,
-        firstPurchaseOnly: true,
-    }
-];
-
-export const useCoupons = create(
-  persist<CouponsState>(
-    (set, get) => ({
-      coupons: initialCoupons,
-      addCoupon: (couponData) => {
-        const newCoupon: Coupon = {
-            id: `coupon_${Date.now()}`,
-            timesUsed: 0,
-            firstPurchaseOnly: false,
-            ...couponData,
-        };
-        set((state) => ({ coupons: [...state.coupons, newCoupon] }));
-        return newCoupon.code;
+export const useCoupons = create<CouponsState>((set, get) => ({
+      coupons: [],
+      isLoading: true,
+      fetchCoupons: async () => {
+        const supabase = createClient();
+        set({ isLoading: true });
+        const { data, error } = await supabase.from('coupons').select('*');
+        if (error) {
+            console.error("Error fetching coupons:", error);
+            set({ coupons: [], isLoading: false });
+        } else {
+            set({ coupons: data, isLoading: false });
+        }
       },
-      deleteCoupon: (couponId) => {
-        set((state) => ({
-            coupons: state.coupons.filter(c => c.id !== couponId)
-        }));
+      addCoupon: async (couponData) => {
+        const supabase = createClient();
+        const { data, error } = await supabase.from('coupons').insert([{ ...couponData, timesUsed: 0 }]).select();
+        if (error) {
+            console.error("Error adding coupon:", error);
+            return null;
+        } else if (data) {
+            set((state) => ({ coupons: [...state.coupons, data[0]] }));
+            return data[0].code;
+        }
+        return null;
       },
-      validateCoupon: (code) => {
+      deleteCoupon: async (couponId) => {
+        const supabase = createClient();
+        const { error } = await supabase.from('coupons').delete().eq('id', couponId);
+         if (error) {
+            console.error("Error deleting coupon:", error);
+        } else {
+            set((state) => ({
+                coupons: state.coupons.filter(c => c.id !== couponId)
+            }));
+        }
+      },
+      validateCoupon: async (code) => {
+        // Since coupons are public, we can just check the local state
         const coupon = get().coupons.find(c => c.code.toUpperCase() === code.toUpperCase());
 
         if (!coupon) {
@@ -79,8 +70,12 @@ export const useCoupons = create(
         }
         if (coupon.firstPurchaseOnly) {
             const { user } = useAuth.getState();
+            if (!user) {
+                return { isValid: false, error: 'You must be logged in to use this coupon.' };
+            }
+            // This is a simplification. A real implementation would query the orders table.
             const { orders } = useOrders.getState();
-            const isFirstPurchase = !orders.some(o => o.customer.id === user?.id);
+            const isFirstPurchase = !orders.some(o => o.customer.id === user.id);
             if (!isFirstPurchase) {
               return { isValid: false, error: 'This coupon is for first-time customers only.'};
             }
@@ -88,18 +83,34 @@ export const useCoupons = create(
 
         return { isValid: true, coupon };
       },
-      applyCoupon: (code) => {
-        set((state) => ({
-            coupons: state.coupons.map(c => 
-                c.code.toUpperCase() === code.toUpperCase()
-                ? { ...c, timesUsed: c.timesUsed + 1 }
-                : c
-            )
-        }));
+      applyCoupon: async (code) => {
+        const coupon = get().coupons.find(c => c.code.toUpperCase() === code.toUpperCase());
+        if (!coupon) return;
+        
+        const supabase = createClient();
+        const { error } = await supabase.from('coupons').update({ timesUsed: coupon.timesUsed + 1 }).eq('id', coupon.id);
+        
+        if (error) {
+            console.error("Error applying coupon:", error);
+        } else {
+            set((state) => ({
+                coupons: state.coupons.map(c => 
+                    c.id === coupon.id
+                    ? { ...c, timesUsed: c.timesUsed + 1 }
+                    : c
+                )
+            }));
+        }
       }
-    }),
-    {
-      name: 'topup-hub-coupons',
-    }
-  )
-);
+}));
+
+export function CouponsInitializer() {
+    const { isInitialized } = useAuth();
+    useEffect(() => {
+        if (isInitialized) {
+            useCoupons.getState().fetchCoupons();
+        }
+    }, [isInitialized]);
+    
+    return null;
+}

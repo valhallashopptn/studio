@@ -8,7 +8,7 @@ import type { Category } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, MoreHorizontal, Trash2, Edit, Package, Send, Plus, X } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Trash2, Edit, Package, Send, Plus, X, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +35,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { createClient } from '@/lib/supabaseClient';
+import { useToast } from '@/hooks/use-toast';
 
 const customFieldSchema = z.object({
   id: z.string(),
@@ -54,10 +56,11 @@ const categorySchema = z.object({
 });
 
 export default function AdminCategoriesPage() {
-  const { categories, addCategory, updateCategory, deleteCategory } = useCategories();
-  const [isMounted, setIsMounted] = useState(false);
+  const { categories, addCategory, updateCategory, deleteCategory, isLoading: isLoadingCategories } = useCategories();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [isUploading, setIsUploading] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof categorySchema>>({
     resolver: zodResolver(categorySchema),
@@ -75,10 +78,6 @@ export default function AdminCategoriesPage() {
   const imageUrl = form.watch('image');
   const backImageUrl = form.watch('backImage');
   const deliveryMethod = form.watch('deliveryMethod');
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
     if (isDialogOpen) {
@@ -114,45 +113,35 @@ export default function AdminCategoriesPage() {
     deleteCategory(categoryId);
   };
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'image' | 'backImage') => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          form.setValue('image', reader.result, { shouldValidate: true });
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setIsUploading(fieldName);
+    const supabase = createClient();
+    const filePath = `public/categories/${fieldName}-${Date.now()}-${file.name}`;
+    
+    const { error } = await supabase.storage.from('topup-hub-public').upload(filePath, file);
+
+    if (error) {
+        toast({ variant: "destructive", title: "Upload failed", description: error.message });
+        setIsUploading(null);
+        return;
     }
+
+    const { data } = supabase.storage.from('topup-hub-public').getPublicUrl(filePath);
+    form.setValue(fieldName, data.publicUrl, { shouldValidate: true });
+    setIsUploading(null);
   };
 
-  const handleBackImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          form.setValue('backImage', reader.result, { shouldValidate: true });
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-
-  function onSubmit(values: z.infer<typeof categorySchema>) {
+  async function onSubmit(values: z.infer<typeof categorySchema>) {
     if (editingCategory) {
-        updateCategory({ ...editingCategory, ...values });
+        await updateCategory({ ...editingCategory, ...values });
     } else {
-        addCategory(values);
+        await addCategory(values);
     }
     setIsDialogOpen(false);
     setEditingCategory(null);
-  }
-
-  if (!isMounted) {
-    return null;
   }
 
   return (
@@ -200,26 +189,26 @@ export default function AdminCategoriesPage() {
                                         alt="Category front image preview" 
                                         fill 
                                         className="object-contain rounded-md"
-                                        unoptimized={imageUrl.startsWith('data:image')}
+                                        unoptimized
                                     />
                                 </div>
                             )}
                         </div>
 
-                        <FormField control={form.control} name="image" render={() => (
-                            <FormItem>
-                                <FormLabel>Upload Front Image</FormLabel>
-                                <FormControl>
-                                    <Input 
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="file:text-primary file:font-semibold"
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}/>
+                        <FormItem>
+                            <FormLabel>Upload Front Image</FormLabel>
+                            <FormControl>
+                                <Input 
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleFileChange(e, 'image')}
+                                    className="file:text-primary file:font-semibold"
+                                    disabled={isUploading === 'image'}
+                                />
+                            </FormControl>
+                            {isUploading === 'image' && <Loader2 className="h-4 w-4 animate-spin" />}
+                            <FormMessage />
+                        </FormItem>
                         
                         <Separator />
 
@@ -232,26 +221,26 @@ export default function AdminCategoriesPage() {
                                         alt="Category back image preview" 
                                         fill 
                                         className="object-contain rounded-md"
-                                        unoptimized={backImageUrl.startsWith('data:image')}
+                                        unoptimized
                                     />
                                 </div>
                             )}
                         </div>
 
-                        <FormField control={form.control} name="backImage" render={() => (
-                            <FormItem>
-                                <FormLabel>Upload Back Image</FormLabel>
-                                <FormControl>
-                                    <Input 
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleBackImageFileChange}
-                                        className="file:text-primary file:font-semibold"
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}/>
+                         <FormItem>
+                            <FormLabel>Upload Back Image</FormLabel>
+                            <FormControl>
+                                <Input 
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleFileChange(e, 'backImage')}
+                                    className="file:text-primary file:font-semibold"
+                                    disabled={isUploading === 'backImage'}
+                                />
+                            </FormControl>
+                            {isUploading === 'backImage' && <Loader2 className="h-4 w-4 animate-spin" />}
+                            <FormMessage />
+                        </FormItem>
                     </div>
                     
                     <div className="space-y-4">
@@ -349,10 +338,12 @@ export default function AdminCategoriesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categories.map((category) => (
+              {isLoadingCategories ? (
+                <TableRow><TableCell colSpan={4} className="text-center h-24">Loading categories...</TableCell></TableRow>
+              ) : categories.map((category) => (
                 <TableRow key={category.id}>
                   <TableCell>
-                    <Image src={category.image} alt={category.name} width={40} height={40} className="rounded-md object-cover" unoptimized={category.image.startsWith('data:image')} />
+                    <Image src={category.image} alt={category.name} width={40} height={40} className="rounded-md object-cover" unoptimized />
                   </TableCell>
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell>

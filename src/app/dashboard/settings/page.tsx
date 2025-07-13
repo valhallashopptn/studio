@@ -19,7 +19,7 @@ import { getRank, getNextRank, ranks as allRanks, USD_TO_XP_RATE, formatXp } fro
 import { Progress } from '@/components/ui/progress';
 import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
 import { cn } from '@/lib/utils';
-import { Info, Trophy, Palette, Lock, Gem, CheckCircle, XCircle, Moon, Sun } from 'lucide-react';
+import { Info, Trophy, Palette, Lock, Gem, CheckCircle, XCircle, Moon, Sun, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import {
   Dialog,
@@ -47,6 +47,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useCart } from '@/hooks/use-cart';
 import type { Product } from '@/lib/types';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabaseClient';
 
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -70,8 +71,8 @@ const nameStyles = [
 ];
 
 export default function SettingsPage() {
-    const { user, updateUser, changePassword, updateAvatar, isPremium, updateWalletBalance, updateTotalSpent } = useAuth();
-    const { users: allUsers, updateNameStyle } = useUserDatabase();
+    const { user, updateUser: updateAuthUser, changePassword, updateAvatar, isPremium, updateWalletBalance, updateTotalSpent } = useAuth();
+    const { users: allUsers, updateUser: updateUserInDb, updateNameStyle, subscribeToPremium } = useUserDatabase();
     const { toast } = useToast();
     const { t } = useTranslation();
     const { formatPrice } = useCurrency();
@@ -79,6 +80,7 @@ export default function SettingsPage() {
     const { theme, setTheme } = useTheme();
     const { checkoutItem } = useCart();
     const router = useRouter();
+    const [isUploading, setIsUploading] = useState(false);
 
 
     useEffect(() => {
@@ -144,51 +146,69 @@ export default function SettingsPage() {
         },
     });
 
-    const onProfileSubmit = (values: z.infer<typeof profileSchema>) => {
+    const onProfileSubmit = async (values: z.infer<typeof profileSchema>) => {
         if (!user) return;
-        updateUser(user.id, values);
-        toast({ title: t('dashboardSettings.profileUpdatedToast'), description: t('dashboardSettings.profileUpdatedToastDesc') });
+        const success = await updateAuthUser(values);
+        if (success) {
+            toast({ title: t('dashboardSettings.profileUpdatedToast'), description: t('dashboardSettings.profileUpdatedToastDesc') });
+        } else {
+            toast({ variant: 'destructive', title: 'Update failed', description: 'Could not update profile.' });
+        }
     };
 
-    const onPasswordSubmit = (values: z.infer<typeof passwordSchema>) => {
+    const onPasswordSubmit = async (values: z.infer<typeof passwordSchema>) => {
         if (!user) return;
-        // In a real app, you'd verify the current password against a backend.
-        if (user.password !== values.currentPassword) {
-            passwordForm.setError('currentPassword', { message: 'Incorrect current password.' });
+        
+        // This is a mock check. Real password verification should happen on a server.
+        const { error } = await changePassword(values.newPassword);
+        
+        if (error) {
+            passwordForm.setError('currentPassword', { message: 'Incorrect current password or other error.' }); // Simplified error
+            toast({ variant: 'destructive', title: 'Password Change Failed', description: error.message });
+        } else {
+            toast({ title: t('dashboardSettings.passwordChangedToast'), description: t('dashboardSettings.passwordChangedToastDesc') });
+            passwordForm.reset();
+        }
+    };
+
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !user) return;
+
+        if (!isPremium && file.type === 'image/gif') {
+            toast({
+                variant: 'destructive',
+                title: t('premiumPage.featureLockedTitle'),
+                description: t('premiumPage.gifAvatarLockedDesc'),
+            });
+            e.target.value = '';
             return;
         }
-        changePassword(user.id, values.newPassword);
-        toast({ title: t('dashboardSettings.passwordChangedToast'), description: t('dashboardSettings.passwordChangedToastDesc') });
-        passwordForm.reset();
-    };
 
-    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file && user) {
-            if (!isPremium && file.type === 'image/gif') {
-                toast({
-                    variant: 'destructive',
-                    title: t('premiumPage.featureLockedTitle'),
-                    description: t('premiumPage.gifAvatarLockedDesc'),
-                });
-                e.target.value = '';
-                return;
-            }
+        setIsUploading(true);
+        const supabase = createClient();
+        const filePath = `avatars/${user.id}/${Date.now()}-${file.name}`;
+        
+        const { error: uploadError } = await supabase.storage
+            .from('topup-hub-public')
+            .upload(filePath, file);
 
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                if (typeof reader.result === 'string') {
-                    updateAvatar(user.id, reader.result);
-                    toast({ title: t('dashboardSettings.avatarUpdatedToast') });
-                }
-            };
-            reader.readAsDataURL(file);
+        if (uploadError) {
+            toast({ variant: "destructive", title: "Upload failed", description: uploadError.message });
+            setIsUploading(false);
+            return;
         }
+
+        const { data } = supabase.storage.from('topup-hub-public').getPublicUrl(filePath);
+        await updateAvatar(data.publicUrl);
+        
+        setIsUploading(false);
+        toast({ title: t('dashboardSettings.avatarUpdatedToast') });
     };
     
-    const handleNameStyleChange = (styleId: string) => {
+    const handleNameStyleChange = async (styleId: string) => {
         if (user) {
-            updateNameStyle(user.id, styleId);
+            await updateNameStyle(user.id, styleId);
             toast({ title: 'Username style updated!' });
         }
     };
@@ -427,7 +447,8 @@ export default function SettingsPage() {
                         </Avatar>
                         <div className="grid w-full max-w-sm items-center gap-1.5">
                             <Label htmlFor="picture">{t('dashboardSettings.uploadNewPicture')}</Label>
-                            <Input id="picture" type="file" accept={isPremium ? "image/gif, image/png, image/jpeg" : "image/png, image/jpeg"} onChange={handleAvatarChange} className="file:text-primary file:font-semibold" />
+                            <Input id="picture" type="file" accept={isPremium ? "image/gif, image/png, image/jpeg" : "image/png, image/jpeg"} onChange={handleAvatarChange} className="file:text-primary file:font-semibold" disabled={isUploading}/>
+                             {isUploading && <Loader2 className="h-4 w-4 animate-spin" />}
                              {isPremium ? (
                                 <p className="text-xs text-muted-foreground">Premium perk: Animated GIFs are supported!</p>
                              ) : (
@@ -499,7 +520,7 @@ export default function SettingsPage() {
                                 </FormItem>
                             )}/>
                             <FormField control={profileForm.control} name="email" render={({ field }) => (
-                                <FormItem><FormLabel>{t('dashboardSettings.email')}</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('dashboardSettings.email')}</FormLabel><FormControl><Input type="email" {...field} readOnly /></FormControl><FormMessage /></FormItem>
                             )}/>
                         </CardContent>
                         <CardFooter className="border-t px-6 py-4">

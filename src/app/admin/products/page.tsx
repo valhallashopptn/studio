@@ -2,8 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { products as initialProducts } from '@/lib/data';
-import type { Product, Category, ProductVariant } from '@/lib/types';
+import type { Product, ProductVariant } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -31,11 +30,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-// import { generateImage } from '@/ai/flows/generate-image-flow';
 import { Label } from '@/components/ui/label';
 import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
 import { useCategories } from '@/hooks/use-categories';
 import { Separator } from '@/components/ui/separator';
+import { useProducts } from '@/hooks/use-products';
 
 const productDetailSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -52,18 +51,15 @@ const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
   category: z.string().min(1, 'Category is required'),
-  image: z.string().min(1, 'Image is required').refine(val => val.startsWith('https://') || val.startsWith('data:image'), {
-    message: "Must be a valid URL or a generated data URI",
-  }),
-  aiHint: z.string().min(1, 'AI Hint is required'),
+  image: z.string().min(1, 'Image is required'),
+  aiHint: z.string().optional(),
   details: z.array(productDetailSchema).default([]),
   variants: z.array(productVariantSchema).min(1, "At least one product variant is required."),
 });
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const { categories } = useCategories();
-  const [isMounted, setIsMounted] = useState(false);
+  const { products, addProduct, updateProduct, deleteProduct, isLoading: isLoadingProducts } = useProducts();
+  const { categories, isLoading: isLoadingCategories } = useCategories();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -84,11 +80,6 @@ export default function AdminProductsPage() {
   });
 
   const imageUrl = form.watch('image');
-
-  useEffect(() => {
-    setProducts(initialProducts);
-    setIsMounted(true);
-  }, []);
 
    useEffect(() => {
     if (isDialogOpen) {
@@ -126,30 +117,15 @@ export default function AdminProductsPage() {
   };
   
   const handleDelete = (productId: string) => {
-    setProducts(prev => prev.filter(p => p.id !== productId));
+    deleteProduct(productId);
   };
 
   const handleGenerateImage = async () => {
-    // const hint = form.getValues('aiHint');
-    // if (!hint) {
-    //   form.setError('aiHint', { type: 'manual', message: 'Please provide an AI hint to generate an image.' });
-    //   return;
-    // }
-    // setIsGeneratingImage(true);
-    // form.clearErrors('image');
-    // try {
-    //   // const result = await generateImage({ prompt: `a professional product shot for an online store: ${hint}` });
-    //   // form.setValue('image', result.imageDataUri, { shouldValidate: true });
-    // } catch (error) {
-    //   console.error('Image generation failed:', error);
-    //   form.setError('image', { type: 'manual', message: 'AI image generation failed. Please try again.' });
-    // } finally {
-    //   setIsGeneratingImage(false);
-    // }
+    // This functionality will be re-enabled in a future step
   };
 
 
-  function onSubmit(values: z.infer<typeof productSchema>) {
+  async function onSubmit(values: z.infer<typeof productSchema>) {
     // Convert prices from TND back to USD for storage
     const valuesInUsd = {
         ...values,
@@ -160,20 +136,12 @@ export default function AdminProductsPage() {
     };
 
     if (editingProduct) {
-        setProducts(prev => prev.map(p => p.id === editingProduct.id ? { ...editingProduct, ...valuesInUsd } : p));
+        await updateProduct({ ...editingProduct, ...valuesInUsd });
     } else {
-        const newProduct: Product = {
-            id: `prod_${Date.now()}`,
-            ...valuesInUsd,
-        };
-        setProducts(prev => [...prev, newProduct]);
+        await addProduct(valuesInUsd as Omit<Product, 'id'>);
     }
     setIsDialogOpen(false);
     setEditingProduct(null);
-  }
-
-  if (!isMounted) {
-    return null;
   }
 
   return (
@@ -206,7 +174,8 @@ export default function AdminProductsPage() {
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl>
                         <SelectContent>
-                            {categories.map((cat) => (
+                            {isLoadingCategories ? <SelectItem value="loading" disabled>Loading...</SelectItem> : 
+                            categories.map((cat) => (
                                 <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
                             ))}
                         </SelectContent>
@@ -246,7 +215,7 @@ export default function AdminProductsPage() {
                     <Label>Product Image Preview</Label>
                     {imageUrl && (
                         <div className="relative aspect-video w-full rounded-md border bg-muted/20">
-                            <Image src={imageUrl} alt="Product image preview" fill className="object-contain rounded-md" unoptimized={imageUrl.startsWith('http') || imageUrl.startsWith('data:')}/>
+                            <Image src={imageUrl} alt="Product image preview" fill className="object-contain rounded-md" unoptimized/>
                         </div>
                     )}
                 </div>
@@ -311,7 +280,9 @@ export default function AdminProductsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product) => (
+            {isLoadingProducts ? (
+                <TableRow><TableCell colSpan={4} className="text-center h-24">Loading products...</TableCell></TableRow>
+              ) : products.map((product) => (
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>

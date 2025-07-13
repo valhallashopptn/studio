@@ -2,10 +2,10 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { User, AdminPermissions } from '@/lib/types';
-import { useAuth } from './use-auth';
 import { createClient } from '@/lib/supabaseClient';
+import { useEffect } from 'react';
+import { useAuth } from './use-auth';
 
 type UserDatabaseState = {
   users: User[];
@@ -14,15 +14,15 @@ type UserDatabaseState = {
   findUserByEmail: (email: string) => User | undefined;
   findUserById: (id: string) => User | undefined;
   updateUser: (userId: string, updates: Partial<User>) => Promise<boolean>;
-  addUser: (newUser: User) => Promise<void>;
+  addUser: (newUser: Omit<User, 'password'>) => Promise<void>;
   banUser: (userId: string, reason: string) => void;
   unbanUser: (userId: string) => void;
   sendWarning: (userId: string, message: string) => void;
   promoteToAdmin: (userId: string, permissions: AdminPermissions) => void;
   demoteAdmin: (userId: string) => void;
   updateAdminPermissions: (userId: string, permissions: AdminPermissions) => void;
-  subscribeToPremium: (userId: string, months?: number) => void;
-  updateNameStyle: (userId: string, styleId: string) => void;
+  subscribeToPremium: (userId: string, months?: number) => Promise<void>;
+  updateNameStyle: (userId: string, styleId: string) => Promise<void>;
 };
 
 export const useUserDatabase = create<UserDatabaseState>(
@@ -67,8 +67,7 @@ export const useUserDatabase = create<UserDatabaseState>(
 
         // Also update the currently logged-in user if they are the one being changed
         const { user: authUser, initializeAuth } = useAuth.getState();
-        if (authUser && authUser.id === userId && initializeAuth) {
-           const supabase = createClient();
+        if (authUser && authUser.id === userId) {
            const { data: { session } } = await supabase.auth.getSession();
            await initializeAuth(session);
         }
@@ -107,7 +106,7 @@ export const useUserDatabase = create<UserDatabaseState>(
       updateAdminPermissions: (userId, permissions) => {
         get().updateUser(userId, { permissions });
       },
-      subscribeToPremium: (userId, months = 1) => {
+      subscribeToPremium: async (userId, months = 1) => {
         const currentUser = get().findUserById(userId);
         if (!currentUser) return;
 
@@ -123,27 +122,29 @@ export const useUserDatabase = create<UserDatabaseState>(
         const premiumData = {
           subscribedAt: currentUser.premium?.subscribedAt || new Date().toISOString(),
           expiresAt: expiresAt.toISOString(),
+          status: 'active', // added status
         };
 
         const updates: Partial<User> = { premium: premiumData };
 
         if (!wasSubscribedBefore) {
-          const { updateValhallaCoins } = useAuth.getState();
-          updateValhallaCoins(userId, 500);
+            updates.valhallaCoins = (currentUser.valhallaCoins || 0) + 500;
         }
 
-        get().updateUser(userId, updates);
+        await get().updateUser(userId, updates);
       },
-      updateNameStyle: (userId, styleId) => {
-        get().updateUser(userId, { nameStyle: styleId });
+      updateNameStyle: async (userId, styleId) => {
+        await get().updateUser(userId, { nameStyle: styleId });
       },
     })
 );
 
-// Initializer component to fetch users
 export function UserDatabaseInitializer() {
+    const { isInitialized: isAuthInitialized } = useAuth();
     useEffect(() => {
-        useUserDatabase.getState().fetchInitialUsers();
-    }, []);
+        if (isAuthInitialized) {
+            useUserDatabase.getState().fetchInitialUsers();
+        }
+    }, [isAuthInitialized]);
     return null;
 }

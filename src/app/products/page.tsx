@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AppHeader } from '@/components/app-header';
 import { ProductCard } from '@/components/product-card';
-import { products } from '@/lib/data';
+import { useProducts } from '@/hooks/use-products';
 import { useCategories } from '@/hooks/use-categories';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +20,7 @@ import { Loader2 } from 'lucide-react';
 function ProductsPageContents() {
   const addItemToCart = useCart((state) => state.addItem);
   const { toast } = useToast();
+  const { products } = useProducts();
   const { categories } = useCategories();
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -57,7 +58,7 @@ function ProductsPageContents() {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, products]);
 
   const animationClass = isMounted ? 'opacity-0 animate-fade-in-up [animation-fill-mode:forwards]' : 'opacity-0';
 

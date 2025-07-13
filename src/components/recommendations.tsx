@@ -5,8 +5,6 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-// import { personalizedRecommendations } from '@/ai/flows/personalized-recommendations'
-import { getProductCatalogForAI } from '@/lib/data'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Loader2, Sparkles } from 'lucide-react'
 import { Skeleton } from './ui/skeleton'
 import { useTranslation } from '@/hooks/use-translation'
+import { useProducts } from '@/hooks/use-products'
 
 const recommendationSchema = z.object({
   purchaseHistory: z.string().min(10, "Please describe your past purchases in a bit more detail."),
@@ -24,6 +23,7 @@ export function Recommendations() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { t } = useTranslation();
+  const { products } = useProducts();
 
   const form = useForm<z.infer<typeof recommendationSchema>>({
     resolver: zodResolver(recommendationSchema),
@@ -32,22 +32,13 @@ export function Recommendations() {
     },
   })
 
+  const getProductCatalogForAI = () => products.map(p => `${p.name} - ${p.description}`).join('\n');
+
   async function onSubmit(values: z.infer<typeof recommendationSchema>) {
     setIsLoading(true)
     setRecommendations(null)
-    setError("This feature is temporarily disabled for static sites.");
+    setError("This feature is temporarily disabled.");
     setIsLoading(false);
-    // try {
-    //   const result = await personalizedRecommendations({
-    //     purchaseHistory: values.purchaseHistory,
-    //     productCatalog: getProductCatalogForAI(),
-    //   })
-    //   setRecommendations(result.recommendations)
-    // } catch (e) {
-    //   setError("Sorry, we couldn't generate recommendations at this time. Please try again later.")
-    // } finally {
-    //   setIsLoading(false)
-    // }
   }
 
   return (

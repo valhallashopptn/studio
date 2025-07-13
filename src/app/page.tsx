@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { AppHeader } from '@/components/app-header';
 import { ProductCard } from '@/components/product-card';
 import { CategoryCard } from '@/components/category-card';
-import { products } from '@/lib/data';
+import { useProducts } from '@/hooks/use-products';
 import { useCategories } from '@/hooks/use-categories';
 import { useCart } from '@/hooks/use-cart';
 import { useToast } from "@/hooks/use-toast";
@@ -25,6 +25,7 @@ import { Leaderboard } from '@/components/leaderboard';
 export default function Home() {
   const addItemToCart = useCart((state) => state.addItem);
   const { toast } = useToast();
+  const { products } = useProducts();
   const { categories } = useCategories();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -56,7 +57,7 @@ export default function Home() {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, products]);
 
   const productsToShow = filteredProducts.slice(0, 12);
 
@@ -87,7 +88,7 @@ export default function Home() {
                         priority
                         className="object-cover animate-slow-pan"
                         data-ai-hint="gaming background"
-                        unoptimized={heroImageUrl.startsWith('data:image')}
+                        unoptimized
                     />
                  )}
                 <div className="absolute inset-0 bg-background/60 backdrop-blur-sm"></div>

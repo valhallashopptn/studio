@@ -1,22 +1,43 @@
-import { products } from '@/lib/data';
-import { notFound } from 'next/navigation';
+
+'use client';
+
+import { useEffect, useState } from 'react';
+import { notFound, useParams } from 'next/navigation';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { ProductDetailClient } from '@/components/product-detail-client';
+import { useProducts } from '@/hooks/use-products';
+import { Loader2 } from 'lucide-react';
 
-export async function generateStaticParams() {
-  return products.map((product) => ({
-    id: product.id,
-  }));
-}
+export default function ProductDetailPage() {
+  const { products, isLoading } = useProducts();
+  const params = useParams();
+  const id = params.id as string;
+  
+  const [product, setProduct] = useState(null);
+  const [isProductLoading, setIsProductLoading] = useState(true);
 
-async function getProduct(id: string) {
-    const product = products.find(p => p.id === id);
-    return product;
-}
-
-export default async function ProductDetailPage({ params }: { params: { id: string } }) {
-  const product = await getProduct(params.id);
+  useEffect(() => {
+    if (!isLoading) {
+      const foundProduct = products.find(p => p.id === id);
+      if (foundProduct) {
+        setProduct(foundProduct);
+      }
+      setIsProductLoading(false);
+    }
+  }, [id, products, isLoading]);
+  
+  if (isProductLoading || isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <AppHeader />
+        <main className="flex-1 py-16 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </main>
+        <AppFooter />
+      </div>
+    );
+  }
 
   if (!product) {
     notFound();
