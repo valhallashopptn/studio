@@ -26,8 +26,6 @@ type AuthState = {
 
 const checkIsPremium = (user: User | null): boolean => {
   if (!user || !user.premium) return false;
-  // A user is premium if their subscription expiry date is in the future.
-  // The 'status' field only determines if it will renew, not if it's currently active.
   return new Date(user.premium.expiresAt) > new Date();
 };
 

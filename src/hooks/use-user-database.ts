@@ -21,7 +21,6 @@ type UserDatabaseState = {
   demoteAdmin: (userId: string) => void;
   updateAdminPermissions: (userId: string, permissions: AdminPermissions) => void;
   subscribeToPremium: (userId: string, months?: number) => void;
-  cancelSubscription: (userId: string) => void;
   updateNameStyle: (userId: string, styleId: string) => void;
 };
 
@@ -102,7 +101,6 @@ export const useUserDatabase = create(
         const expiresAt = new Date(currentSubEnd.setMonth(currentSubEnd.getMonth() + months));
 
         const premiumData = {
-          status: 'active' as const,
           subscribedAt: currentUser.premium?.subscribedAt || new Date().toISOString(),
           expiresAt: expiresAt.toISOString(),
         };
@@ -116,13 +114,6 @@ export const useUserDatabase = create(
         }
 
         get().updateUser(userId, updates);
-      },
-      cancelSubscription: (userId) => {
-        const currentUser = get().findUserById(userId);
-        if (!currentUser || !currentUser.premium) return;
-
-        const updatedPremiumData = { ...currentUser.premium, status: 'cancelled' as const };
-        get().updateUser(userId, { premium: updatedPremiumData });
       },
       updateNameStyle: (userId, styleId) => {
         get().updateUser(userId, { nameStyle: styleId });

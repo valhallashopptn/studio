@@ -44,6 +44,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useUserDatabase } from '@/hooks/use-user-database';
 import { format } from 'date-fns';
 import { useTheme } from '@/hooks/use-theme';
+import { useCart } from '@/hooks/use-cart';
+import type { Product } from '@/lib/types';
+import { useRouter } from 'next/navigation';
 
 const profileSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -68,12 +71,15 @@ const nameStyles = [
 
 export default function SettingsPage() {
     const { user, updateUser, changePassword, updateAvatar, isPremium, updateWalletBalance, updateTotalSpent } = useAuth();
-    const { users: allUsers, cancelSubscription, subscribeToPremium, updateNameStyle } = useUserDatabase();
+    const { users: allUsers, updateNameStyle } = useUserDatabase();
     const { toast } = useToast();
     const { t } = useTranslation();
     const { formatPrice } = useCurrency();
     const [isMounted, setIsMounted] = useState(false);
     const { theme, setTheme } = useTheme();
+    const { checkoutItem } = useCart();
+    const router = useRouter();
+
 
     useEffect(() => {
         setIsMounted(true);
@@ -100,24 +106,26 @@ export default function SettingsPage() {
     const amountToNextRank = nextRank ? nextRank.threshold - totalXp : 0;
     const selectedNameStyle = nameStyles.find(s => s.id === user?.nameStyle)?.className || '';
 
-    const premiumPriceUSD = 10 / CONVERSION_RATES.TND;
-    const canResubscribe = user && user.walletBalance >= premiumPriceUSD;
+    const handleBuyPremium = () => {
+        if (!user) return;
+        const premiumPriceTND = 10;
+        const premiumPriceUSD = premiumPriceTND / CONVERSION_RATES.TND;
+        // A "virtual" product that only exists for the checkout flow
+        const premiumProduct: Product = {
+          id: 'premium-membership-product',
+          name: t('premiumPage.productName'),
+          description: t('premiumPage.productDescription'),
+          variants: [{ id: 'monthly', name: t('premiumPage.month'), price: premiumPriceUSD }],
+          image: 'https://placehold.co/128x128.png', // A placeholder for the cart
+          category: 'Digital',
+          aiHint: 'premium membership gem',
+          details: [],
+        };
+        const premiumVariant = premiumProduct.variants[0];
 
-    const handleCancel = () => {
-      if (user) {
-        cancelSubscription(user.id);
-        toast({ title: t('dashboardSettings.cancelToastTitle'), description: t('dashboardSettings.cancelToastDesc') });
-      }
-    }
-    
-    const handleResubscribe = () => {
-      if (user && canResubscribe) {
-        updateWalletBalance(user.id, -premiumPriceUSD);
-        updateTotalSpent(user.id, premiumPriceUSD);
-        subscribeToPremium(user.id);
-        toast({ title: t('dashboardSettings.resubscribeToastTitle'), description: t('dashboardSettings.resubscribeToastDesc') });
-      }
-    }
+        checkoutItem(premiumProduct, premiumVariant, 1);
+        router.push('/checkout');
+    };
 
     const profileForm = useForm<z.infer<typeof profileSchema>>({
         resolver: zodResolver(profileSchema),
@@ -441,38 +449,30 @@ export default function SettingsPage() {
                     <CardDescription>{t('dashboardSettings.manageSubDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {user?.premium ? (
+                    {isPremium && user?.premium ? (
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
                             <Label>{t('dashboardSettings.statusLabel')}:</Label>
-                            <p className={cn("font-semibold flex items-center gap-1.5", isPremium ? 'text-green-500' : 'text-muted-foreground')}>
-                                {isPremium ? <CheckCircle className="h-4 w-4"/> : <XCircle className="h-4 w-4"/>}
-                                {isPremium ? t('dashboardSettings.activeStatus') : (user.premium.status === 'cancelled' ? t('dashboardSettings.cancelledStatus') : t('dashboardSettings.expiredStatus'))}
+                            <p className="font-semibold flex items-center gap-1.5 text-green-500">
+                                <CheckCircle className="h-4 w-4"/>
+                                {t('dashboardSettings.activeStatus')}
                             </p>
                         </div>
                         <div>
-                            <Label>{user.premium.status === 'active' ? t('dashboardSettings.renewsOnLabel') : t('dashboardSettings.expiresOnLabel')}</Label>
+                            <Label>{t('dashboardSettings.expiresOnLabel')}</Label>
                             <p className="font-semibold">{format(new Date(user.premium.expiresAt), 'PPP')}</p>
                         </div>
-
-                        {user.premium.status === 'active' && (
-                            <Button variant="destructive" onClick={handleCancel}>{t('dashboardSettings.cancelSubButton')}</Button>
-                        )}
-
-                        {!isPremium && (
-                        <div className="pt-2 border-t mt-4">
-                            <p className="text-sm text-muted-foreground mb-2">{t('dashboardSettings.resubscribePrompt')}</p>
-                            <Button onClick={handleResubscribe} disabled={!canResubscribe}>
-                                {t('dashboardSettings.resubscribeButton', { price: formatPrice(premiumPriceUSD) })}
-                            </Button>
-                            {!canResubscribe && <p className="text-xs text-destructive mt-1">{t('dashboardSettings.insufficientFunds')}</p>}
-                        </div>
-                        )}
+                        <Button onClick={handleBuyPremium}>
+                            <Gem className="mr-2 h-4 w-4" />
+                            Add another month
+                        </Button>
                     </div>
                     ) : (
                     <div>
                         <p className="text-muted-foreground">{t('dashboardSettings.noSubscription')}</p>
-                        <Button asChild className="mt-2"><Link href="/premium">{t('dashboardSettings.goPremiumButton')}</Link></Button>
+                        <Button onClick={handleBuyPremium} className="mt-2">
+                            {t('dashboardSettings.goPremiumButton')}
+                        </Button>
                     </div>
                     )}
                 </CardContent>

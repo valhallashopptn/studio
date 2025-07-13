@@ -87,7 +87,6 @@ export interface User {
   valhallaCoins: number;
   nameStyle?: string;
   premium?: {
-    status: 'active' | 'cancelled';
     subscribedAt: string; // ISO date string
     expiresAt: string; // ISO date string
   } | null;
