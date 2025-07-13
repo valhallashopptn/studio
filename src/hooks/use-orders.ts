@@ -79,12 +79,11 @@ export const useOrders = create(
                     // Process completion logic - only if moving from a non-completed state
                     if (status === 'completed' && previousStatus !== 'completed') {
                         const { updateTotalSpent, updateValhallaCoins } = useAuth.getState();
-                        const { findUserById } = useUserDatabase.getState();
+                        const { findUserById, subscribeToPremium } = useUserDatabase.getState();
                         
                         // Check for premium subscription item in the order
                         const premiumItem = orderToUpdate.items.find(item => item.productId === 'premium-membership-product');
                         if (premiumItem) {
-                            const { subscribeToPremium } = useAuth.getState();
                             subscribeToPremium(orderToUpdate.customer.id, premiumItem.quantity);
                         }
                         
