@@ -4,16 +4,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, AdminPermissions } from '@/lib/types';
-import { users as initialUsers } from '@/lib/data';
 import { useAuth } from './use-auth';
+import { createClient } from '@/lib/supabaseClient';
 
 type UserDatabaseState = {
   users: User[];
+  isInitialized: boolean;
+  fetchInitialUsers: () => Promise<void>;
   findUserByEmail: (email: string) => User | undefined;
-  findUser: (email: string, password?: string) => User | undefined;
   findUserById: (id: string) => User | undefined;
-  updateUser: (userId: string, updates: Partial<User>) => boolean;
-  addUser: (newUser: User) => void;
+  updateUser: (userId: string, updates: Partial<User>) => Promise<boolean>;
+  addUser: (newUser: User) => Promise<void>;
   banUser: (userId: string, reason: string) => void;
   unbanUser: (userId: string) => void;
   sendWarning: (userId: string, message: string) => void;
@@ -24,24 +25,34 @@ type UserDatabaseState = {
   updateNameStyle: (userId: string, styleId: string) => void;
 };
 
-export const useUserDatabase = create(
-  persist<UserDatabaseState>(
+export const useUserDatabase = create<UserDatabaseState>(
     (set, get) => ({
-      users: initialUsers,
+      users: [],
+      isInitialized: false,
+      fetchInitialUsers: async () => {
+          if (get().isInitialized) return;
+          const supabase = createClient();
+          const { data, error } = await supabase.from('users').select('*');
+          if (error) {
+              console.error("Error fetching initial users:", error);
+          } else {
+              set({ users: data as User[], isInitialized: true });
+          }
+      },
       findUserByEmail: (email) => {
         return get().users.find(u => u.email === email);
-      },
-      findUser: (email, password) => {
-        const users = get().users;
-        if (password) {
-          return users.find(u => u.email === email && u.password === password);
-        }
-        return users.find(u => u.email === email);
       },
       findUserById: (id) => {
         return get().users.find(u => u.id === id);
       },
-      updateUser: (userId, updates) => {
+      updateUser: async (userId, updates) => {
+        const supabase = createClient();
+        const { error } = await supabase.from('users').update(updates).eq('id', userId);
+        if (error) {
+            console.error("Error updating user:", error);
+            return false;
+        }
+        
         let userUpdated = false;
         set(state => {
           const newUsers = state.users.map(u => {
@@ -53,15 +64,24 @@ export const useUserDatabase = create(
           });
           return { users: newUsers };
         });
+
         // Also update the currently logged-in user if they are the one being changed
-        const { user: authUser, setUserState } = useAuth.getState() as any; // Use any to access internal setter
-        if (authUser && authUser.id === userId && setUserState) {
-          setUserState({ ...authUser, ...updates });
+        const { user: authUser, initializeAuth } = useAuth.getState();
+        if (authUser && authUser.id === userId && initializeAuth) {
+           const supabase = createClient();
+           const { data: { session } } = await supabase.auth.getSession();
+           await initializeAuth(session);
         }
         return userUpdated;
       },
-      addUser: (newUser) => {
-        set(state => ({ users: [...state.users, newUser] }));
+      addUser: async (newUser) => {
+          const supabase = createClient();
+          const { error } = await supabase.from('users').insert(newUser);
+          if (error) {
+              console.error("Error adding user:", error);
+              return;
+          }
+          set(state => ({ users: [...state.users, newUser] }));
       },
       banUser: (userId, reason) => {
         get().updateUser(userId, { 
@@ -107,7 +127,6 @@ export const useUserDatabase = create(
 
         const updates: Partial<User> = { premium: premiumData };
 
-        // Add 500 bonus coins if it's their very first time subscribing
         if (!wasSubscribedBefore) {
           const { updateValhallaCoins } = useAuth.getState();
           updateValhallaCoins(userId, 500);
@@ -118,36 +137,13 @@ export const useUserDatabase = create(
       updateNameStyle: (userId, styleId) => {
         get().updateUser(userId, { nameStyle: styleId });
       },
-    }),
-    {
-      name: 'topup-hub-user-database',
-      merge: (persistedState, currentState) => {
-        const persisted = persistedState as UserDatabaseState;
-        
-        // Ensure persisted state exists
-        if (!persisted || !persisted.users) {
-            return currentState;
-        }
-
-        const usersWithDefaults = persisted.users.map(user => {
-            const defaults = {
-                isBanned: user.isBanned ?? false,
-                bannedAt: user.bannedAt ?? null,
-                banReason: user.banReason ?? null,
-                warningMessage: user.warningMessage ?? null,
-                permissions: user.permissions ?? (user.isAdmin ? { canManageAdmins: true, canManageAppearance: true, canManageCategories: true, canManageCoupons: true, canManageOrders: true, canManageProducts: true, canManageUsers: true } : {}),
-            };
-
-            // **Force reset the "Zephyr" user's premium status**
-            if (user.id === 'user_1672532400003') {
-                return { ...user, ...defaults, premium: null };
-            }
-
-            return { ...user, ...defaults };
-        });
-
-        return { ...currentState, users: usersWithDefaults };
-      },
-    }
-  )
+    })
 );
+
+// Initializer component to fetch users
+export function UserDatabaseInitializer() {
+    useEffect(() => {
+        useUserDatabase.getState().fetchInitialUsers();
+    }, []);
+    return null;
+}
