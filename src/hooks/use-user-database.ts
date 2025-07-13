@@ -132,14 +132,29 @@ export const useUserDatabase = create(
       name: 'topup-hub-user-database',
       merge: (persistedState, currentState) => {
         const persisted = persistedState as UserDatabaseState;
-        const usersWithDefaults = (persisted.users || currentState.users).map(user => ({
-            ...user,
-            isBanned: user.isBanned ?? false,
-            bannedAt: user.bannedAt ?? null,
-            banReason: user.banReason ?? null,
-            warningMessage: user.warningMessage ?? null,
-            permissions: user.permissions ?? (user.isAdmin ? { canManageAdmins: true, canManageAppearance: true, canManageCategories: true, canManageCoupons: true, canManageOrders: true, canManageProducts: true, canManageUsers: true } : {}),
-        }));
+        
+        // Ensure persisted state exists
+        if (!persisted || !persisted.users) {
+            return currentState;
+        }
+
+        const usersWithDefaults = persisted.users.map(user => {
+            const defaults = {
+                isBanned: user.isBanned ?? false,
+                bannedAt: user.bannedAt ?? null,
+                banReason: user.banReason ?? null,
+                warningMessage: user.warningMessage ?? null,
+                permissions: user.permissions ?? (user.isAdmin ? { canManageAdmins: true, canManageAppearance: true, canManageCategories: true, canManageCoupons: true, canManageOrders: true, canManageProducts: true, canManageUsers: true } : {}),
+            };
+
+            // **Force reset the "Zephyr" user's premium status**
+            if (user.id === 'user_1672532400003') {
+                return { ...user, ...defaults, premium: null };
+            }
+
+            return { ...user, ...defaults };
+        });
+
         return { ...currentState, users: usersWithDefaults };
       },
     }
