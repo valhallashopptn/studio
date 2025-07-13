@@ -8,26 +8,23 @@ import { AppFooter } from '@/components/app-footer';
 import { ProductDetailClient } from '@/components/product-detail-client';
 import { useProducts } from '@/hooks/use-products';
 import { Loader2 } from 'lucide-react';
+import type { Product } from '@/lib/types';
 
 export default function ProductDetailPage() {
   const { products, isLoading } = useProducts();
   const params = useParams();
   const id = params.id as string;
   
-  const [product, setProduct] = useState(null);
-  const [isProductLoading, setIsProductLoading] = useState(true);
+  const [product, setProduct] = useState<Product | null | undefined>(undefined);
 
   useEffect(() => {
     if (!isLoading) {
       const foundProduct = products.find(p => p.id === id);
-      if (foundProduct) {
-        setProduct(foundProduct);
-      }
-      setIsProductLoading(false);
+      setProduct(foundProduct || null);
     }
   }, [id, products, isLoading]);
   
-  if (isProductLoading || isLoading) {
+  if (product === undefined || isLoading) {
     return (
       <div className="flex flex-col min-h-screen">
         <AppHeader />
@@ -39,7 +36,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  if (!product) {
+  if (product === null) {
     notFound();
   }
 

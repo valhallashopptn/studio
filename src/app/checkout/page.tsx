@@ -110,9 +110,10 @@ export default function CheckoutPage() {
     const categoryMap = useMemo(() => new Map(categories.map(c => [c.name, c])), [categories]);
 
     const itemsWithCustomFields = useMemo(() => items.filter(item => {
-        const category = categoryMap.get(item.category);
         const product = productMap.get(item.productId);
-        return product && category?.deliveryMethod === 'manual' && category.customFields.length > 0;
+        if (!product) return false;
+        const category = categoryMap.get(product.category);
+        return category?.deliveryMethod === 'manual' && (category.customFields?.length ?? 0) > 0;
     }), [items, categoryMap, productMap]);
 
     const subtotal = useMemo(() =>
@@ -232,7 +233,7 @@ export default function CheckoutPage() {
             }
         }
         
-        const newOrderData: Omit<Order, 'id' | 'createdAt'> = {
+        const newOrderData: Omit<Order, 'id' | 'createdAt' | 'customer' | 'reviewPrompted'> = {
             customerId: user!.id,
             items: items, // Pass the full cart items
             total,
@@ -325,7 +326,8 @@ export default function CheckoutPage() {
                                     </CardHeader>
                                     <CardContent className="space-y-6">
                                         {itemsWithCustomFields.map(item => {
-                                            const category = categoryMap.get(item.category) as Category;
+                                            const category = categoryMap.get(item.category);
+                                            if (!category) return null;
                                             return (
                                                 <div key={item.id} className="p-4 border rounded-lg">
                                                     <h3 className="font-semibold">{item.name} <span className="text-muted-foreground">({item.variant.name})</span></h3>

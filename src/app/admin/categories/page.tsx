@@ -65,6 +65,10 @@ export default function AdminCategoriesPage() {
   const form = useForm<z.infer<typeof categorySchema>>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
+      name: '',
+      description: '',
+      image: 'https://placehold.co/300x200.png',
+      backImage: 'https://placehold.co/300x200.png',
       deliveryMethod: 'manual',
       customFields: [],
     }

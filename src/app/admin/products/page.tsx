@@ -35,6 +35,9 @@ import { useCurrency, CONVERSION_RATES } from '@/hooks/use-currency';
 import { useCategories } from '@/hooks/use-categories';
 import { Separator } from '@/components/ui/separator';
 import { useProducts } from '@/hooks/use-products';
+import { generateImage } from '@/ai/flows/generate-image-flow';
+import { createClient } from '@/lib/supabaseClient';
+import { useToast } from '@/hooks/use-toast';
 
 const productDetailSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -63,7 +66,9 @@ export default function AdminProductsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const { formatPrice } = useCurrency();
+  const { toast } = useToast();
   
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -112,6 +117,14 @@ export default function AdminProductsPage() {
   };
 
   const handleAddNewClick = () => {
+    if (categories.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "No Categories Found",
+        description: "Please add a category before adding a product.",
+      });
+      return;
+    }
     setEditingProduct(null);
     setIsDialogOpen(true);
   };
@@ -121,7 +134,63 @@ export default function AdminProductsPage() {
   };
 
   const handleGenerateImage = async () => {
-    // This functionality will be re-enabled in a future step
+    const hint = form.getValues('aiHint');
+    if (!hint) {
+      toast({
+        variant: 'destructive',
+        title: 'AI Hint Required',
+        description: 'Please provide a hint for the AI to generate an image.',
+      });
+      return;
+    }
+
+    setIsGeneratingImage(true);
+    try {
+      const { imageDataUri } = await generateImage({ prompt: hint });
+      
+      // Convert data URI to blob for uploading
+      const response = await fetch(imageDataUri);
+      const blob = await response.blob();
+      const file = new File([blob], `${hint.replace(/\s+/g, '-')}.png`, { type: 'image/png' });
+      
+      await handleFileUpload(file, 'image-generation');
+
+    } catch (error) {
+      console.error('Error generating or uploading image:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Image Generation Failed',
+        description: 'Could not generate or upload the image. Please try again.',
+      });
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  const handleFileUpload = async (file: File, fieldName: string) => {
+    setIsUploading(true);
+    const supabase = createClient();
+    const filePath = `public/products/${fieldName}-${Date.now()}-${file.name}`;
+    
+    const { error } = await supabase.storage.from('topup-hub-public').upload(filePath, file);
+
+    if (error) {
+        toast({ variant: "destructive", title: "Upload failed", description: error.message });
+        setIsUploading(false);
+        return;
+    }
+
+    const { data } = supabase.storage.from('topup-hub-public').getPublicUrl(filePath);
+    form.setValue('image', data.publicUrl, { shouldValidate: true });
+    setIsUploading(false);
+    toast({ title: "Image uploaded successfully!" });
+  };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file, 'product-image');
+    }
   };
 
 
@@ -206,35 +275,48 @@ export default function AdminProductsPage() {
                 </div>
 
                 <Separator />
-
-                <FormField control={form.control} name="aiHint" render={({ field }) => (
-                    <FormItem><FormLabel>AI Hint for Image Generation</FormLabel><FormControl><Input placeholder="e.g. 'stack of gold coins for a game'" {...field} /></FormControl><FormMessage /></FormItem>
-                )}/>
                 
-                <div className="space-y-2">
-                    <Label>Product Image Preview</Label>
+                 <div className="space-y-4 rounded-lg border p-4">
+                  <div className="space-y-2">
+                      <Label htmlFor="aiHint">AI Image Generation</Label>
+                      <FormField control={form.control} name="aiHint" render={({ field }) => (
+                          <FormItem className="flex-grow">
+                              <FormControl>
+                                  <Input id="aiHint" placeholder="e.g., 'stack of gold coins for a game'" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                          </FormItem>
+                      )}/>
+                  </div>
+                  <Button type="button" onClick={handleGenerateImage} disabled={isGeneratingImage || isUploading} variant="secondary">
+                      {isGeneratingImage ? <Loader2 className="animate-spin" /> : <Sparkles />}
+                      <span className="ml-2">Generate Image</span>
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Product Image</Label>
                     {imageUrl && (
                         <div className="relative aspect-video w-full rounded-md border bg-muted/20">
                             <Image src={imageUrl} alt="Product image preview" fill className="object-contain rounded-md" unoptimized/>
                         </div>
                     )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <Label htmlFor="imageUrl">Image URL or Generate</Label>
-                    <div className="flex gap-2">
-                        <FormField control={form.control} name="image" render={({ field }) => (
-                            <FormItem className="flex-grow">
-                                <FormControl>
-                                    <Input id="imageUrl" placeholder="Enter URL or generate one" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}/>
-                        <Button type="button" onClick={handleGenerateImage} disabled={true} variant="secondary">
-                            {isGeneratingImage ? <Loader2 className="animate-spin" /> : <Sparkles />}
-                        </Button>
-                    </div>
+                  </div>
+                   <FormItem>
+                      <FormLabel>Or Upload Manually</FormLabel>
+                      <FormControl>
+                          <Input 
+                              type="file" 
+                              accept="image/*" 
+                              onChange={handleFileChange} 
+                              className="file:text-primary file:font-semibold"
+                              disabled={isUploading || isGeneratingImage}
+                          />
+                      </FormControl>
+                      {isUploading && <Loader2 className="h-4 w-4 animate-spin" />}
+                      <FormMessage />
+                  </FormItem>
                 </div>
 
                 <Separator />
