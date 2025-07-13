@@ -22,7 +22,7 @@ type UserDatabaseState = {
   updateAdminPermissions: (userId: string, permissions: AdminPermissions) => void;
   subscribeToPremium: (userId: string, months?: number) => void;
   cancelSubscription: (userId: string) => void;
-  updateNameStyle: (userId: string, style: string) => void;
+  updateNameStyle: (userId: string, styleId: string) => void;
 };
 
 export const useUserDatabase = create(
@@ -111,7 +111,8 @@ export const useUserDatabase = create(
 
         // Add 500 bonus coins if it's their very first time subscribing
         if (!wasSubscribedBefore) {
-          updates.valhallaCoins = (currentUser.valhallaCoins || 0) + 500;
+          const { updateValhallaCoins } = useAuth.getState();
+          updateValhallaCoins(userId, 500);
         }
 
         get().updateUser(userId, updates);
@@ -123,9 +124,8 @@ export const useUserDatabase = create(
         const updatedPremiumData = { ...currentUser.premium, status: 'cancelled' as const };
         get().updateUser(userId, { premium: updatedPremiumData });
       },
-      updateNameStyle: (userId, style) => {
-         const { updateUser } = get();
-         updateUser(userId, { nameStyle: style });
+      updateNameStyle: (userId, styleId) => {
+        get().updateUser(userId, { nameStyle: styleId });
       },
     }),
     {

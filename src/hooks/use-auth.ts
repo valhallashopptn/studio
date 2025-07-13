@@ -21,13 +21,14 @@ type AuthState = {
   updateWalletBalance: (userId: string, amount: number) => void;
   updateTotalSpent: (userId: string, amount: number) => void;
   updateValhallaCoins: (userId: string, amount: number) => void;
-  updateNameStyle: (userId: string, style: string) => void;
   clearWarning: (userId: string) => void;
 };
 
 const checkIsPremium = (user: User | null): boolean => {
   if (!user || !user.premium) return false;
-  return user.premium.status === 'active' && new Date(user.premium.expiresAt) > new Date();
+  // A user is premium if their subscription expiry date is in the future.
+  // The 'status' field only determines if it will renew, not if it's currently active.
+  return new Date(user.premium.expiresAt) > new Date();
 };
 
 
@@ -124,10 +125,6 @@ export const useAuth = create(
           const newTotal = userToUpdate.totalSpent + amount;
           updateUser(userId, { totalSpent: newTotal });
         }
-      },
-      updateNameStyle: (userId, style) => {
-         const { updateUser } = useUserDatabase.getState();
-         updateUser(userId, { nameStyle: style });
       },
       clearWarning: (userId) => {
         const { updateUser } = useUserDatabase.getState();
